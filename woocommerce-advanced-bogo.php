@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WC_Advanced_BOGO {
 
     const OPTION_KEY = 'wc_advanced_bogo_rules';
+    const TEMPLATE_OPTION_KEY = 'wc_advanced_bogo_template';
 
     public function __construct() {
         // Only load if WooCommerce is active
@@ -25,10 +26,11 @@ class WC_Advanced_BOGO {
             add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
-			add_action( 'admin_enqueue_scripts', function() {
+			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
 			
-				wp_enqueue_script( 'wc-advanced-bogo-admin', plugin_dir_url(__FILE__) . 'admin.js', [], null, true );
-			} );
+			// AJAX handlers for grab offer functionality
+			add_action( 'wp_ajax_grab_bogo_offer', [ $this, 'handle_grab_bogo_offer' ] );
+			add_action( 'wp_ajax_nopriv_grab_bogo_offer', [ $this, 'handle_grab_bogo_offer' ] );
 
         }
     }
@@ -40,6 +42,40 @@ class WC_Advanced_BOGO {
 			[],
 			'2.2.19'
 		);
+		
+		// Only enqueue on product pages
+		if ( is_product() ) {
+			$frontend_js_path = plugin_dir_path(__FILE__) . 'frontend.js';
+			$version = file_exists( $frontend_js_path ) ? filemtime( $frontend_js_path ) : '1.0.0';
+			
+			wp_enqueue_script(
+				'wc-advanced-bogo-frontend',
+				plugin_dir_url(__FILE__) . 'frontend.js',
+				['jquery'],
+				$version,
+				true
+			);
+			
+			// Localize script for AJAX
+			wp_localize_script( 'wc-advanced-bogo-frontend', 'bogoAjax', [
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'bogo_grab_offer_nonce' ),
+				'cartUrl' => wc_get_cart_url(),
+			]);
+		}
+	}
+
+	public function enqueue_admin_scripts( $hook ) {
+		// Only load on our BOGO settings page
+		if ( $hook === 'woocommerce_page_wc-advanced-bogo' ) {
+			wp_enqueue_script( 
+				'wc-advanced-bogo-admin', 
+				plugin_dir_url(__FILE__) . 'admin.js', 
+				['jquery'], 
+				filemtime( plugin_dir_path(__FILE__) . 'admin.js' ), 
+				true 
+			);
+		}
 	}
 
 
@@ -56,24 +92,70 @@ class WC_Advanced_BOGO {
 
     public function register_settings() {
         register_setting( 'wc_advanced_bogo', self::OPTION_KEY );
+        register_setting( 'wc_advanced_bogo', self::TEMPLATE_OPTION_KEY );
     }
 
     public function settings_page() {
         $rules = get_option( self::OPTION_KEY, [] );
+        $selected_template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
 
-        if ( isset( $_POST['bogo_rules'] ) ) {
-            check_admin_referer( 'save_bogo_rules' );
-            $rules = $_POST['bogo_rules'];
-            update_option( self::OPTION_KEY, $rules );
-            echo '<div class="updated"><p>BOGO rules saved.</p></div>';
+        if ( isset( $_POST['bogo_rules'] ) || isset( $_POST['bogo_template'] ) ) {
+            check_admin_referer( 'save_bogo_settings' );
+            
+            // Save template selection
+            if ( isset( $_POST['bogo_template'] ) ) {
+                update_option( self::TEMPLATE_OPTION_KEY, sanitize_text_field( $_POST['bogo_template'] ) );
+                $selected_template = sanitize_text_field( $_POST['bogo_template'] );
+            }
+            
+            // Filter out empty rules and reindex
+            $filtered_rules = [];
+            if ( is_array( $_POST['bogo_rules'] ) ) {
+                foreach ( $_POST['bogo_rules'] as $rule ) {
+                    // Only save rules that have at least buy_product and get_product set
+                    if ( !empty( $rule['buy_product'] ) && !empty( $rule['get_product'] ) && !empty( $rule['buy_qty'] ) ) {
+                        $filtered_rules[] = [
+                            'buy_product' => sanitize_text_field( $rule['buy_product'] ),
+                            'buy_qty'     => intval( $rule['buy_qty'] ),
+                            'get_product' => intval( $rule['get_product'] ),
+                            'get_qty'     => intval( $rule['get_qty'] ) ?: 1,
+                            'discount'    => intval( $rule['discount'] ),
+                            'start_date'  => sanitize_text_field( $rule['start_date'] ?? '' ),
+                            'end_date'    => sanitize_text_field( $rule['end_date'] ?? '' ),
+                        ];
+                    }
+                }
+            }
+            
+            update_option( self::OPTION_KEY, $filtered_rules );
+            echo '<div class="updated"><p>BOGO settings saved successfully!</p></div>';
         }
 
         $products = wc_get_products([
             'limit' => -1,
             'status' => 'publish',
         ]);
+        
+        // Ensure we have at least one empty rule for display
+        if ( empty( $rules ) ) {
+            $rules = [
+                [
+                    'buy_product' => '',
+                    'buy_qty'     => '',
+                    'get_product' => '',
+                    'get_qty'     => '1',
+                    'discount'    => '',
+                    'start_date'  => '',
+                    'end_date'    => '',
+                ]
+            ];
+        }
         ?>
+<<<<<<< HEAD
 		<style>
+=======
+        <style>
+>>>>>>> cursor/understand-woocommerce-advance-bogo-plugin-d571
             .remove-bogo-rule {
                 transition: all 0.2s ease;
                 border-radius: 4px !important;
@@ -82,88 +164,152 @@ class WC_Advanced_BOGO {
                 cursor: pointer;
                 box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
             }
+            .add-bogo-rule {
+                background: #007cba !important;
+                border-color: #007cba !important;
+                color: white !important;
+                margin-left: 10px;
+            }
+            .add-bogo-rule:hover {
+                background: #005a87 !important;
+                border-color: #005a87 !important;
+            }
+            .bogo-rules-container {
+                margin-bottom: 20px;
+            }
+            .no-rules-message {
+                text-align: center;
+                padding: 20px;
+                background: #f9f9f9;
+                border: 1px dashed #ccc;
+                margin: 10px 0;
+            }
         </style>
         <div class="wrap">
             <h1>WooCommerce Advanced BOGO</h1>
-            <form method="post">
-                <?php wp_nonce_field( 'save_bogo_rules' ); ?>
+            <form method="post" id="bogo-rules-form">
+                <?php wp_nonce_field( 'save_bogo_settings' ); ?>
 
-                <table class="widefat">
-                    <thead>
-                        <tr>
-                            <th>Buy Product</th>
-							<th>Buy Quantity</th>
-							<th>Get Product</th>
-							<th>Get Quantity</th>
-							<th>Discount (%)</th>
-							<th>Start Date</th>
-                            <th>End Date</th>
-							<th>Actions</th>
+                <!-- Template Selection Section -->
+                <div class="bogo-template-section" style="margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                    <h2>🎨 BOGO Message Template</h2>
+                    <p>Choose how your BOGO offers will appear to customers:</p>
+                    
+                    <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                        
+                        <?php 
+                        $available_templates = $this->get_available_templates();
+                        foreach ( $available_templates as $template_name ) :
+                            $template_info = $this->get_template_info( $template_name );
+                        ?>
+                        <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
+                            <label style="display: block; cursor: pointer;">
+                                <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-bottom: 10px;">
+                                <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
+                            </label>
+                            <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                                <?php echo esc_html( $template_info['description'] ); ?>
+                            </div>
+                            <div style="margin-top: 10px; padding: 10px; <?php echo esc_attr( $template_info['style'] ); ?> font-size: 11px; position: relative;">
+                                <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
+                                    <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
+                                <?php endif; ?>
+                                
+                                <strong><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
+                                <?php echo esc_html( $template_info['preview_text'] ); ?><br>
+                                <span style="background: <?php echo $template_name === 'template1' ? 'linear-gradient(to right, #10b981, #3b82f6)' : ($template_name === 'template2' ? 'rgba(255,255,255,0.2)' : 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'); ?>; color: <?php echo $template_name === 'template2' ? 'white' : 'white'; ?>; padding: 4px 8px; border-radius: <?php echo $template_name === 'template3' ? '25px' : '4px'; ?>; margin-top: 5px; display: inline-block; <?php echo $template_name === 'template2' ? 'border: 1px solid rgba(255,255,255,0.3);' : ''; ?> <?php echo $template_name === 'template3' ? 'box-shadow: 0 4px 15px rgba(0,0,0,0.2);' : ''; ?>">
+                                    <?php echo esc_html( $template_info['button_text'] ); ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-						<?php for ( $i = 0; $i < 5; $i++ ) :
-							$rule = isset( $rules[$i] ) ? $rules[$i] : [
-								'buy_product' => '',
-								'buy_qty'     => '',
-								'get_product' => '',
-								'get_qty'     => '1',
-								'discount'    => '',
-							];
-						?>
-						<tr class="bogo-rule-row">
-							<td>
-								<select name="bogo_rules[<?php echo $i; ?>][buy_product]">
-								<option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
-								<?php foreach ( $products as $product ) : ?>
-									<option value="<?php echo $product->get_id(); ?>"
-										<?php selected( $rule['buy_product'], $product->get_id() ); ?>>
-										<?php echo esc_html( $product->get_name() ); ?>
-									</option>
-								<?php endforeach; ?>
-							</select>
+                    </div>
+                </div>
 
-							</td>
-							<td>
-								<input type="number" name="bogo_rules[<?php echo $i; ?>][buy_qty]"
-									value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" />
-							</td>
-							<td>
-								<select name="bogo_rules[<?php echo $i; ?>][get_product]">
-									<option value="">— Select Product —</option>
-									<?php foreach ( $products as $product ) : ?>
-										<option value="<?php echo $product->get_id(); ?>"
-											<?php selected( $rule['get_product'], $product->get_id() ); ?>>
-											<?php echo esc_html( $product->get_name() ); ?>
-										</option>
-									<?php endforeach; ?>
-								</select>
-							</td>
-							<td>
-								<input type="number" name="bogo_rules[<?php echo $i; ?>][get_qty]"
-									value="<?php echo esc_attr( $rule['get_qty'] ); ?>" min="1" />
-							</td>
-							<td>
-								<input type="number" name="bogo_rules[<?php echo $i; ?>][discount]"
-									value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" />
-							</td>
-							<td><input type="date" name="bogo_rules[<?php echo $i; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" /></td>
-                            <td><input type="date" name="bogo_rules[<?php echo $i; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" /></td>
-							<!-- Remove button -->
-							<td>
-								<button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-									<span style="font-size: 16px; font-weight: bold;">×</span>
-								</button>
-							</td>
-						</tr>
-						<?php endfor; ?>
-					</tbody>
+                <div class="bogo-rules-container">
+                    <table class="widefat" id="bogo-rules-table">
+                        <thead>
+                            <tr>
+                                <th>Buy Product</th>
+                                <th>Buy Quantity</th>
+                                <th>Get Product</th>
+                                <th>Get Quantity</th>
+                                <th>Discount (%)</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bogo-rules-tbody">
+                            <?php foreach ( $rules as $index => $rule ) : ?>
+                            <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
+                                <td>
+                                    <select name="bogo_rules[<?php echo $index; ?>][buy_product]" required>
+                                        <option value="">— Select Product —</option>
+                                        <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
+                                        <?php foreach ( $products as $product ) : ?>
+                                            <option value="<?php echo $product->get_id(); ?>"
+                                                <?php selected( $rule['buy_product'], $product->get_id() ); ?>>
+                                                <?php echo esc_html( $product->get_name() ); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]"
+                                        value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required />
+                                </td>
+                                <td>
+                                    <select name="bogo_rules[<?php echo $index; ?>][get_product]" required>
+                                        <option value="">— Select Product —</option>
+                                        <?php foreach ( $products as $product ) : ?>
+                                            <option value="<?php echo $product->get_id(); ?>"
+                                                <?php selected( $rule['get_product'], $product->get_id() ); ?>>
+                                                <?php echo esc_html( $product->get_name() ); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]"
+                                        value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" />
+                                </td>
+                                <td>
+                                    <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]"
+                                        value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required />
+                                </td>
+                                <td>
+                                    <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" 
+                                        value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" />
+                                </td>
+                                <td>
+                                    <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" 
+                                        value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" />
+                                </td>
+                                <td>
+                                    <button type="button" class="button remove-bogo-rule" title="Remove this rule" 
+                                        style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <span style="font-size: 16px; font-weight: bold;">×</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
 
-                </table>
-                <p><input type="submit" class="button-primary" value="Save Rules"></p>
+                <div class="bogo-actions">
+                    <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
+                        + Add New Rule
+                    </button>
+                    <input type="submit" class="button-primary" value="Save Rules" style="margin-left: 10px;">
+                </div>
             </form>
-        </div>
+                </div>
+
+
+ 
         <?php
     }
 
@@ -172,11 +318,10 @@ class WC_Advanced_BOGO {
 		global $product;
 
 		$rules = get_option( self::OPTION_KEY, [] );
+		$template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
 		$now = date( 'Y-m-d' );
-		// echo '<pre>';
-		// print_r($rules);
-		// exit();
-		foreach ( $rules as $rule ) {
+		
+		foreach ( $rules as $index => $rule ) {
 			if ( ! empty( $rule['buy_product'] ) && ( $rule['buy_product'] === 'all' || intval( $rule['buy_product'] ) === $product->get_id() ) ) {
 				$buy_qty     = intval( $rule['buy_qty'] );
 				$get_qty     = intval( $rule['get_qty'] ) ?: 1;
@@ -193,30 +338,168 @@ class WC_Advanced_BOGO {
 
 					$get_image = $get_product->get_image( 'thumbnail' );
 					$get_name  = $get_product->get_name();
+					$current_product_id = $product->get_id();
+					$buy_product_id = $rule['buy_product'] === 'all' ? $current_product_id : intval( $rule['buy_product'] );
 
-					echo '
-						<div class="my-4 p-4 border border-gray-200 rounded-lg shadow-lg bg-white flex items-center gap-4">
-							<div class="relative w-24 h-24 flex-shrink-0">
-								' . $get_image . '
-								<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl">
-									🎁 Gift
-								</div>
-							</div>
-							<div class="flex-grow">
-								<h3 class="text-lg font-bold mb-1">Special Offer!</h3>
-								<p class="text-gray-700 text-sm">
-									Buy <span class="font-semibold">' . $buy_qty . '</span> of this product and get 
-									<span class="font-semibold">' . $get_qty . '</span> of 
-									<span class="font-semibold">' . esc_html( $get_name ) . '</span> 
-									' . esc_html( $discount_text ) . '
-								</p>
-							</div>
-						</div>
-					';
+					// Generate template based on selection
+					echo $this->get_bogo_template( 
+						$template, 
+						$buy_qty, 
+						$get_qty, 
+						$get_name, 
+						$discount_text, 
+						$get_image, 
+						$buy_product_id, 
+						$get_product->get_id(), 
+						$discount, 
+						$index 
+					);
 				}
 			}
 		}
 	}
+
+	private function get_bogo_template( $template, $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $buy_product_id, $get_product_id, $discount, $index ) {
+		return $this->load_template( $template, [
+			'buy_qty' => $buy_qty,
+			'get_qty' => $get_qty,
+			'get_name' => $get_name,
+			'discount_text' => $discount_text,
+			'get_image' => $get_image,
+			'buy_product_id' => $buy_product_id,
+			'get_product_id' => $get_product_id,
+			'discount' => $discount,
+			'index' => $index,
+			'common_button_data' => 'data-buy-product="' . esc_attr( $buy_product_id ) . '"
+				data-buy-qty="' . esc_attr( $buy_qty ) . '"
+				data-get-product="' . esc_attr( $get_product_id ) . '"
+				data-get-qty="' . esc_attr( $get_qty ) . '"
+				data-discount="' . esc_attr( $discount ) . '"
+				data-rule-index="' . esc_attr( $index ) . '"',
+			'loading_spinner' => '<div class="bogo-offer-loading hidden mt-3 text-center">
+				<div class="inline-flex items-center text-blue-600">
+					<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+					Adding to cart...
+				</div>
+			</div>'
+		]);
+	}
+
+	/**
+	 * Get available templates from the templates folder
+	 */
+	private function get_available_templates() {
+		$templates_dir = plugin_dir_path( __FILE__ ) . 'templates/';
+		$templates = [];
+
+		if ( is_dir( $templates_dir ) ) {
+			$files = glob( $templates_dir . 'template*.php' );
+			foreach ( $files as $file ) {
+				$template_name = basename( $file, '.php' );
+				$templates[] = $template_name;
+			}
+		}
+
+		// Fallback to default templates if none found
+		if ( empty( $templates ) ) {
+			$templates = ['template1', 'template2', 'template3'];
+		}
+
+		return $templates;
+	}
+
+	/**
+	 * Get template info (name, description, etc.)
+	 */
+	private function get_template_info( $template_name ) {
+		$template_info = [
+			'template1' => [
+				'name' => '🎁 Classic Template',
+				'description' => 'Clean gradient design with side-by-side layout. Professional and modern look.',
+				'preview_text' => 'Buy 2 of this product and get 1 of Premium Headphones for free!',
+				'button_text' => '🛒 Grab This Offer!',
+				'style' => 'background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%); border-radius: 6px;'
+			],
+			'template2' => [
+				'name' => '💎 Premium Card',
+				'description' => 'Elegant card design with glass-morphism effects and premium styling. Eye-catching and luxurious.',
+				'preview_text' => 'Buy 2 → Get 1 FREE!',
+				'button_text' => '✨ Claim Now!',
+				'style' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;'
+			],
+			'template3' => [
+				'name' => '🚀 Dynamic Burst',
+				'description' => 'Bold and vibrant design with attention-grabbing colors. Perfect for sales and promotions.',
+				'preview_text' => 'Limited Time: Buy More, Save More!',
+				'button_text' => '🎯 Get Deal!',
+				'style' => 'background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-radius: 15px;'
+			],
+			'template4' => [
+				'name' => '✨ Compact Elegant',
+				'description' => 'Small, professional card with subtle animations. Perfect for minimal designs.',
+				'preview_text' => 'Buy 2 → Get 1 | Premium Headphones',
+				'button_text' => 'Claim Deal',
+				'style' => 'background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;'
+			],
+			'template5' => [
+				'name' => '🏷️ Minimalist Badge',
+				'description' => 'Ultra-compact floating badge design. Subtle and clean for any layout.',
+				'preview_text' => 'Buy 2 → Get 1 FREE',
+				'button_text' => 'Grab',
+				'style' => 'background: linear-gradient(to right, #10b981, #06b6d4, #0ea5e9); color: white; border-radius: 25px; padding: 8px 16px; display: inline-block;'
+			],
+			'template6' => [
+				'name' => '🎯 Notification Strip',
+				'description' => 'Sleek horizontal notification bar with modern design. Great for highlighting deals.',
+				'preview_text' => 'Buy 2 items, get 1 Premium Headphones for free!',
+				'button_text' => 'Add to Cart',
+				'style' => 'background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);'
+			]
+		];
+
+		return isset( $template_info[$template_name] ) ? $template_info[$template_name] : $template_info['template1'];
+	}
+
+	/**
+	 * Global template loader function
+	 * Loads template files from the templates folder
+	 */
+	private function load_template( $template_name, $variables = [] ) {
+		// Get available templates dynamically
+		$available_templates = $this->get_available_templates();
+		
+		// Validate template name (security)
+		if ( ! in_array( $template_name, $available_templates ) ) {
+			$template_name = 'template1'; // fallback to default
+		}
+
+		// Build template file path
+		$template_file = plugin_dir_path( __FILE__ ) . 'templates/' . $template_name . '.php';
+		
+		// Check if template file exists
+		if ( ! file_exists( $template_file ) ) {
+			// Return error message if template not found
+			return '<div class="bogo-error" style="background: #ffebee; border: 1px solid #f44336; color: #d32f2f; padding: 10px; border-radius: 4px; margin: 10px 0;">
+				<strong>BOGO Template Error:</strong> Template "' . esc_html( $template_name ) . '" not found.
+				<br><small>Available templates: ' . implode( ', ', $available_templates ) . '</small>
+			</div>';
+		}
+
+		// Extract variables to make them available in template
+		extract( $variables );
+
+		// Capture template output
+		ob_start();
+		include $template_file;
+		$template_content = ob_get_clean();
+
+		return $template_content;
+	}
+
+
 
 
     /*public function display_bogo_message() {
@@ -349,6 +632,66 @@ class WC_Advanced_BOGO {
 		}
 
 		return $link;
+	}
+
+	public function handle_grab_bogo_offer() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'bogo_grab_offer_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		$buy_product_id = intval( $_POST['buy_product'] );
+		$buy_qty = intval( $_POST['buy_qty'] );
+		$get_product_id = intval( $_POST['get_product'] );
+		$get_qty = intval( $_POST['get_qty'] );
+		$discount = intval( $_POST['discount'] );
+
+		// Validate products exist
+		$buy_product = wc_get_product( $buy_product_id );
+		$get_product = wc_get_product( $get_product_id );
+
+		if ( ! $buy_product || ! $get_product ) {
+			wp_send_json_error( [
+				'message' => 'Invalid products specified.'
+			] );
+		}
+
+		// Check if products are in stock
+		if ( ! $buy_product->is_in_stock() || ! $get_product->is_in_stock() ) {
+			wp_send_json_error( [
+				'message' => 'One or more products are out of stock.'
+			] );
+		}
+
+		try {
+			// Add buy product to cart
+			$buy_cart_item_key = WC()->cart->add_to_cart( $buy_product_id, $buy_qty );
+			
+			if ( ! $buy_cart_item_key ) {
+				wp_send_json_error( [
+					'message' => 'Failed to add main product to cart.'
+				] );
+			}
+
+			// Add get product to cart (this will be handled by our BOGO logic automatically)
+			// The apply_bogo_discount function will detect the buy product and add the gift
+
+			// Get cart contents count for response
+			$cart_count = WC()->cart->get_cart_contents_count();
+			
+			wp_send_json_success( [
+				'message' => 'BOGO offer added to cart successfully!',
+				'cart_count' => $cart_count,
+				'buy_product_name' => $buy_product->get_name(),
+				'get_product_name' => $get_product->get_name(),
+				'cart_url' => wc_get_cart_url()
+			] );
+
+		} catch ( Exception $e ) {
+			wp_send_json_error( [
+				'message' => 'Error adding products to cart: ' . $e->getMessage()
+			] );
+		}
 	}
 
 }
