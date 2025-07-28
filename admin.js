@@ -1,14 +1,10 @@
-console.log('Admin.js file loaded');
-
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOMContentLoaded fired');
     let ruleIndex = 0;
 
     // Initialize rule counter based on existing rows
     function initializeRuleIndex() {
         const existingRows = document.querySelectorAll('.bogo-rule-row');
         ruleIndex = existingRows.length;
-        console.log('Initialized with', ruleIndex, 'existing rows');
     }
 
     // Add hover effects to a button
@@ -73,24 +69,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add a new empty rule
     function addEmptyRule() {
-        console.log('addEmptyRule called');
         const tbody = document.getElementById('bogo-rules-tbody');
         
         if (!tbody) {
-            console.error('tbody not found');
+            console.error('BOGO Error: Table body not found');
             return;
         }
-
-        console.log('tbody found, creating new row');
         
-        // Get existing row as template (much simpler approach)
+        // Get existing row as template
         const existingRow = document.querySelector('.bogo-rule-row');
         if (!existingRow) {
-            console.error('No existing row found to clone');
+            console.error('BOGO Error: No existing row found to clone');
             return;
         }
 
-        console.log('Cloning existing row');
         const newRow = existingRow.cloneNode(true);
         
         // Clear all values
@@ -115,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (name) {
                 const newName = name.replace(/\[\d+\]/, `[${ruleIndex}]`);
                 input.setAttribute('name', newName);
-                console.log('Updated name from', name, 'to', newName);
             }
         });
         
@@ -123,14 +114,12 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Append to tbody
         tbody.appendChild(newRow);
-        console.log('Row appended to tbody');
         
         // Add event listeners to the new row's remove button
         const removeButton = newRow.querySelector('.remove-bogo-rule');
         if (removeButton) {
             addButtonHoverEffects(removeButton);
             addRemoveHandler(removeButton);
-            console.log('Event listeners added to remove button');
         }
         
         ruleIndex++;
@@ -144,8 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
             newRow.style.opacity = '1';
             newRow.style.transform = 'translateY(0)';
         }, 10);
-        
-        console.log('New rule added successfully with index:', ruleIndex - 1);
     }
 
 
@@ -159,15 +146,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Add new rule button handler
-    console.log('Looking for add button...');
     const addButton = document.getElementById('add-bogo-rule');
-    console.log('Add button element:', addButton);
     
     if (addButton) {
-        console.log('Add button found, attaching event listener');
         addButton.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Add button clicked, current ruleIndex:', ruleIndex);
             addEmptyRule();
             
             // Scroll to the new rule
@@ -179,26 +162,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 100);
         });
-        
-        // Test direct call
-        console.log('Testing direct addEmptyRule call...');
-        // addEmptyRule(); // Uncomment to test
-        
     } else {
-        console.error('Add button not found!');
-        console.log('Available buttons:', document.querySelectorAll('button'));
-        console.log('Elements with add-bogo-rule class:', document.querySelectorAll('.add-bogo-rule'));
+        console.error('BOGO Error: Add button not found');
     }
 
     // Initialize everything
     initializeRuleIndex();
     initializeExistingButtons();
-    
-    // Make addEmptyRule available globally for testing
-    window.testAddRule = function() {
-        console.log('testAddRule called from window');
-        addEmptyRule();
-    };
 
     // Form validation before submit
     const form = document.getElementById('bogo-rules-form');

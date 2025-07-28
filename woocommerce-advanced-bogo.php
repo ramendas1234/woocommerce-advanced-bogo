@@ -228,23 +228,12 @@ class WC_Advanced_BOGO {
                     <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
                         + Add New Rule
                     </button>
-                    <button type="button" onclick="window.testAddRule && window.testAddRule()" class="button" style="margin-left: 10px;">
-                        🔧 Test Add (Debug)
-                    </button>
                     <input type="submit" class="button-primary" value="Save Rules" style="margin-left: 10px;">
                 </div>
             </form>
                 </div>
 
-        <script type="text/javascript">
-            console.log('Inline script loaded on BOGO page');
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOMContentLoaded - inline script');
-                console.log('Add button exists:', !!document.getElementById('add-bogo-rule'));
-                console.log('Tbody exists:', !!document.getElementById('bogo-rules-tbody'));
-                console.log('Existing rows:', document.querySelectorAll('.bogo-rule-row').length);
-            });
-        </script>
+
  
         <?php
     }
