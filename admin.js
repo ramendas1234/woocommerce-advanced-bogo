@@ -1,4 +1,7 @@
+console.log('Admin.js file loaded');
+
 document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOMContentLoaded fired');
     let ruleIndex = 0;
 
     // Initialize rule counter based on existing rows
@@ -156,7 +159,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Add new rule button handler
+    console.log('Looking for add button...');
     const addButton = document.getElementById('add-bogo-rule');
+    console.log('Add button element:', addButton);
+    
     if (addButton) {
         console.log('Add button found, attaching event listener');
         addButton.addEventListener('click', function(e) {
@@ -173,13 +179,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 100);
         });
+        
+        // Test direct call
+        console.log('Testing direct addEmptyRule call...');
+        // addEmptyRule(); // Uncomment to test
+        
     } else {
         console.error('Add button not found!');
+        console.log('Available buttons:', document.querySelectorAll('button'));
+        console.log('Elements with add-bogo-rule class:', document.querySelectorAll('.add-bogo-rule'));
     }
 
     // Initialize everything
     initializeRuleIndex();
     initializeExistingButtons();
+    
+    // Make addEmptyRule available globally for testing
+    window.testAddRule = function() {
+        console.log('testAddRule called from window');
+        addEmptyRule();
+    };
 
     // Form validation before submit
     const form = document.getElementById('bogo-rules-form');

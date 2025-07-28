@@ -25,10 +25,7 @@ class WC_Advanced_BOGO {
             add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
-			add_action( 'admin_enqueue_scripts', function() {
-			
-				wp_enqueue_script( 'wc-advanced-bogo-admin', plugin_dir_url(__FILE__) . 'admin.js', [], null, true );
-			} );
+			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
 
         }
     }
@@ -40,6 +37,19 @@ class WC_Advanced_BOGO {
 			[],
 			'2.2.19'
 		);
+	}
+
+	public function enqueue_admin_scripts( $hook ) {
+		// Only load on our BOGO settings page
+		if ( $hook === 'woocommerce_page_wc-advanced-bogo' ) {
+			wp_enqueue_script( 
+				'wc-advanced-bogo-admin', 
+				plugin_dir_url(__FILE__) . 'admin.js', 
+				['jquery'], 
+				filemtime( plugin_dir_path(__FILE__) . 'admin.js' ), 
+				true 
+			);
+		}
 	}
 
 
@@ -218,12 +228,24 @@ class WC_Advanced_BOGO {
                     <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
                         + Add New Rule
                     </button>
+                    <button type="button" onclick="window.testAddRule && window.testAddRule()" class="button" style="margin-left: 10px;">
+                        🔧 Test Add (Debug)
+                    </button>
                     <input type="submit" class="button-primary" value="Save Rules" style="margin-left: 10px;">
                 </div>
             </form>
-        </div>
+                </div>
 
-
+        <script type="text/javascript">
+            console.log('Inline script loaded on BOGO page');
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded - inline script');
+                console.log('Add button exists:', !!document.getElementById('add-bogo-rule'));
+                console.log('Tbody exists:', !!document.getElementById('bogo-rules-tbody'));
+                console.log('Existing rows:', document.querySelectorAll('.bogo-rule-row').length);
+            });
+        </script>
+ 
         <?php
     }
 
