@@ -73,6 +73,16 @@ class WC_Advanced_BOGO {
             'status' => 'publish',
         ]);
         ?>
+        <style>
+            .remove-bogo-rule {
+                transition: all 0.2s ease;
+                border-radius: 4px !important;
+            }
+            .remove-bogo-rule:hover {
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+            }
+        </style>
         <div class="wrap">
             <h1>WooCommerce Advanced BOGO</h1>
             <form method="post">
@@ -88,7 +98,7 @@ class WC_Advanced_BOGO {
 							<th>Discount (%)</th>
 							<th>Start Date</th>
                             <th>End Date</th>
-
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -101,7 +111,7 @@ class WC_Advanced_BOGO {
 								'discount'    => '',
 							];
 						?>
-						<tr>
+						<tr class="bogo-rule-row">
 							<td>
 								<select name="bogo_rules[<?php echo $i; ?>][buy_product]">
 								<option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
@@ -141,7 +151,9 @@ class WC_Advanced_BOGO {
                             <td><input type="date" name="bogo_rules[<?php echo $i; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" /></td>
 							<!-- Remove button -->
 							<td>
-								<button type="button" class="button remove-bogo-rule">Remove</button>
+								<button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+									<span style="font-size: 16px; font-weight: bold;">×</span>
+								</button>
 							</td>
 						</tr>
 						<?php endfor; ?>
