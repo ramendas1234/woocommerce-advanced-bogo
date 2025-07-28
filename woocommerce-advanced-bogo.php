@@ -193,57 +193,32 @@ class WC_Advanced_BOGO {
                     
                     <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
                         
-                        <!-- Template 1 - Classic -->
-                        <div class="template-option" style="border: 2px solid <?php echo $selected_template === 'template1' ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
+                        <?php 
+                        $available_templates = $this->get_available_templates();
+                        foreach ( $available_templates as $template_name ) :
+                            $template_info = $this->get_template_info( $template_name );
+                        ?>
+                        <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
                             <label style="display: block; cursor: pointer;">
-                                <input type="radio" name="bogo_template" value="template1" <?php checked( $selected_template, 'template1' ); ?> style="margin-bottom: 10px;">
-                                <strong>🎁 Classic Template</strong>
+                                <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-bottom: 10px;">
+                                <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
                             </label>
                             <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                                Clean gradient design with side-by-side layout. Professional and modern look.
+                                <?php echo esc_html( $template_info['description'] ); ?>
                             </div>
-                            <div style="margin-top: 10px; padding: 10px; background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%); border-radius: 6px; font-size: 11px;">
-                                <strong>🎉 Special BOGO Offer!</strong><br>
-                                Buy 2 of this product and get 1 of Premium Headphones for free!<br>
-                                <span style="background: linear-gradient(to right, #10b981, #3b82f6); color: white; padding: 4px 8px; border-radius: 4px; margin-top: 5px; display: inline-block;">🛒 Grab This Offer!</span>
-                            </div>
-                        </div>
-
-                        <!-- Template 2 - Card Style -->
-                        <div class="template-option" style="border: 2px solid <?php echo $selected_template === 'template2' ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
-                            <label style="display: block; cursor: pointer;">
-                                <input type="radio" name="bogo_template" value="template2" <?php checked( $selected_template, 'template2' ); ?> style="margin-bottom: 10px;">
-                                <strong>💎 Premium Card</strong>
-                            </label>
-                            <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                                Elegant card design with shadow effects and premium styling. Eye-catching and luxurious.
-                            </div>
-                            <div style="margin-top: 10px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; font-size: 11px; position: relative;">
-                                <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
-                                <strong>💎 Exclusive BOGO Deal!</strong><br>
-                                Buy 2 → Get 1 FREE!<br>
-                                <span style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 4px 8px; border-radius: 6px; margin-top: 5px; display: inline-block; border: 1px solid rgba(255,255,255,0.3);">✨ Claim Now!</span>
+                            <div style="margin-top: 10px; padding: 10px; <?php echo esc_attr( $template_info['style'] ); ?> font-size: 11px; position: relative;">
+                                <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
+                                    <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
+                                <?php endif; ?>
+                                
+                                <strong><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
+                                <?php echo esc_html( $template_info['preview_text'] ); ?><br>
+                                <span style="background: <?php echo $template_name === 'template1' ? 'linear-gradient(to right, #10b981, #3b82f6)' : ($template_name === 'template2' ? 'rgba(255,255,255,0.2)' : 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'); ?>; color: <?php echo $template_name === 'template2' ? 'white' : 'white'; ?>; padding: 4px 8px; border-radius: <?php echo $template_name === 'template3' ? '25px' : '4px'; ?>; margin-top: 5px; display: inline-block; <?php echo $template_name === 'template2' ? 'border: 1px solid rgba(255,255,255,0.3);' : ''; ?> <?php echo $template_name === 'template3' ? 'box-shadow: 0 4px 15px rgba(0,0,0,0.2);' : ''; ?>">
+                                    <?php echo esc_html( $template_info['button_text'] ); ?>
+                                </span>
                             </div>
                         </div>
-
-                        <!-- Template 3 - Animated Style -->
-                        <div class="template-option" style="border: 2px solid <?php echo $selected_template === 'template3' ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
-                            <label style="display: block; cursor: pointer;">
-                                <input type="radio" name="bogo_template" value="template3" <?php checked( $selected_template, 'template3' ); ?> style="margin-bottom: 10px;">
-                                <strong>🚀 Dynamic Burst</strong>
-                            </label>
-                            <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                                Bold and vibrant design with attention-grabbing colors. Perfect for sales and promotions.
-                            </div>
-                            <div style="margin-top: 10px; padding: 15px; background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-radius: 15px; font-size: 11px; position: relative; overflow: hidden;">
-                                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.1); backdrop-filter: blur(20px);"></div>
-                                <div style="position: relative; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                    <strong>🚀 MEGA BOGO BLAST!</strong><br>
-                                    Limited Time: Buy More, Save More!<br>
-                                    <span style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); padding: 6px 12px; border-radius: 25px; margin-top: 5px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">🎯 Get Deal!</span>
-                                </div>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
 
                     </div>
                 </div>
@@ -381,198 +356,125 @@ class WC_Advanced_BOGO {
 	}
 
 	private function get_bogo_template( $template, $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $buy_product_id, $get_product_id, $discount, $index ) {
-		$common_button_data = 'data-buy-product="' . esc_attr( $buy_product_id ) . '"
-			data-buy-qty="' . esc_attr( $buy_qty ) . '"
-			data-get-product="' . esc_attr( $get_product_id ) . '"
-			data-get-qty="' . esc_attr( $get_qty ) . '"
-			data-discount="' . esc_attr( $discount ) . '"
-			data-rule-index="' . esc_attr( $index ) . '"';
+		return $this->load_template( $template, [
+			'buy_qty' => $buy_qty,
+			'get_qty' => $get_qty,
+			'get_name' => $get_name,
+			'discount_text' => $discount_text,
+			'get_image' => $get_image,
+			'buy_product_id' => $buy_product_id,
+			'get_product_id' => $get_product_id,
+			'discount' => $discount,
+			'index' => $index,
+			'common_button_data' => 'data-buy-product="' . esc_attr( $buy_product_id ) . '"
+				data-buy-qty="' . esc_attr( $buy_qty ) . '"
+				data-get-product="' . esc_attr( $get_product_id ) . '"
+				data-get-qty="' . esc_attr( $get_qty ) . '"
+				data-discount="' . esc_attr( $discount ) . '"
+				data-rule-index="' . esc_attr( $index ) . '"',
+			'loading_spinner' => '<div class="bogo-offer-loading hidden mt-3 text-center">
+				<div class="inline-flex items-center text-blue-600">
+					<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+					Adding to cart...
+				</div>
+			</div>'
+		]);
+	}
 
-		$loading_spinner = '<div class="bogo-offer-loading hidden mt-3 text-center">
-			<div class="inline-flex items-center text-blue-600">
-				<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-				</svg>
-				Adding to cart...
-			</div>
-		</div>';
+	/**
+	 * Get available templates from the templates folder
+	 */
+	private function get_available_templates() {
+		$templates_dir = plugin_dir_path( __FILE__ ) . 'templates/';
+		$templates = [];
 
-		switch ( $template ) {
-			case 'template2':
-				return $this->get_template2( $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $common_button_data, $loading_spinner );
-			
-			case 'template3':
-				return $this->get_template3( $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $common_button_data, $loading_spinner );
-			
-			default: // template1
-				return $this->get_template1( $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $common_button_data, $loading_spinner );
+		if ( is_dir( $templates_dir ) ) {
+			$files = glob( $templates_dir . 'template*.php' );
+			foreach ( $files as $file ) {
+				$template_name = basename( $file, '.php' );
+				$templates[] = $template_name;
+			}
 		}
+
+		// Fallback to default templates if none found
+		if ( empty( $templates ) ) {
+			$templates = ['template1', 'template2', 'template3'];
+		}
+
+		return $templates;
 	}
 
-	private function get_template1( $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $common_button_data, $loading_spinner ) {
-		return '
-			<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg bg-white" style="background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);">
-				<div class="flex items-center gap-4">
-					<div class="relative w-24 h-24 flex-shrink-0">
-						' . $get_image . '
-						<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl">
-							🎁 Gift
-						</div>
-					</div>
-					<div class="flex-grow">
-						<h3 class="text-lg font-bold mb-1 text-gray-800">🎉 Special BOGO Offer!</h3>
-						<p class="text-gray-700 text-sm mb-3">
-							Buy <span class="font-semibold text-blue-600">' . $buy_qty . '</span> of this product and get 
-							<span class="font-semibold text-green-600">' . $get_qty . '</span> of 
-							<span class="font-semibold text-purple-600">' . esc_html( $get_name ) . '</span> 
-							<span class="font-bold text-red-600">' . esc_html( $discount_text ) . '</span>
-						</p>
-						<button 
-							class="grab-bogo-offer-btn inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm"
-							' . $common_button_data . '
-						>
-							<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-							</svg>
-							🛒 Grab This Offer!
-							<svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-							</svg>
-						</button>
-					</div>
-				</div>
-				' . $loading_spinner . '
-			</div>
-		';
+	/**
+	 * Get template info (name, description, etc.)
+	 */
+	private function get_template_info( $template_name ) {
+		$template_info = [
+			'template1' => [
+				'name' => '🎁 Classic Template',
+				'description' => 'Clean gradient design with side-by-side layout. Professional and modern look.',
+				'preview_text' => 'Buy 2 of this product and get 1 of Premium Headphones for free!',
+				'button_text' => '🛒 Grab This Offer!',
+				'style' => 'background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%); border-radius: 6px;'
+			],
+			'template2' => [
+				'name' => '💎 Premium Card',
+				'description' => 'Elegant card design with glass-morphism effects and premium styling. Eye-catching and luxurious.',
+				'preview_text' => 'Buy 2 → Get 1 FREE!',
+				'button_text' => '✨ Claim Now!',
+				'style' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;'
+			],
+			'template3' => [
+				'name' => '🚀 Dynamic Burst',
+				'description' => 'Bold and vibrant design with attention-grabbing colors. Perfect for sales and promotions.',
+				'preview_text' => 'Limited Time: Buy More, Save More!',
+				'button_text' => '🎯 Get Deal!',
+				'style' => 'background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-radius: 15px;'
+			]
+		];
+
+		return isset( $template_info[$template_name] ) ? $template_info[$template_name] : $template_info['template1'];
 	}
 
-	private function get_template2( $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $common_button_data, $loading_spinner ) {
-		return '
-			<div class="bogo-offer-container my-6 mx-auto max-w-md relative" style="perspective: 1000px;">
-				<div class="bg-gradient-to-br from-purple-600 via-blue-600 to-purple-800 rounded-2xl shadow-2xl p-6 text-white relative overflow-hidden transform hover:scale-105 transition-all duration-300" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-					
-					<!-- Special Badge -->
-					<div class="absolute top-0 right-0 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-bl-xl text-xs font-bold animate-pulse">
-						🔥 SPECIAL
-					</div>
-					
-					<!-- Decorative Elements -->
-					<div class="absolute top-4 left-4 w-8 h-8 bg-white bg-opacity-20 rounded-full"></div>
-					<div class="absolute bottom-6 right-6 w-12 h-12 bg-white bg-opacity-10 rounded-full"></div>
-					
-					<div class="relative z-10">
-						<div class="flex items-center mb-4">
-							<div class="relative w-20 h-20 mr-4">
-								' . str_replace('class="', 'class="rounded-xl shadow-lg ', $get_image) . '
-								<div class="absolute -top-2 -right-2 bg-yellow-400 text-purple-800 text-xs font-bold px-2 py-1 rounded-full">
-									💎 FREE
-								</div>
-							</div>
-							<div class="flex-grow">
-								<h3 class="text-xl font-bold mb-2 text-white">💎 Exclusive BOGO Deal!</h3>
-								<p class="text-purple-100 text-sm">
-									Buy <span class="font-bold text-yellow-300">' . $buy_qty . '</span> → Get <span class="font-bold text-green-300">' . $get_qty . '</span>
-									<br><span class="text-purple-200">' . esc_html( $get_name ) . '</span> <strong>' . esc_html( $discount_text ) . '</strong>
-								</p>
-							</div>
-						</div>
-						
-						<button 
-							class="grab-bogo-offer-btn w-full bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg border border-white border-opacity-30 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:bg-opacity-30 transform hover:scale-105 transition-all duration-200 text-sm"
-							' . $common_button_data . '
-							style="backdrop-filter: blur(10px);"
-						>
-							<div class="flex items-center justify-center">
-								<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-								</svg>
-								✨ Claim Now!
-								<svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-								</svg>
-							</div>
-						</button>
-					</div>
-				</div>
-				' . str_replace('text-blue-600', 'text-purple-600', $loading_spinner) . '
-			</div>
-		';
+	/**
+	 * Global template loader function
+	 * Loads template files from the templates folder
+	 */
+	private function load_template( $template_name, $variables = [] ) {
+		// Get available templates dynamically
+		$available_templates = $this->get_available_templates();
+		
+		// Validate template name (security)
+		if ( ! in_array( $template_name, $available_templates ) ) {
+			$template_name = 'template1'; // fallback to default
+		}
+
+		// Build template file path
+		$template_file = plugin_dir_path( __FILE__ ) . 'templates/' . $template_name . '.php';
+		
+		// Check if template file exists
+		if ( ! file_exists( $template_file ) ) {
+			// Return error message if template not found
+			return '<div class="bogo-error" style="background: #ffebee; border: 1px solid #f44336; color: #d32f2f; padding: 10px; border-radius: 4px; margin: 10px 0;">
+				<strong>BOGO Template Error:</strong> Template "' . esc_html( $template_name ) . '" not found.
+				<br><small>Available templates: ' . implode( ', ', $available_templates ) . '</small>
+			</div>';
+		}
+
+		// Extract variables to make them available in template
+		extract( $variables );
+
+		// Capture template output
+		ob_start();
+		include $template_file;
+		$template_content = ob_get_clean();
+
+		return $template_content;
 	}
 
-	private function get_template3( $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $common_button_data, $loading_spinner ) {
-		return '
-			<div class="bogo-offer-container my-6 relative">
-				<div class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-1 rounded-3xl shadow-2xl animate-pulse" style="background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); background-size: 400% 400%; animation: gradientShift 3s ease infinite;">
-					<div class="bg-black bg-opacity-80 backdrop-filter backdrop-blur-xl rounded-3xl p-6 relative overflow-hidden">
-						
-						<!-- Animated Background Elements -->
-						<div class="absolute inset-0 opacity-20">
-							<div class="absolute top-4 left-6 w-6 h-6 bg-yellow-400 rounded-full animate-bounce"></div>
-							<div class="absolute top-12 right-8 w-4 h-4 bg-pink-400 rounded-full animate-ping"></div>
-							<div class="absolute bottom-8 left-12 w-8 h-8 bg-blue-400 rounded-full animate-pulse"></div>
-						</div>
-						
-						<div class="relative z-10">
-							<div class="text-center mb-4">
-								<div class="inline-block bg-gradient-to-r from-yellow-400 to-red-500 text-black px-4 py-2 rounded-full text-xs font-black mb-3 animate-bounce">
-									🚀 MEGA BOGO BLAST!
-								</div>
-								<h3 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 mb-2">
-									LIMITED TIME OFFER!
-								</h3>
-							</div>
-							
-							<div class="flex items-center justify-center mb-6">
-								<div class="relative mr-4">
-									' . str_replace('class="', 'class="rounded-2xl shadow-2xl border-4 border-yellow-400 ', $get_image) . '
-									<div class="absolute -top-3 -right-3 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-spin" style="animation: spin 3s linear infinite;">
-										🎯 FREE!
-									</div>
-								</div>
-								<div class="text-center">
-									<div class="text-white text-lg font-bold mb-2">
-										Buy <span class="text-yellow-400 text-2xl font-black">' . $buy_qty . '</span> 
-										→ Get <span class="text-green-400 text-2xl font-black">' . $get_qty . '</span>
-									</div>
-									<div class="text-gray-300 text-sm">
-										<span class="text-cyan-400 font-semibold">' . esc_html( $get_name ) . '</span>
-										<br><strong class="text-yellow-400">' . esc_html( $discount_text ) . '</strong>
-									</div>
-								</div>
-							</div>
-							
-							<button 
-								class="grab-bogo-offer-btn w-full bg-gradient-to-r from-red-500 via-yellow-500 to-pink-500 text-white font-black py-4 px-8 rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 text-lg relative overflow-hidden"
-								' . $common_button_data . '
-								style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4); background-size: 200% 200%; animation: gradientShift 2s ease infinite;"
-							>
-								<div class="absolute inset-0 bg-white opacity-20 transform -skew-x-12 -translate-x-full hover:translate-x-full transition-transform duration-700"></div>
-								<div class="flex items-center justify-center relative z-10">
-									<svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-									</svg>
-									🎯 GET THIS DEAL NOW!
-									<svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-									</svg>
-								</div>
-							</button>
-						</div>
-					</div>
-				</div>
-				' . str_replace('text-blue-600', 'text-yellow-500', $loading_spinner) . '
-			</div>
-			
-			<style>
-				@keyframes gradientShift {
-					0% { background-position: 0% 50%; }
-					50% { background-position: 100% 50%; }
-					100% { background-position: 0% 50%; }
-				}
-			</style>
-		';
-	}
+
 
 
     /*public function display_bogo_message() {
