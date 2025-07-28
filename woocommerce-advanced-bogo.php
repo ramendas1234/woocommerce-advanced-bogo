@@ -191,25 +191,17 @@ class WC_Advanced_BOGO {
 						? 'for free!'
 						: "at {$discount}% off!";
 
-					$get_image = $get_product->get_image( 'thumbnail' );
 					$get_name  = $get_product->get_name();
 
 					echo '
-						<div class="my-4 p-4 border border-gray-200 rounded-lg shadow-lg bg-white flex items-center gap-4">
-							<div class="relative w-24 h-24 flex-shrink-0">
-								' . $get_image . '
-								<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl">
-									🎁 Gift
-								</div>
+						<div class="w-full bg-gradient-to-r from-blue-500 to-green-400 text-white rounded-lg shadow-md px-6 py-4 flex items-center gap-4 my-4 border-2 border-blue-300 relative overflow-hidden">
+							<div class="absolute left-0 top-0 h-full w-2 bg-yellow-400 rounded-l-lg"></div>
+							<div class="flex flex-col flex-grow">
+								<span class="uppercase tracking-widest text-xs font-bold mb-1">BOGO Deal</span>
+								<span class="text-lg font-semibold">Buy <span class="font-bold">' . $buy_qty . '</span> get <span class="font-bold">' . $get_qty . '</span> <span class="font-bold">' . esc_html( $get_name ) . '</span> ' . esc_html( $discount_text ) . '</span>
 							</div>
-							<div class="flex-grow">
-								<h3 class="text-lg font-bold mb-1">Special Offer!</h3>
-								<p class="text-gray-700 text-sm">
-									Buy <span class="font-semibold">' . $buy_qty . '</span> of this product and get 
-									<span class="font-semibold">' . $get_qty . '</span> of 
-									<span class="font-semibold">' . esc_html( $get_name ) . '</span> 
-									' . esc_html( $discount_text ) . '
-								</p>
+							<div class="ml-4 flex-shrink-0">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 10c-4.41 0-8-1.79-8-4V6c0-2.21 3.59-4 8-4s8 1.79 8 4v8c0 2.21-3.59 4-8 4z" /></svg>
 							</div>
 						</div>
 					';
