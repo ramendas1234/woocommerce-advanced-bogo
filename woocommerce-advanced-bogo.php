@@ -441,11 +441,11 @@ class WC_Advanced_BOGO {
 				'style' => 'background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;'
 			],
 			'template5' => [
-				'name' => '🏷️ Minimalist Badge',
-				'description' => 'Ultra-compact floating badge design. Subtle and clean for any layout.',
-				'preview_text' => 'Buy 2 → Get 1 FREE',
-				'button_text' => 'Grab',
-				'style' => 'background: linear-gradient(to right, #10b981, #06b6d4, #0ea5e9); color: white; border-radius: 25px; padding: 8px 16px; display: inline-block;'
+				'name' => '🌈 Modern Ribbon',
+				'description' => 'A vibrant ribbon-style banner with a modern gradient and bold call-to-action. Stands out on any product page.',
+				'preview_text' => 'Buy 2, Get 1 Free – Limited Time!',
+				'button_text' => 'Unlock Deal',
+				'style' => 'background: linear-gradient(90deg, #ff8a00 0%, #e52e71 100%); color: #fff; border-radius: 8px; padding: 14px 28px; box-shadow: 0 4px 16px rgba(229,46,113,0.15); font-weight: 600; letter-spacing: 0.5px;'
 			],
 			'template6' => [
 				'name' => '🎯 Notification Strip',
