@@ -26,6 +26,10 @@ class WC_Advanced_BOGO {
 			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
+			
+			// AJAX handlers for grab offer functionality
+			add_action( 'wp_ajax_grab_bogo_offer', [ $this, 'handle_grab_bogo_offer' ] );
+			add_action( 'wp_ajax_nopriv_grab_bogo_offer', [ $this, 'handle_grab_bogo_offer' ] );
 
         }
     }
@@ -37,6 +41,27 @@ class WC_Advanced_BOGO {
 			[],
 			'2.2.19'
 		);
+		
+		// Only enqueue on product pages
+		if ( is_product() ) {
+			$frontend_js_path = plugin_dir_path(__FILE__) . 'frontend.js';
+			$version = file_exists( $frontend_js_path ) ? filemtime( $frontend_js_path ) : '1.0.0';
+			
+			wp_enqueue_script(
+				'wc-advanced-bogo-frontend',
+				plugin_dir_url(__FILE__) . 'frontend.js',
+				['jquery'],
+				$version,
+				true
+			);
+			
+			// Localize script for AJAX
+			wp_localize_script( 'wc-advanced-bogo-frontend', 'bogoAjax', [
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'bogo_grab_offer_nonce' ),
+				'cartUrl' => wc_get_cart_url(),
+			]);
+		}
 	}
 
 	public function enqueue_admin_scripts( $hook ) {
@@ -244,10 +269,8 @@ class WC_Advanced_BOGO {
 
 		$rules = get_option( self::OPTION_KEY, [] );
 		$now = date( 'Y-m-d' );
-		// echo '<pre>';
-		// print_r($rules);
-		// exit();
-		foreach ( $rules as $rule ) {
+		
+		foreach ( $rules as $index => $rule ) {
 			if ( ! empty( $rule['buy_product'] ) && ( $rule['buy_product'] === 'all' || intval( $rule['buy_product'] ) === $product->get_id() ) ) {
 				$buy_qty     = intval( $rule['buy_qty'] );
 				$get_qty     = intval( $rule['get_qty'] ) ?: 1;
@@ -264,23 +287,53 @@ class WC_Advanced_BOGO {
 
 					$get_image = $get_product->get_image( 'thumbnail' );
 					$get_name  = $get_product->get_name();
+					$current_product_id = $product->get_id();
+					$buy_product_id = $rule['buy_product'] === 'all' ? $current_product_id : intval( $rule['buy_product'] );
 
 					echo '
-						<div class="my-4 p-4 border border-gray-200 rounded-lg shadow-lg bg-white flex items-center gap-4">
-							<div class="relative w-24 h-24 flex-shrink-0">
-								' . $get_image . '
-								<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl">
-									🎁 Gift
+						<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg bg-white" style="background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);">
+							<div class="flex items-center gap-4">
+								<div class="relative w-24 h-24 flex-shrink-0">
+									' . $get_image . '
+									<div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl">
+										🎁 Gift
+									</div>
+								</div>
+								<div class="flex-grow">
+									<h3 class="text-lg font-bold mb-1 text-gray-800">🎉 Special BOGO Offer!</h3>
+									<p class="text-gray-700 text-sm mb-3">
+										Buy <span class="font-semibold text-blue-600">' . $buy_qty . '</span> of this product and get 
+										<span class="font-semibold text-green-600">' . $get_qty . '</span> of 
+										<span class="font-semibold text-purple-600">' . esc_html( $get_name ) . '</span> 
+										<span class="font-bold text-red-600">' . esc_html( $discount_text ) . '</span>
+									</p>
+									<button 
+										class="grab-bogo-offer-btn inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm"
+										data-buy-product="' . esc_attr( $buy_product_id ) . '"
+										data-buy-qty="' . esc_attr( $buy_qty ) . '"
+										data-get-product="' . esc_attr( $get_product->get_id() ) . '"
+										data-get-qty="' . esc_attr( $get_qty ) . '"
+										data-discount="' . esc_attr( $discount ) . '"
+										data-rule-index="' . esc_attr( $index ) . '"
+									>
+										<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+										</svg>
+										🛒 Grab This Offer!
+										<svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+										</svg>
+									</button>
 								</div>
 							</div>
-							<div class="flex-grow">
-								<h3 class="text-lg font-bold mb-1">Special Offer!</h3>
-								<p class="text-gray-700 text-sm">
-									Buy <span class="font-semibold">' . $buy_qty . '</span> of this product and get 
-									<span class="font-semibold">' . $get_qty . '</span> of 
-									<span class="font-semibold">' . esc_html( $get_name ) . '</span> 
-									' . esc_html( $discount_text ) . '
-								</p>
+							<div class="bogo-offer-loading hidden mt-3 text-center">
+								<div class="inline-flex items-center text-blue-600">
+									<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+										<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+										<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									</svg>
+									Adding to cart...
+								</div>
 							</div>
 						</div>
 					';
@@ -420,6 +473,66 @@ class WC_Advanced_BOGO {
 		}
 
 		return $link;
+	}
+
+	public function handle_grab_bogo_offer() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'bogo_grab_offer_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		$buy_product_id = intval( $_POST['buy_product'] );
+		$buy_qty = intval( $_POST['buy_qty'] );
+		$get_product_id = intval( $_POST['get_product'] );
+		$get_qty = intval( $_POST['get_qty'] );
+		$discount = intval( $_POST['discount'] );
+
+		// Validate products exist
+		$buy_product = wc_get_product( $buy_product_id );
+		$get_product = wc_get_product( $get_product_id );
+
+		if ( ! $buy_product || ! $get_product ) {
+			wp_send_json_error( [
+				'message' => 'Invalid products specified.'
+			] );
+		}
+
+		// Check if products are in stock
+		if ( ! $buy_product->is_in_stock() || ! $get_product->is_in_stock() ) {
+			wp_send_json_error( [
+				'message' => 'One or more products are out of stock.'
+			] );
+		}
+
+		try {
+			// Add buy product to cart
+			$buy_cart_item_key = WC()->cart->add_to_cart( $buy_product_id, $buy_qty );
+			
+			if ( ! $buy_cart_item_key ) {
+				wp_send_json_error( [
+					'message' => 'Failed to add main product to cart.'
+				] );
+			}
+
+			// Add get product to cart (this will be handled by our BOGO logic automatically)
+			// The apply_bogo_discount function will detect the buy product and add the gift
+
+			// Get cart contents count for response
+			$cart_count = WC()->cart->get_cart_contents_count();
+			
+			wp_send_json_success( [
+				'message' => 'BOGO offer added to cart successfully!',
+				'cart_count' => $cart_count,
+				'buy_product_name' => $buy_product->get_name(),
+				'get_product_name' => $get_product->get_name(),
+				'cart_url' => wc_get_cart_url()
+			] );
+
+		} catch ( Exception $e ) {
+			wp_send_json_error( [
+				'message' => 'Error adding products to cart: ' . $e->getMessage()
+			] );
+		}
 	}
 
 }
