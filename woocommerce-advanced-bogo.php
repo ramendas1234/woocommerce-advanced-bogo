@@ -432,6 +432,27 @@ class WC_Advanced_BOGO {
 				'preview_text' => 'Limited Time: Buy More, Save More!',
 				'button_text' => '🎯 Get Deal!',
 				'style' => 'background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-radius: 15px;'
+			],
+			'template4' => [
+				'name' => '✨ Compact Elegant',
+				'description' => 'Small, professional card with subtle animations. Perfect for minimal designs.',
+				'preview_text' => 'Buy 2 → Get 1 | Premium Headphones',
+				'button_text' => 'Claim Deal',
+				'style' => 'background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%); border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;'
+			],
+			'template5' => [
+				'name' => '🏷️ Minimalist Badge',
+				'description' => 'Ultra-compact floating badge design. Subtle and clean for any layout.',
+				'preview_text' => 'Buy 2 → Get 1 FREE',
+				'button_text' => 'Grab',
+				'style' => 'background: linear-gradient(to right, #10b981, #06b6d4, #0ea5e9); color: white; border-radius: 25px; padding: 8px 16px; display: inline-block;'
+			],
+			'template6' => [
+				'name' => '🎯 Notification Strip',
+				'description' => 'Sleek horizontal notification bar with modern design. Great for highlighting deals.',
+				'preview_text' => 'Buy 2 items, get 1 Premium Headphones for free!',
+				'button_text' => 'Add to Cart',
+				'style' => 'background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);'
 			]
 		];
 
