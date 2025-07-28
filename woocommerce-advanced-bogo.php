@@ -223,53 +223,7 @@ class WC_Advanced_BOGO {
             </form>
         </div>
 
-        <!-- Hidden template for new rows -->
-        <template id="bogo-rule-template">
-            <tr class="bogo-rule-row" data-index="__INDEX__">
-                <td>
-                    <select name="bogo_rules[__INDEX__][buy_product]" required>
-                        <option value="">— Select Product —</option>
-                        <option value="all">— All Products —</option>
-                        <?php foreach ( $products as $product ) : ?>
-                            <option value="<?php echo $product->get_id(); ?>">
-                                <?php echo esc_html( $product->get_name() ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-                <td>
-                    <input type="number" name="bogo_rules[__INDEX__][buy_qty]" min="1" required />
-                </td>
-                <td>
-                    <select name="bogo_rules[__INDEX__][get_product]" required>
-                        <option value="">— Select Product —</option>
-                        <?php foreach ( $products as $product ) : ?>
-                            <option value="<?php echo $product->get_id(); ?>">
-                                <?php echo esc_html( $product->get_name() ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-                <td>
-                    <input type="number" name="bogo_rules[__INDEX__][get_qty]" value="1" min="1" />
-                </td>
-                <td>
-                    <input type="number" name="bogo_rules[__INDEX__][discount]" min="0" max="100" required />
-                </td>
-                <td>
-                    <input type="date" name="bogo_rules[__INDEX__][start_date]" />
-                </td>
-                <td>
-                    <input type="date" name="bogo_rules[__INDEX__][end_date]" />
-                </td>
-                <td>
-                    <button type="button" class="button remove-bogo-rule" title="Remove this rule" 
-                        style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 16px; font-weight: bold;">×</span>
-                    </button>
-                </td>
-            </tr>
-        </template>
+
         <?php
     }
 

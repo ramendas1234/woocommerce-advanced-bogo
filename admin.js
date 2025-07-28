@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function initializeRuleIndex() {
         const existingRows = document.querySelectorAll('.bogo-rule-row');
         ruleIndex = existingRows.length;
+        console.log('Initialized with', ruleIndex, 'existing rows');
     }
 
     // Add hover effects to a button
@@ -69,40 +70,82 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add a new empty rule
     function addEmptyRule() {
-        const template = document.getElementById('bogo-rule-template');
+        console.log('addEmptyRule called');
         const tbody = document.getElementById('bogo-rules-tbody');
         
-        if (template && tbody) {
-            const clone = template.content.cloneNode(true);
-            const row = clone.querySelector('.bogo-rule-row');
-            
-            // Replace __INDEX__ with actual index
-            const html = row.outerHTML.replace(/__INDEX__/g, ruleIndex);
-            row.outerHTML = html;
-            
-            tbody.appendChild(clone);
-            
-            // Add event listeners to the new row's remove button
-            const newRow = tbody.lastElementChild;
-            const removeButton = newRow.querySelector('.remove-bogo-rule');
-            if (removeButton) {
-                addButtonHoverEffects(removeButton);
-                addRemoveHandler(removeButton);
-            }
-            
-            ruleIndex++;
-            
-            // Add slide-in effect
-            newRow.style.opacity = '0';
-            newRow.style.transform = 'translateY(-10px)';
-            newRow.style.transition = 'all 0.3s ease';
-            
-            setTimeout(() => {
-                newRow.style.opacity = '1';
-                newRow.style.transform = 'translateY(0)';
-            }, 10);
+        if (!tbody) {
+            console.error('tbody not found');
+            return;
         }
+
+        console.log('tbody found, creating new row');
+        
+        // Get existing row as template (much simpler approach)
+        const existingRow = document.querySelector('.bogo-rule-row');
+        if (!existingRow) {
+            console.error('No existing row found to clone');
+            return;
+        }
+
+        console.log('Cloning existing row');
+        const newRow = existingRow.cloneNode(true);
+        
+        // Clear all values
+        const inputs = newRow.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.type === 'number' && input.name.includes('get_qty')) {
+                input.value = '1';
+            } else {
+                input.value = '';
+            }
+        });
+        
+        const selects = newRow.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+        });
+        
+        // Update all name attributes with new index
+        const allInputs = newRow.querySelectorAll('input, select');
+        allInputs.forEach(input => {
+            const name = input.getAttribute('name');
+            if (name) {
+                const newName = name.replace(/\[\d+\]/, `[${ruleIndex}]`);
+                input.setAttribute('name', newName);
+                console.log('Updated name from', name, 'to', newName);
+            }
+        });
+        
+        newRow.setAttribute('data-index', ruleIndex);
+        
+        // Append to tbody
+        tbody.appendChild(newRow);
+        console.log('Row appended to tbody');
+        
+        // Add event listeners to the new row's remove button
+        const removeButton = newRow.querySelector('.remove-bogo-rule');
+        if (removeButton) {
+            addButtonHoverEffects(removeButton);
+            addRemoveHandler(removeButton);
+            console.log('Event listeners added to remove button');
+        }
+        
+        ruleIndex++;
+        
+        // Add slide-in effect
+        newRow.style.opacity = '0';
+        newRow.style.transform = 'translateY(-10px)';
+        newRow.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            newRow.style.opacity = '1';
+            newRow.style.transform = 'translateY(0)';
+        }, 10);
+        
+        console.log('New rule added successfully with index:', ruleIndex - 1);
     }
+
+
 
     // Initialize existing remove buttons
     function initializeExistingButtons() {
@@ -115,7 +158,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add new rule button handler
     const addButton = document.getElementById('add-bogo-rule');
     if (addButton) {
-        addButton.addEventListener('click', function() {
+        console.log('Add button found, attaching event listener');
+        addButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Add button clicked, current ruleIndex:', ruleIndex);
             addEmptyRule();
             
             // Scroll to the new rule
@@ -127,6 +173,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 100);
         });
+    } else {
+        console.error('Add button not found!');
     }
 
     // Initialize everything
