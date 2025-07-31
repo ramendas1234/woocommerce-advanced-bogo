@@ -69,8 +69,138 @@ class WC_Advanced_BOGO {
 		// Add WordPress render hooks for blocks
 		add_filter( 'render_block', [ $this, 'add_cart_blocks_hint_to_block' ], 10, 2 );
 		
+		// Add React hooks for cart blocks
+		add_action( 'init', [ $this, 'register_react_hooks' ] );
+		
 		// Add JavaScript for dynamic cart blocks
 		add_action( 'wp_footer', [ $this, 'add_cart_blocks_js' ] );
+	}
+
+	/**
+	 * Register React hooks for cart blocks
+	 */
+	public function register_react_hooks() {
+		// Add React component for cart item hints
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_react_assets' ] );
+		
+		// Add data to cart blocks
+		add_filter( 'woocommerce_store_api_cart_item_data', [ $this, 'add_bogo_data_to_cart_item' ], 10, 2 );
+	}
+
+	/**
+	 * Enqueue React assets for cart blocks
+	 */
+	public function enqueue_react_assets() {
+		if ( !is_cart() && !is_checkout() ) {
+			return;
+		}
+		
+		wp_enqueue_script(
+			'wc-advanced-bogo-cart-blocks',
+			plugin_dir_url( __FILE__ ) . 'cart-blocks.js',
+			array( 'wp-element', 'wp-components', 'wp-data' ),
+			'1.0.0',
+			true
+		);
+		
+		wp_localize_script( 'wc-advanced-bogo-cart-blocks', 'wcAdvancedBogoCart', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
+			'rules' => $this->get_bogo_rules_for_js()
+		) );
+	}
+
+	/**
+	 * Add BOGO data to cart item for React components
+	 */
+	public function add_bogo_data_to_cart_item( $cart_item_data, $cart_item ) {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		$bogo_hint = '';
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Check if this cart item matches the buy product
+			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						$bogo_hint = array(
+							'remaining_qty' => $remaining_qty,
+							'get_qty' => $get_qty,
+							'get_product_name' => $get_product->get_name(),
+							'discount_text' => $discount_text,
+							'rule_index' => $index
+						);
+						break;
+					}
+				}
+			}
+		}
+		
+		if ( $bogo_hint ) {
+			$cart_item_data['bogo_hint'] = $bogo_hint;
+		}
+		
+		return $cart_item_data;
+	}
+
+	/**
+	 * Get BOGO rules for JavaScript
+	 */
+	private function get_bogo_rules_for_js() {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		$active_rules = array();
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$active_rules[] = array(
+				'index' => $index,
+				'buy_product' => $rule['buy_product'],
+				'buy_qty' => intval( $rule['buy_qty'] ),
+				'get_product' => intval( $rule['get_product'] ),
+				'get_qty' => intval( $rule['get_qty'] ) ?: 1,
+				'discount' => intval( $rule['discount'] )
+			);
+		}
+		
+		return $active_rules;
 	}
 
 	/**
