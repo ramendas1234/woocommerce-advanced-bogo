@@ -323,6 +323,28 @@ class WC_Advanced_BOGO {
                                                        data-color-type="background">
                                             </div>
                                         </div>
+                                        <div>
+                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Background:</label>
+                                            <div style="position: relative; display: inline-block;">
+                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_bg]" 
+                                                       value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>" 
+                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                       data-color-type="button_bg">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Text:</label>
+                                            <div style="position: relative; display: inline-block;">
+                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_text]" 
+                                                       value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>" 
+                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                       data-color-type="button_text">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -332,7 +354,9 @@ class WC_Advanced_BOGO {
                                     <?php endif; ?>
                                     <strong style="color: <?php echo esc_attr( $text_color ); ?>;"><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
                                     <span style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 11px;"><?php echo esc_html( $template_info['preview_text'] ); ?></span><br>
-                                    <span style="background: linear-gradient(45deg, <?php echo esc_attr( $primary_color ); ?>, <?php echo esc_attr( $secondary_color ); ?>); color: <?php echo esc_attr( $text_color ); ?>; padding: 6px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; font-size: 11px; font-weight: bold;">
+                                    <span style="background: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>; color: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>; padding: 6px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; font-size: 11px; font-weight: bold;"
+                                          data-button-bg="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>"
+                                          data-button-text="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>">
                                         <?php echo esc_html( $template_info['button_text'] ); ?>
                                     </span>
                                 </div>
@@ -366,30 +390,89 @@ class WC_Advanced_BOGO {
                 
                 <script>
                 jQuery(document).ready(function($) {
-                    // Handle color picker changes
-                    $('input[type="color"]').on('change', function() {
+                    // Handle color picker changes with instant preview
+                    $('input[type="color"]').on('input change', function() {
                         var template = $(this).data('template');
                         var colorType = $(this).data('color-type');
                         var color = $(this).val();
+                        var templateOption = $(this).closest('.template-option');
                         
                         // Update the color preview span
                         $(this).siblings('span').css('background-color', color);
                         
-                        // Update the preview section
-                        var previewSection = $(this).closest('.template-option').find('.template-option > div:last-child');
-                        if (colorType === 'background') {
-                            previewSection.css('background-color', color);
-                        } else if (colorType === 'text') {
-                            previewSection.find('strong, span').css('color', color);
-                        } else if (colorType === 'primary' || colorType === 'secondary') {
-                            // Update gradient button
-                            var primaryColor = previewSection.find('input[data-color-type="primary"]').val();
-                            var secondaryColor = previewSection.find('input[data-color-type="secondary"]').val();
-                            previewSection.find('span:last-child').css('background', 'linear-gradient(45deg, ' + primaryColor + ', ' + secondaryColor + ')');
+                        // Update the preview section based on color type
+                        var previewSection = templateOption.find('> div:last-child');
+                        var previewButton = previewSection.find('span[data-button-bg]');
+                        
+                        switch(colorType) {
+                            case 'background':
+                                previewSection.css('background-color', color);
+                                break;
+                            case 'text':
+                                previewSection.find('strong, span:not([data-button-bg])').css('color', color);
+                                break;
+                            case 'primary':
+                            case 'secondary':
+                                // Update gradient if both colors are available
+                                var primaryColor = templateOption.find('input[data-color-type="primary"]').val();
+                                var secondaryColor = templateOption.find('input[data-color-type="secondary"]').val();
+                                if (primaryColor && secondaryColor) {
+                                    previewButton.css('background', 'linear-gradient(45deg, ' + primaryColor + ', ' + secondaryColor + ')');
+                                }
+                                break;
+                            case 'button_bg':
+                                previewButton.css('background-color', color);
+                                previewButton.attr('data-button-bg', color);
+                                break;
+                            case 'button_text':
+                                previewButton.css('color', color);
+                                previewButton.attr('data-button-text', color);
+                                break;
                         }
+                        
+                        // Add visual feedback
+                        $(this).closest('div').addClass('color-changed');
+                        setTimeout(function() {
+                            $(this).closest('div').removeClass('color-changed');
+                        }.bind(this), 200);
                     });
+                    
+                    // Handle template selection changes
+                    $('input[name="bogo_template"]').on('change', function() {
+                        var selectedTemplate = $(this).val();
+                        $('.template-option').removeClass('selected-template');
+                        $(this).closest('.template-option').addClass('selected-template');
+                    });
+                    
+                    // Initialize selected template
+                    $('input[name="bogo_template"]:checked').closest('.template-option').addClass('selected-template');
                 });
                 </script>
+                
+                <style>
+                .template-option {
+                    transition: all 0.3s ease;
+                }
+                .template-option.selected-template {
+                    border-color: #007cba !important;
+                    box-shadow: 0 0 0 1px #007cba;
+                }
+                .color-changed {
+                    animation: colorPulse 0.2s ease-in-out;
+                }
+                @keyframes colorPulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.02); }
+                    100% { transform: scale(1); }
+                }
+                input[type="color"] {
+                    cursor: pointer;
+                }
+                input[type="color"]:hover {
+                    transform: scale(1.05);
+                    transition: transform 0.2s ease;
+                }
+                </style>
             <?php endif; ?>
         </div>
         <style>
