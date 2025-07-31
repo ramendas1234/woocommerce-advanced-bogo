@@ -253,114 +253,157 @@ class WC_Advanced_BOGO {
                         <p>Choose how your BOGO offers will appear to customers:</p>
                         <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 15px;">
                             <?php 
-                            $available_templates = $this->get_available_templates();
-                            $template_count = 0;
-                            foreach ( $available_templates as $template_name ) :
-                                $template_count++;
-                                if ($template_count > 3) break; // Only show first 3 templates
-                                $template_info = $this->get_template_info( $template_name );
-                                
-                                // Get saved colors for this template
-                                $primary_color = get_option( "bogo_template_{$template_name}_primary_color", '#007cba' );
-                                $secondary_color = get_option( "bogo_template_{$template_name}_secondary_color", '#28a745' );
-                                $text_color = get_option( "bogo_template_{$template_name}_text_color", '#ffffff' );
-                                $background_color = get_option( "bogo_template_{$template_name}_background_color", '#ffffff' );
-                            ?>
-                            <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 20px; background: white;">
-                                <label style="display: block; cursor: pointer;">
-                                    <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-bottom: 10px;">
-                                    <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
-                                </label>
-                                <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                                    <?php echo esc_html( $template_info['description'] ); ?>
-                                </div>
-                                
-                                <!-- Color Palette Settings -->
-                                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                                    <h4 style="margin: 0 0 15px 0; font-size: 14px; color: #333;">🎨 Color Settings</h4>
-                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
-                                        <div>
-                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Primary Color:</label>
-                                            <div style="position: relative; display: inline-block;">
-                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $primary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
-                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][primary]" 
-                                                       value="<?php echo esc_attr( $primary_color ); ?>" 
-                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
-                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
-                                                       data-color-type="primary">
+                                $available_templates = $this->get_available_templates();
+                                $template_count = 0;
+                                foreach ( $available_templates as $template_name ) :
+                                    $template_count++;
+                                    if ($template_count > 3) break; // Only show first 3 templates
+                                    $template_info = $this->get_template_info( $template_name );
+                                    
+                                    // Default attractive color combinations for each template
+                                    $default_colors = array(
+                                        'template1' => array(
+                                            'primary' => '#3B82F6',
+                                            'secondary' => '#10B981', 
+                                            'text' => '#1F2937',
+                                            'background' => '#F8FAFC',
+                                            'button_bg' => '#3B82F6',
+                                            'button_text' => '#FFFFFF'
+                                        ),
+                                        'template2' => array(
+                                            'primary' => '#8B5CF6',
+                                            'secondary' => '#EC4899',
+                                            'text' => '#FFFFFF',
+                                            'background' => '#1E1B4B',
+                                            'button_bg' => '#EC4899',
+                                            'button_text' => '#FFFFFF'
+                                        ),
+                                        'template3' => array(
+                                            'primary' => '#F59E0B',
+                                            'secondary' => '#EF4444',
+                                            'text' => '#FFFFFF',
+                                            'background' => '#7C2D12',
+                                            'button_bg' => '#F59E0B',
+                                            'button_text' => '#FFFFFF'
+                                        )
+                                    );
+                                    
+                                    // Get saved colors or use defaults
+                                    $primary_color = get_option( "bogo_template_{$template_name}_primary_color", $default_colors[$template_name]['primary'] );
+                                    $secondary_color = get_option( "bogo_template_{$template_name}_secondary_color", $default_colors[$template_name]['secondary'] );
+                                    $text_color = get_option( "bogo_template_{$template_name}_text_color", $default_colors[$template_name]['text'] );
+                                    $background_color = get_option( "bogo_template_{$template_name}_background_color", $default_colors[$template_name]['background'] );
+                                    $button_bg_color = get_option( "bogo_template_{$template_name}_button_bg_color", $default_colors[$template_name]['button_bg'] );
+                                    $button_text_color = get_option( "bogo_template_{$template_name}_button_text_color", $default_colors[$template_name]['button_text'] );
+                                ?>
+                                <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 20px; background: white;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <label style="display: block; cursor: pointer; margin: 0;">
+                                            <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-right: 8px;">
+                                            <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
+                                        </label>
+                                        <button type="button" class="button reset-colors-btn" 
+                                                data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                style="font-size: 11px; padding: 4px 8px; background: #f8f9fa; border: 1px solid #ddd; color: #666; border-radius: 3px;">
+                                            🔄 Reset Colors
+                                        </button>
+                                    </div>
+                                    <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                                        <?php echo esc_html( $template_info['description'] ); ?>
+                                    </div>
+                                    
+                                    <!-- Color Palette Settings -->
+                                    <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                        <h4 style="margin: 0 0 15px 0; font-size: 14px; color: #333;">🎨 Color Settings</h4>
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                                            <div>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Primary Color:</label>
+                                                <div style="position: relative; display: inline-block;">
+                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $primary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][primary]" 
+                                                           value="<?php echo esc_attr( $primary_color ); ?>" 
+                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                           data-color-type="primary"
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['primary'] ); ?>">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Secondary Color:</label>
-                                            <div style="position: relative; display: inline-block;">
-                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $secondary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
-                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][secondary]" 
-                                                       value="<?php echo esc_attr( $secondary_color ); ?>" 
-                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
-                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
-                                                       data-color-type="secondary">
+                                            <div>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Secondary Color:</label>
+                                                <div style="position: relative; display: inline-block;">
+                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $secondary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][secondary]" 
+                                                           value="<?php echo esc_attr( $secondary_color ); ?>" 
+                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                           data-color-type="secondary"
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['secondary'] ); ?>">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Text Color:</label>
-                                            <div style="position: relative; display: inline-block;">
-                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
-                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][text]" 
-                                                       value="<?php echo esc_attr( $text_color ); ?>" 
-                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
-                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
-                                                       data-color-type="text">
+                                            <div>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Text Color:</label>
+                                                <div style="position: relative; display: inline-block;">
+                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][text]" 
+                                                           value="<?php echo esc_attr( $text_color ); ?>" 
+                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                           data-color-type="text"
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['text'] ); ?>">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Background Color:</label>
-                                            <div style="position: relative; display: inline-block;">
-                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $background_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
-                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][background]" 
-                                                       value="<?php echo esc_attr( $background_color ); ?>" 
-                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
-                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
-                                                       data-color-type="background">
+                                            <div>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Background Color:</label>
+                                                <div style="position: relative; display: inline-block;">
+                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $background_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][background]" 
+                                                           value="<?php echo esc_attr( $background_color ); ?>" 
+                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                           data-color-type="background"
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['background'] ); ?>">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Background:</label>
-                                            <div style="position: relative; display: inline-block;">
-                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>; vertical-align: middle; margin-right: 8px;"></span>
-                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_bg]" 
-                                                       value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>" 
-                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
-                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
-                                                       data-color-type="button_bg">
+                                            <div>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Background:</label>
+                                                <div style="position: relative; display: inline-block;">
+                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $button_bg_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_bg]" 
+                                                           value="<?php echo esc_attr( $button_bg_color ); ?>" 
+                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                           data-color-type="button_bg"
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['button_bg'] ); ?>">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Text:</label>
-                                            <div style="position: relative; display: inline-block;">
-                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>; vertical-align: middle; margin-right: 8px;"></span>
-                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_text]" 
-                                                       value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>" 
-                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
-                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
-                                                       data-color-type="button_text">
+                                            <div>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Text:</label>
+                                                <div style="position: relative; display: inline-block;">
+                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $button_text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_text]" 
+                                                           value="<?php echo esc_attr( $button_text_color ); ?>" 
+                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                           data-color-type="button_text"
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['button_text'] ); ?>">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <div style="margin-top: 15px; padding: 15px; background: <?php echo esc_attr( $background_color ); ?>; border-radius: 6px; position: relative;">
+                                        <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
+                                            <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
+                                        <?php endif; ?>
+                                        <strong style="color: <?php echo esc_attr( $text_color ); ?>;"><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
+                                        <span style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 11px;"><?php echo esc_html( $template_info['preview_text'] ); ?></span><br>
+                                        <span style="background: <?php echo esc_attr( $button_bg_color ); ?>; color: <?php echo esc_attr( $button_text_color ); ?>; padding: 6px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; font-size: 11px; font-weight: bold;"
+                                              data-button-bg="<?php echo esc_attr( $button_bg_color ); ?>"
+                                              data-button-text="<?php echo esc_attr( $button_text_color ); ?>">
+                                            <?php echo esc_html( $template_info['button_text'] ); ?>
+                                        </span>
+                                    </div>
                                 </div>
-                                
-                                <div style="margin-top: 15px; padding: 15px; background: <?php echo esc_attr( $background_color ); ?>; border-radius: 6px; position: relative;">
-                                    <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
-                                        <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
-                                    <?php endif; ?>
-                                    <strong style="color: <?php echo esc_attr( $text_color ); ?>;"><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
-                                    <span style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 11px;"><?php echo esc_html( $template_info['preview_text'] ); ?></span><br>
-                                    <span style="background: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>; color: <?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>; padding: 6px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; font-size: 11px; font-weight: bold;"
-                                          data-button-bg="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_bg_color", '#007cba' ) ); ?>"
-                                          data-button-text="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_button_text_color", '#ffffff' ) ); ?>">
-                                        <?php echo esc_html( $template_info['button_text'] ); ?>
-                                    </span>
-                                </div>
-                            </div>
                             <?php endforeach; ?>
                             
                             <!-- Commented out templates for future use -->
@@ -446,6 +489,73 @@ class WC_Advanced_BOGO {
                     
                     // Initialize selected template
                     $('input[name="bogo_template"]:checked').closest('.template-option').addClass('selected-template');
+
+                    // Handle reset colors button
+                    $('.reset-colors-btn').on('click', function() {
+                        var templateName = $(this).data('template');
+                        var templateOption = $(this).closest('.template-option');
+                        
+                        // Default colors for each template
+                        var defaultColors = {
+                            'template1': {
+                                'primary': '#3B82F6',
+                                'secondary': '#10B981',
+                                'text': '#1F2937',
+                                'background': '#F8FAFC',
+                                'button_bg': '#3B82F6',
+                                'button_text': '#FFFFFF'
+                            },
+                            'template2': {
+                                'primary': '#8B5CF6',
+                                'secondary': '#EC4899',
+                                'text': '#FFFFFF',
+                                'background': '#1E1B4B',
+                                'button_bg': '#EC4899',
+                                'button_text': '#FFFFFF'
+                            },
+                            'template3': {
+                                'primary': '#F59E0B',
+                                'secondary': '#EF4444',
+                                'text': '#FFFFFF',
+                                'background': '#7C2D12',
+                                'button_bg': '#F59E0B',
+                                'button_text': '#FFFFFF'
+                            }
+                        };
+                        
+                        var colors = defaultColors[templateName];
+                        
+                        // Reset all color inputs
+                        templateOption.find('input[data-color-type="primary"]').val(colors.primary).trigger('change');
+                        templateOption.find('input[data-color-type="secondary"]').val(colors.secondary).trigger('change');
+                        templateOption.find('input[data-color-type="text"]').val(colors.text).trigger('change');
+                        templateOption.find('input[data-color-type="background"]').val(colors.background).trigger('change');
+                        templateOption.find('input[data-color-type="button_bg"]').val(colors.button_bg).trigger('change');
+                        templateOption.find('input[data-color-type="button_text"]').val(colors.button_text).trigger('change');
+                        
+                        // Update color preview spans
+                        templateOption.find('input[data-color-type="primary"]').siblings('span').css('background-color', colors.primary);
+                        templateOption.find('input[data-color-type="secondary"]').siblings('span').css('background-color', colors.secondary);
+                        templateOption.find('input[data-color-type="text"]').siblings('span').css('background-color', colors.text);
+                        templateOption.find('input[data-color-type="background"]').siblings('span').css('background-color', colors.background);
+                        templateOption.find('input[data-color-type="button_bg"]').siblings('span').css('background-color', colors.button_bg);
+                        templateOption.find('input[data-color-type="button_text"]').siblings('span').css('background-color', colors.button_text);
+                        
+                        // Update preview section
+                        var previewSection = templateOption.find('> div:last-child');
+                        var previewButton = previewSection.find('span[data-button-bg]');
+                        
+                        previewSection.css('background-color', colors.background);
+                        previewSection.find('strong, span:not([data-button-bg])').css('color', colors.text);
+                        previewButton.css('background-color', colors.button_bg);
+                        previewButton.css('color', colors.button_text);
+                        
+                        // Add visual feedback
+                        $(this).text('✅ Reset!').css('background', '#d4edda').css('color', '#155724');
+                        setTimeout(function() {
+                            $(this).text('🔄 Reset Colors').css('background', '#f8f9fa').css('color', '#666');
+                        }.bind(this), 1000);
+                    });
                 });
                 </script>
                 
