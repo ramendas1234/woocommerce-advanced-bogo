@@ -60,24 +60,54 @@ class WC_Advanced_BOGO {
 	 * Register cart blocks hints
 	 */
 	public function register_cart_blocks_hints() {
-		// Add BOGO hints to cart blocks using a simple approach
-		add_action( 'wp_footer', [ $this, 'add_cart_blocks_js' ] );
+		// Add BOGO hints to cart blocks using Store API extensions
+		add_filter( 'woocommerce_store_api_cart_item_data', [ $this, 'add_bogo_data_to_cart_item' ], 10, 2 );
 		
-		// Add data attributes to cart items
-		add_filter( 'woocommerce_cart_item_name', [ $this, 'add_bogo_data_to_cart_item_name' ], 10, 3 );
+		// Register React components for cart blocks
+		add_action( 'init', [ $this, 'register_cart_blocks_components' ] );
+		
+		// Add JavaScript for cart blocks
+		add_action( 'wp_footer', [ $this, 'add_cart_blocks_js' ] );
 	}
 
 	/**
-	 * Add BOGO data to cart item name (simple approach)
+	 * Register cart blocks components
 	 */
-	public function add_bogo_data_to_cart_item_name( $name, $cart_item, $cart_item_key ) {
-		// Only add for cart/checkout pages
+	public function register_cart_blocks_components() {
+		// Register React component for cart item hints
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_cart_blocks_assets' ] );
+	}
+
+	/**
+	 * Enqueue cart blocks assets
+	 */
+	public function enqueue_cart_blocks_assets() {
 		if ( !is_cart() && !is_checkout() ) {
-			return $name;
+			return;
 		}
 		
+		wp_enqueue_script(
+			'wc-advanced-bogo-cart-blocks',
+			plugin_dir_url( __FILE__ ) . 'cart-blocks.js',
+			array( 'wp-element', 'wp-components', 'wp-data', 'wp-hooks' ),
+			'1.0.0',
+			true
+		);
+		
+		wp_localize_script( 'wc-advanced-bogo-cart-blocks', 'wcAdvancedBogoCart', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
+			'rules' => $this->get_bogo_rules_for_js()
+		) );
+	}
+
+	/**
+	 * Add BOGO data to cart item for Store API
+	 */
+	public function add_bogo_data_to_cart_item( $cart_item_data, $cart_item ) {
 		$rules = get_option( self::OPTION_KEY, [] );
 		$now = date( 'Y-m-d' );
+		$bogo_hint = '';
 		
 		foreach ( $rules as $index => $rule ) {
 			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
@@ -115,18 +145,31 @@ class WC_Advanced_BOGO {
 					if ( $get_product ) {
 						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
 						
-						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
-							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
-						</div>';
-						
-						$name .= $hint;
+						$bogo_hint = array(
+							'remaining_qty' => $remaining_qty,
+							'get_qty' => $get_qty,
+							'get_product_name' => $get_product->get_name(),
+							'discount_text' => $discount_text,
+							'rule_index' => $index,
+							'html' => '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+								🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+							</div>'
+						);
 						break;
 					}
 				}
 			}
 		}
 		
-		return $name;
+		if ( $bogo_hint ) {
+			// Add to extensions field for Store API
+			if ( ! isset( $cart_item_data['extensions'] ) ) {
+				$cart_item_data['extensions'] = array();
+			}
+			$cart_item_data['extensions']['wc_advanced_bogo'] = $bogo_hint;
+		}
+		
+		return $cart_item_data;
 	}
 
 	/**
