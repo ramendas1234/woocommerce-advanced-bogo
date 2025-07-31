@@ -159,4 +159,90 @@ jQuery(document).ready(function($) {
     }).on('mouseleave', '.grab-bogo-offer-btn:not(:disabled)', function() {
         $(this).removeClass('shadow-xl');
     });
+
+    // Cart BOGO hints quick add functionality
+    $('.bogo-quick-add-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        var $btn = $(this);
+        var buyProduct = $btn.data('buy-product');
+        var buyQty = parseInt($btn.data('buy-qty'));
+        var getProduct = $btn.data('get-product');
+        var getQty = parseInt($btn.data('get-qty'));
+        var discount = parseInt($btn.data('discount'));
+        var ruleIndex = $btn.data('rule-index');
+        
+        // Show loading state
+        $btn.prop('disabled', true).text('Adding...');
+        
+        $.ajax({
+            url: wc_advanced_bogo_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'grab_bogo_offer',
+                buy_product: buyProduct,
+                buy_qty: buyQty,
+                get_product: getProduct,
+                get_qty: getQty,
+                discount: discount,
+                rule_index: ruleIndex,
+                nonce: wc_advanced_bogo_ajax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Show success message
+                    $btn.text('Added!').css('background', '#10B981');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert('Error: ' + response.data);
+                    $btn.prop('disabled', false).text('🚀 Grab This Offer!');
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+                $btn.prop('disabled', false).text('🚀 Grab This Offer!');
+            }
+        });
+    });
+
+    // Hide BOGO hints when customer has already qualified
+    function checkBogoQualification() {
+        $('.bogo-cart-hint').each(function() {
+            var $hint = $(this);
+            var buyProduct = $hint.find('.bogo-quick-add-btn').data('buy-product');
+            var buyQty = parseInt($hint.find('.bogo-quick-add-btn').data('buy-qty'));
+            
+            // Check if customer has enough items in cart
+            var cartItems = [];
+            $('.woocommerce-cart-form__cart-item').each(function() {
+                var productId = $(this).find('input[name="cart[0][product_id]"]').val();
+                var quantity = parseInt($(this).find('input[name="cart[0][quantity]"]').val());
+                if (productId && quantity) {
+                    cartItems.push({product_id: productId, quantity: quantity});
+                }
+            });
+            
+            var totalQty = 0;
+            cartItems.forEach(function(item) {
+                if (buyProduct === 'all' || item.product_id == buyProduct) {
+                    totalQty += item.quantity;
+                }
+            });
+            
+            // Hide hint if customer has qualified
+            if (totalQty >= buyQty) {
+                $hint.fadeOut();
+            }
+        });
+    }
+    
+    // Check qualification on page load and cart updates
+    checkBogoQualification();
+    
+    // Re-check when cart is updated
+    $(document.body).on('updated_cart_totals', function() {
+        setTimeout(checkBogoQualification, 500);
+    });
 });

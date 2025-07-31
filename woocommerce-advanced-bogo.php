@@ -18,51 +18,76 @@ class WC_Advanced_BOGO {
     const TEMPLATE_OPTION_KEY = 'wc_advanced_bogo_template';
 
     public function __construct() {
-        // Only load if WooCommerce is active
-        if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-            add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
-            add_action( 'admin_init', [ $this, 'register_settings' ] );
-            add_action( 'woocommerce_single_product_summary', [ $this, 'display_bogo_message' ], 25 );
-            add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
-			add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
-			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
-			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
-			
-			// AJAX handlers for grab offer functionality
-			add_action( 'wp_ajax_grab_bogo_offer', [ $this, 'handle_grab_bogo_offer' ] );
-			add_action( 'wp_ajax_nopriv_grab_bogo_offer', [ $this, 'handle_grab_bogo_offer' ] );
-
-        }
+        add_action( 'init', array( $this, 'init' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+        add_action( 'woocommerce_before_single_product', array( $this, 'display_bogo_message' ) );
+        add_action( 'woocommerce_apply_bogo_discount', array( $this, 'apply_bogo_discount' ) );
+        add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'maybe_remove_remove_link' ), 10, 2 );
+        add_action( 'wp_ajax_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
+        add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
+        
+        // Cart hints hooks
+        add_action( 'woocommerce_cart_collaterals', array( $this, 'display_cart_bogo_hints' ) );
+        add_action( 'woocommerce_cart_totals_before_shipping', array( $this, 'display_cart_bogo_hints' ) );
+        add_action( 'woocommerce_review_order_before_payment', array( $this, 'display_cart_bogo_hints' ) );
+        add_action( 'woocommerce_checkout_before_order_review_heading', array( $this, 'display_cart_bogo_hints' ) );
+        
+        // Cart blocks support
+        add_action( 'woocommerce_blocks_cart_block_registry', array( $this, 'register_cart_blocks_hints' ) );
+        add_action( 'woocommerce_blocks_checkout_block_registry', array( $this, 'register_cart_blocks_hints' ) );
     }
+
+	/**
+	 * Initialize the plugin
+	 */
+	public function init() {
+		// Only load if WooCommerce is active
+		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+			add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
+			add_action( 'admin_init', [ $this, 'register_settings' ] );
+			add_action( 'woocommerce_single_product_summary', [ $this, 'display_bogo_message' ], 25 );
+			add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
+		}
+	}
+
+	/**
+	 * Register cart blocks hints
+	 */
+	public function register_cart_blocks_hints( $registry ) {
+		// Add hints to cart blocks
+		add_action( 'woocommerce_blocks_cart_block_registry', function() {
+			$this->display_cart_bogo_hints();
+		});
+		
+		// Add hints to checkout blocks
+		add_action( 'woocommerce_blocks_checkout_block_registry', function() {
+			$this->display_cart_bogo_hints();
+		});
+	}
 
 	public function enqueue_assets() {
 		wp_enqueue_style(
 			'wc-advanced-bogo-tailwind',
-			'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
-			[],
-			'2.2.19'
+			plugin_dir_url( __FILE__ ) . 'tailwind.css',
+			array(),
+			'1.0.0'
 		);
-		
-		// Only enqueue on product pages
-		if ( is_product() ) {
-			$frontend_js_path = plugin_dir_path(__FILE__) . 'frontend.js';
-			$version = file_exists( $frontend_js_path ) ? filemtime( $frontend_js_path ) : '1.0.0';
-			
-			wp_enqueue_script(
-				'wc-advanced-bogo-frontend',
-				plugin_dir_url(__FILE__) . 'frontend.js',
-				['jquery'],
-				$version,
-				true
-			);
-			
-			// Localize script for AJAX
-			wp_localize_script( 'wc-advanced-bogo-frontend', 'bogoAjax', [
-				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'bogo_grab_offer_nonce' ),
-				'cartUrl' => wc_get_cart_url(),
-			]);
-		}
+
+		wp_enqueue_script(
+			'wc-advanced-bogo-frontend',
+			plugin_dir_url( __FILE__ ) . 'frontend.js',
+			array( 'jquery' ),
+			'1.0.0',
+			true
+		);
+
+		wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
+			'cart_url' => wc_get_cart_url(),
+			'checkout_url' => wc_get_checkout_url()
+		) );
 	}
 
 	public function enqueue_admin_scripts( $hook ) {
@@ -970,63 +995,186 @@ class WC_Advanced_BOGO {
 	}
 
 	public function handle_grab_bogo_offer() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'bogo_grab_offer_nonce' ) ) {
-			wp_die( 'Security check failed' );
-		}
+		check_ajax_referer( 'wc_advanced_bogo_nonce', 'nonce' );
 
-		$buy_product_id = intval( $_POST['buy_product'] );
+		$buy_product = sanitize_text_field( $_POST['buy_product'] );
 		$buy_qty = intval( $_POST['buy_qty'] );
-		$get_product_id = intval( $_POST['get_product'] );
+		$get_product = intval( $_POST['get_product'] );
 		$get_qty = intval( $_POST['get_qty'] );
 		$discount = intval( $_POST['discount'] );
-
-		// Validate products exist
-		$buy_product = wc_get_product( $buy_product_id );
-		$get_product = wc_get_product( $get_product_id );
-
-		if ( ! $buy_product || ! $get_product ) {
-			wp_send_json_error( [
-				'message' => 'Invalid products specified.'
-			] );
-		}
-
-		// Check if products are in stock
-		if ( ! $buy_product->is_in_stock() || ! $get_product->is_in_stock() ) {
-			wp_send_json_error( [
-				'message' => 'One or more products are out of stock.'
-			] );
-		}
+		$rule_index = intval( $_POST['rule_index'] );
 
 		try {
-			// Add buy product to cart
-			$buy_cart_item_key = WC()->cart->add_to_cart( $buy_product_id, $buy_qty );
-			
-			if ( ! $buy_cart_item_key ) {
-				wp_send_json_error( [
-					'message' => 'Failed to add main product to cart.'
-				] );
+			// Add the required quantity of buy product to cart
+			if ( $buy_product === 'all' ) {
+				// For 'all' products, we need to get the current product ID
+				$current_product_id = get_queried_object_id();
+				if ( ! $current_product_id ) {
+					wp_die( 'Product not found' );
+				}
+				$product_id = $current_product_id;
+			} else {
+				$product_id = intval( $buy_product );
 			}
 
-			// Add get product to cart (this will be handled by our BOGO logic automatically)
-			// The apply_bogo_discount function will detect the buy product and add the gift
+			$product = wc_get_product( $product_id );
+			if ( ! $product ) {
+				wp_die( 'Product not found' );
+			}
 
-			// Get cart contents count for response
-			$cart_count = WC()->cart->get_cart_contents_count();
-			
-			wp_send_json_success( [
-				'message' => 'BOGO offer added to cart successfully!',
-				'cart_count' => $cart_count,
-				'buy_product_name' => $buy_product->get_name(),
-				'get_product_name' => $get_product->get_name(),
-				'cart_url' => wc_get_cart_url()
-			] );
+			// Add the required quantity to cart
+			$cart_item_key = WC()->cart->add_to_cart( $product_id, $buy_qty );
 
+			if ( $cart_item_key ) {
+				// Store the BOGO rule information in the cart item
+				WC()->cart->cart_contents[ $cart_item_key ]['wc_advanced_bogo_rule'] = [
+					'buy_product' => $buy_product,
+					'buy_qty' => $buy_qty,
+					'get_product' => $get_product,
+					'get_qty' => $get_qty,
+					'discount' => $discount,
+					'rule_index' => $rule_index,
+				];
+
+				wp_send_json_success( 'BOGO offer added to cart successfully!' );
+			} else {
+				wp_send_json_error( 'Failed to add product to cart' );
+			}
 		} catch ( Exception $e ) {
-			wp_send_json_error( [
-				'message' => 'Error adding products to cart: ' . $e->getMessage()
-			] );
+			wp_send_json_error( $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Display BOGO offer hints in cart line items
+	 */
+	public function display_cart_bogo_hints() {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Count current BUY items in cart
+			$buy_count = 0;
+			foreach ( WC()->cart->get_cart() as $cart_item ) {
+				if ( ! empty( $cart_item['wc_advanced_bogo_gift'] ) ) {
+					continue;
+				}
+
+				if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+					$buy_count += $cart_item['quantity'];
+				}
+			}
+
+			// Check if customer is close to qualifying
+			if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+				$remaining_qty = $buy_qty - $buy_count;
+				$get_product = wc_get_product( $get_product_id );
+				
+				if ( $get_product ) {
+					$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+					$buy_product_name = $buy_product_id === 'all' ? 'this product' : wc_get_product( $buy_product_id )->get_name();
+					
+					$this->display_cart_bogo_hint( $remaining_qty, $buy_product_name, $get_qty, $get_product->get_name(), $discount_text, $buy_product_id, $get_product_id, $discount, $index );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Display individual BOGO hint in cart
+	 */
+	private function display_cart_bogo_hint( $remaining_qty, $buy_product_name, $get_qty, $get_product_name, $discount_text, $buy_product_id, $get_product_id, $discount, $index ) {
+		$template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
+		
+		// Get saved color settings for this template
+		$primary_color = get_option( "bogo_template_{$template}_primary_color", '#3B82F6' );
+		$secondary_color = get_option( "bogo_template_{$template}_secondary_color", '#10B981' );
+		$text_color = get_option( "bogo_template_{$template}_text_color", '#1F2937' );
+		$background_color = get_option( "bogo_template_{$template}_background_color", '#F8FAFC' );
+		$button_bg_color = get_option( "bogo_template_{$template}_button_bg_color", '#3B82F6' );
+		$button_text_color = get_option( "bogo_template_{$template}_button_text_color", '#FFFFFF' );
+		
+		// Default colors for each template if no custom colors are set
+		$default_colors = array(
+			'template1' => array(
+				'primary' => '#3B82F6',
+				'secondary' => '#10B981', 
+				'text' => '#1F2937',
+				'background' => '#F8FAFC',
+				'button_bg' => '#3B82F6',
+				'button_text' => '#FFFFFF'
+			),
+			'template2' => array(
+				'primary' => '#8B5CF6',
+				'secondary' => '#EC4899',
+				'text' => '#FFFFFF',
+				'background' => '#1E1B4B',
+				'button_bg' => '#EC4899',
+				'button_text' => '#FFFFFF'
+			),
+			'template3' => array(
+				'primary' => '#F59E0B',
+				'secondary' => '#EF4444',
+				'text' => '#FFFFFF',
+				'background' => '#7C2D12',
+				'button_bg' => '#F59E0B',
+				'button_text' => '#FFFFFF'
+			)
+		);
+		
+		// Use default colors if no custom colors are saved
+		if ( !get_option( "bogo_template_{$template}_primary_color" ) ) {
+			$primary_color = $default_colors[$template]['primary'];
+			$secondary_color = $default_colors[$template]['secondary'];
+			$text_color = $default_colors[$template]['text'];
+			$background_color = $default_colors[$template]['background'];
+			$button_bg_color = $default_colors[$template]['button_bg'];
+			$button_text_color = $default_colors[$template]['button_text'];
+		}
+		
+		?>
+		<div class="bogo-cart-hint" style="margin: 10px 0; padding: 12px; border-radius: 8px; border-left: 4px solid <?php echo esc_attr( $secondary_color ); ?>; background: <?php echo esc_attr( $background_color ); ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+			<div class="flex items-center justify-between">
+				<div class="flex-1">
+					<div style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 13px; font-weight: 600; margin-bottom: 4px;">
+						🎉 Almost there! Add <span style="color: <?php echo esc_attr( $primary_color ); ?>; font-weight: bold;"><?php echo $remaining_qty; ?> more</span> 
+						<?php echo esc_html( $buy_product_name ); ?> to get:
+					</div>
+					<div style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 12px; margin-bottom: 8px;">
+						<span style="color: <?php echo esc_attr( $secondary_color ); ?>; font-weight: bold;"><?php echo $get_qty; ?>x <?php echo esc_html( $get_product_name ); ?></span> 
+						<span style="color: <?php echo esc_attr( $primary_color ); ?>; font-weight: bold;"><?php echo esc_html( $discount_text ); ?></span>
+					</div>
+				</div>
+				<button 
+					class="bogo-quick-add-btn"
+					style="background: <?php echo esc_attr( $button_bg_color ); ?>; color: <?php echo esc_attr( $button_text_color ); ?>; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+					data-buy-product="<?php echo esc_attr( $buy_product_id ); ?>"
+					data-buy-qty="<?php echo esc_attr( $buy_qty ); ?>"
+					data-get-product="<?php echo esc_attr( $get_product_id ); ?>"
+					data-get-qty="<?php echo esc_attr( $get_qty ); ?>"
+					data-discount="<?php echo esc_attr( $discount ); ?>"
+					data-rule-index="<?php echo esc_attr( $index ); ?>"
+					onmouseover="this.style.transform='scale(1.05)'"
+					onmouseout="this.style.transform='scale(1)'"
+				>
+					🚀 Grab This Offer!
+				</button>
+			</div>
+		</div>
+		<?php
 	}
 
 }
