@@ -9,24 +9,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg bg-white" style="background: linear-gradient(135deg, #fff 0%, #f8f9ff 100%);">
+<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg" style="background: <?php echo esc_attr( $background_color ); ?>;">
     <div class="flex items-center gap-4">
         <div class="relative w-24 h-24 flex-shrink-0">
             <?php echo $get_image; ?>
-            <div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl">
+            <div class="absolute top-0 right-0 text-white text-xs font-bold px-2 py-1 rounded-bl" style="background: <?php echo esc_attr( $secondary_color ); ?>;">
                 🎁 Gift
             </div>
         </div>
         <div class="flex-grow">
-            <h3 class="text-lg font-bold mb-1 text-gray-800">🎉 Special BOGO Offer!</h3>
-            <p class="text-gray-700 text-sm mb-3">
-                Buy <span class="font-semibold text-blue-600"><?php echo $buy_qty; ?></span> of this product and get 
-                <span class="font-semibold text-green-600"><?php echo $get_qty; ?></span> of 
-                <span class="font-semibold text-purple-600"><?php echo esc_html( $get_name ); ?></span> 
-                <span class="font-bold text-red-600"><?php echo esc_html( $discount_text ); ?></span>
+            <h3 class="text-lg font-bold mb-1" style="color: <?php echo esc_attr( $text_color ); ?>;">🎉 Special BOGO Offer!</h3>
+            <p class="text-sm mb-3" style="color: <?php echo esc_attr( $text_color ); ?>;">
+                Buy <span class="font-semibold" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo $buy_qty; ?></span> of this product and get 
+                <span class="font-semibold" style="color: <?php echo esc_attr( $secondary_color ); ?>;"><?php echo $get_qty; ?></span> of 
+                <span class="font-semibold" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo esc_html( $get_name ); ?></span> 
+                <span class="font-bold" style="color: <?php echo esc_attr( $secondary_color ); ?>;"><?php echo esc_html( $discount_text ); ?></span>
             </p>
             <button 
-                class="grab-bogo-offer-btn inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm"
+                class="grab-bogo-offer-btn inline-flex items-center px-4 py-2 font-bold rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm"
+                style="background: <?php echo esc_attr( $button_bg_color ); ?>; color: <?php echo esc_attr( $button_text_color ); ?>;"
                 <?php echo $common_button_data; ?>
             >
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

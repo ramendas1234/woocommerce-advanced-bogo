@@ -643,6 +643,52 @@ class WC_Advanced_BOGO {
 	}
 
 	private function get_bogo_template( $template, $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $buy_product_id, $get_product_id, $discount, $index ) {
+		// Get saved color settings for this template
+		$primary_color = get_option( "bogo_template_{$template}_primary_color", '#3B82F6' );
+		$secondary_color = get_option( "bogo_template_{$template}_secondary_color", '#10B981' );
+		$text_color = get_option( "bogo_template_{$template}_text_color", '#1F2937' );
+		$background_color = get_option( "bogo_template_{$template}_background_color", '#F8FAFC' );
+		$button_bg_color = get_option( "bogo_template_{$template}_button_bg_color", '#3B82F6' );
+		$button_text_color = get_option( "bogo_template_{$template}_button_text_color", '#FFFFFF' );
+		
+		// Default colors for each template if no custom colors are set
+		$default_colors = array(
+			'template1' => array(
+				'primary' => '#3B82F6',
+				'secondary' => '#10B981', 
+				'text' => '#1F2937',
+				'background' => '#F8FAFC',
+				'button_bg' => '#3B82F6',
+				'button_text' => '#FFFFFF'
+			),
+			'template2' => array(
+				'primary' => '#8B5CF6',
+				'secondary' => '#EC4899',
+				'text' => '#FFFFFF',
+				'background' => '#1E1B4B',
+				'button_bg' => '#EC4899',
+				'button_text' => '#FFFFFF'
+			),
+			'template3' => array(
+				'primary' => '#F59E0B',
+				'secondary' => '#EF4444',
+				'text' => '#FFFFFF',
+				'background' => '#7C2D12',
+				'button_bg' => '#F59E0B',
+				'button_text' => '#FFFFFF'
+			)
+		);
+		
+		// Use default colors if no custom colors are saved
+		if ( !get_option( "bogo_template_{$template}_primary_color" ) ) {
+			$primary_color = $default_colors[$template]['primary'];
+			$secondary_color = $default_colors[$template]['secondary'];
+			$text_color = $default_colors[$template]['text'];
+			$background_color = $default_colors[$template]['background'];
+			$button_bg_color = $default_colors[$template]['button_bg'];
+			$button_text_color = $default_colors[$template]['button_text'];
+		}
+		
 		return $this->load_template( $template, [
 			'buy_qty' => $buy_qty,
 			'get_qty' => $get_qty,
@@ -653,6 +699,12 @@ class WC_Advanced_BOGO {
 			'get_product_id' => $get_product_id,
 			'discount' => $discount,
 			'index' => $index,
+			'primary_color' => $primary_color,
+			'secondary_color' => $secondary_color,
+			'text_color' => $text_color,
+			'background_color' => $background_color,
+			'button_bg_color' => $button_bg_color,
+			'button_text_color' => $button_text_color,
 			'common_button_data' => 'data-buy-product="' . esc_attr( $buy_product_id ) . '"
 				data-buy-qty="' . esc_attr( $buy_qty ) . '"
 				data-get-product="' . esc_attr( $get_product_id ) . '"
@@ -660,8 +712,8 @@ class WC_Advanced_BOGO {
 				data-discount="' . esc_attr( $discount ) . '"
 				data-rule-index="' . esc_attr( $index ) . '"',
 			'loading_spinner' => '<div class="bogo-offer-loading hidden mt-3 text-center">
-				<div class="inline-flex items-center text-blue-600">
-					<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+				<div class="inline-flex items-center" style="color: ' . esc_attr( $primary_color ) . ';">
+					<svg class="animate-spin -ml-1 mr-3 h-5 w-5" style="color: ' . esc_attr( $primary_color ) . ';" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
 						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 					</svg>
