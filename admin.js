@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         console.log('BOGO: Initializing product search...');
+        console.log('BOGO: Available global variables:', {
+            'woocommerce_admin_meta_boxes': typeof woocommerce_admin_meta_boxes,
+            'wc_enhanced_select_params': typeof wc_enhanced_select_params,
+            'ajaxurl': typeof ajaxurl,
+            'bogo_ajax': typeof bogo_ajax
+        });
 
         // Initialize product search for all wc-product-search elements
         jQuery('.wc-product-search').each(function() {
@@ -30,6 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (typeof wc_enhanced_select_params !== 'undefined' && wc_enhanced_select_params.search_products_nonce) {
                 nonce = wc_enhanced_select_params.search_products_nonce;
                 console.log('BOGO: Using nonce from wc_enhanced_select_params');
+            } else if (typeof bogo_ajax !== 'undefined' && bogo_ajax.nonce) {
+                nonce = bogo_ajax.nonce;
+                console.log('BOGO: Using nonce from bogo_ajax');
             } else {
                 // Fallback: create a nonce from meta tag
                 nonce = jQuery('meta[name="woocommerce-search-products-nonce"]').attr('content') || '';
@@ -42,10 +51,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('BOGO: Using default nonce');
             }
 
+            // Get AJAX URL
+            let ajaxUrl = '';
+            if (typeof ajaxurl !== 'undefined') {
+                ajaxUrl = ajaxurl;
+            } else if (typeof woocommerce_admin_meta_boxes !== 'undefined' && woocommerce_admin_meta_boxes.ajax_url) {
+                ajaxUrl = woocommerce_admin_meta_boxes.ajax_url;
+            } else if (typeof bogo_ajax !== 'undefined' && bogo_ajax.ajaxurl) {
+                ajaxUrl = bogo_ajax.ajaxurl;
+            } else {
+                ajaxUrl = '/wp-admin/admin-ajax.php';
+            }
+
+            console.log('BOGO: Using AJAX URL:', ajaxUrl);
+
             try {
                 jQuery(this).select2({
                     ajax: {
-                        url: typeof ajaxurl !== 'undefined' ? ajaxurl : (typeof bogo_ajax !== 'undefined' ? bogo_ajax.ajaxurl : '/wp-admin/admin-ajax.php'),
+                        url: ajaxUrl,
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {
@@ -269,6 +292,18 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initialize product search with delay to ensure WooCommerce scripts are loaded
     setTimeout(initializeProductSearch, 1000);
+    
+    // Add a fallback initialization in case the first one fails
+    setTimeout(function() {
+        console.log('BOGO: Running fallback initialization...');
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
+            const uninitializedSelects = jQuery('.wc-product-search').not('.select2-hidden-accessible');
+            if (uninitializedSelects.length > 0) {
+                console.log('BOGO: Found uninitialized selects, retrying...');
+                initializeProductSearch();
+            }
+        }
+    }, 2000);
     
     console.log('BOGO: Admin functionality initialized');
 

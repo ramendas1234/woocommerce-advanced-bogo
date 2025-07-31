@@ -360,7 +360,12 @@ class WC_Advanced_BOGO {
 	public function enqueue_admin_scripts( $hook ) {
 		// Only load on our BOGO settings page
 		if ( $hook === 'woocommerce_page_wc-advanced-bogo' || $hook === 'toplevel_page_wc-advanced-bogo' ) {
-			// Enqueue WooCommerce admin scripts first
+			// Enqueue WordPress admin scripts first
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'jquery-ui-core' );
+			wp_enqueue_script( 'jquery-ui-sortable' );
+			
+			// Enqueue WooCommerce admin scripts
 			wp_enqueue_script( 'woocommerce_admin' );
 			wp_enqueue_script( 'wc-enhanced-select' );
 			wp_enqueue_style( 'woocommerce_admin_styles' );
@@ -374,22 +379,26 @@ class WC_Advanced_BOGO {
 				true 
 			);
 			
-			// Localize script with necessary parameters
+			// Localize WooCommerce admin script with necessary parameters
+			wp_localize_script( 'woocommerce_admin', 'woocommerce_admin_meta_boxes', array(
+				'search_products_nonce' => wp_create_nonce( 'search-products' ),
+				'ajax_url' => admin_url( 'admin-ajax.php' )
+			) );
+			
+			// Also localize our script with the same parameters
 			wp_localize_script( 'wc-advanced-bogo-admin', 'woocommerce_admin_meta_boxes', array(
-				'search_products_nonce' => wp_create_nonce( 'search-products' )
+				'search_products_nonce' => wp_create_nonce( 'search-products' ),
+				'ajax_url' => admin_url( 'admin-ajax.php' )
 			) );
 			
-			// Also localize the main WooCommerce admin script if not already done
-			if ( ! wp_script_is( 'woocommerce_admin', 'localized' ) ) {
-				wp_localize_script( 'woocommerce_admin', 'woocommerce_admin_meta_boxes', array(
-					'search_products_nonce' => wp_create_nonce( 'search-products' )
-				) );
-			}
-			
-			// Add ajaxurl to our script
+			// Add additional parameters for our script
 			wp_localize_script( 'wc-advanced-bogo-admin', 'bogo_ajax', array(
-				'ajaxurl' => admin_url( 'admin-ajax.php' )
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce' => wp_create_nonce( 'search-products' )
 			) );
+			
+			// Add global ajaxurl for compatibility
+			wp_localize_script( 'wc-advanced-bogo-admin', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 		}
 	}
 
