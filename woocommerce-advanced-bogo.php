@@ -47,6 +47,12 @@ class WC_Advanced_BOGO {
 			
 			// Add content filters for cart blocks
 			add_filter( 'woocommerce_blocks_cart_item_block_content', [ $this, 'add_cart_blocks_hint_content' ], 10, 2 );
+			
+			// Add render hooks for cart blocks
+			add_action( 'woocommerce_blocks_cart_item_block_render', [ $this, 'add_cart_blocks_hint_render' ], 10, 2 );
+			
+			// Add content filter for cart item names (works with blocks)
+			add_filter( 'woocommerce_cart_item_name', [ $this, 'add_cart_item_hint_to_name' ], 10, 3 );
 		}
 	}
 
@@ -56,6 +62,12 @@ class WC_Advanced_BOGO {
 	public function register_cart_blocks_hints() {
 		// Add BOGO hints to cart blocks using content filter
 		add_filter( 'woocommerce_blocks_cart_item_block_content', [ $this, 'add_cart_blocks_hint_content' ], 10, 2 );
+		
+		// Add render hooks for cart blocks
+		add_action( 'woocommerce_blocks_cart_item_block_render', [ $this, 'add_cart_blocks_hint_render' ], 10, 2 );
+		
+		// Add WordPress render hooks for blocks
+		add_filter( 'render_block', [ $this, 'add_cart_blocks_hint_to_block' ], 10, 2 );
 		
 		// Add JavaScript for dynamic cart blocks
 		add_action( 'wp_footer', [ $this, 'add_cart_blocks_js' ] );
@@ -1314,7 +1326,171 @@ class WC_Advanced_BOGO {
 		}
 	}
 
+	/**
+	 * Add BOGO hint to cart item name (works with blocks)
+	 */
+	public function add_cart_item_hint_to_name( $name, $cart_item, $cart_item_key ) {
+		// Only add hints for cart blocks, not classic cart
+		if ( ! $this->is_cart_blocks() ) {
+			return $name;
+		}
+		
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
 
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Check if this cart item matches the buy product
+			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+						
+						$name .= $hint;
+						break;
+					}
+				}
+			}
+		}
+		
+		return $name;
+	}
+
+	/**
+	 * Check if we're using cart blocks
+	 */
+	private function is_cart_blocks() {
+		// Check if cart blocks are being used
+		return has_block( 'woocommerce/cart' ) || 
+			   has_block( 'woocommerce/checkout' ) || 
+			   ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'cart' ) && has_block( 'woocommerce/cart' ) );
+	}
+
+	/**
+	 * Add cart blocks hint render
+	 */
+	public function add_cart_blocks_hint_render( $block_content, $block ) {
+		// This is a placeholder for render hooks
+		return $block_content;
+	}
+
+	/**
+	 * Add cart blocks hint to block content
+	 */
+	public function add_cart_blocks_hint_to_block( $block_content, $block ) {
+		// Only process cart item blocks
+		if ( $block['blockName'] !== 'woocommerce/cart-item' ) {
+			return $block_content;
+		}
+		
+		// Extract product ID from block attributes or content
+		preg_match( '/data-product-id="(\d+)"/', $block_content, $matches );
+		$product_id = isset( $matches[1] ) ? intval( $matches[1] ) : 0;
+		
+		if ( ! $product_id ) {
+			return $block_content;
+		}
+		
+		// Get BOGO hint for this product
+		$hint = $this->get_bogo_hint_for_product( $product_id );
+		
+		if ( $hint ) {
+			// Insert hint after the product name
+			$block_content = preg_replace(
+				'/(<div[^>]*class="[^"]*cart-item-name[^"]*"[^>]*>.*?<\/div>)/s',
+				'$1' . $hint,
+				$block_content
+			);
+		}
+		
+		return $block_content;
+	}
+
+	/**
+	 * Get BOGO hint for a specific product
+	 */
+	private function get_bogo_hint_for_product( $product_id ) {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Check if this product matches the buy product
+			if ( $buy_product_id === 'all' || $product_id == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						return '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+					}
+				}
+			}
+		}
+		
+		return '';
+	}
 
 }
 
