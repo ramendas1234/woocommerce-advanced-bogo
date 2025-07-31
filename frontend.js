@@ -1,6 +1,123 @@
 jQuery(document).ready(function($) {
     console.log('BOGO Frontend JS loaded');
 
+    // Function to update BOGO template colors dynamically
+    function updateBogoTemplateColors(templateSettings) {
+        $('.bogo-offer-container').each(function() {
+            var $container = $(this);
+            var templateNumber = $container.data('template') || 1;
+            var templateKey = 'template' + templateNumber;
+            
+            if (templateSettings[templateKey]) {
+                var colors = templateSettings[templateKey];
+                
+                // Update container background
+                if (colors.background) {
+                    $container.css('background-color', colors.background);
+                }
+                
+                // Update text colors
+                if (colors.text) {
+                    $container.find('h3, p, span:not(.grab-bogo-offer-btn *)').css('color', colors.text);
+                }
+                
+                // Update button colors
+                if (colors.button_bg) {
+                    $container.find('.grab-bogo-offer-btn').css('background-color', colors.button_bg);
+                }
+                
+                if (colors.button_text) {
+                    $container.find('.grab-bogo-offer-btn').css('color', colors.button_text);
+                }
+                
+                // Update primary colors
+                if (colors.primary) {
+                    $container.find('span[style*="primary_color"], strong[style*="primary_color"]').each(function() {
+                        var currentStyle = $(this).attr('style');
+                        if (currentStyle && currentStyle.includes('primary_color')) {
+                            var newStyle = currentStyle.replace(/color:\s*[^;]+;?/g, 'color: ' + colors.primary + ';');
+                            $(this).attr('style', newStyle);
+                        }
+                    });
+                }
+                
+                // Update secondary colors
+                if (colors.secondary) {
+                    $container.find('span[style*="secondary_color"], strong[style*="secondary_color"]').each(function() {
+                        var currentStyle = $(this).attr('style');
+                        if (currentStyle && currentStyle.includes('secondary_color')) {
+                            var newStyle = currentStyle.replace(/color:\s*[^;]+;?/g, 'color: ' + colors.secondary + ';');
+                            $(this).attr('style', newStyle);
+                        }
+                    });
+                }
+                
+                // Add visual feedback for updates
+                $container.addClass('bogo-updated');
+                setTimeout(function() {
+                    $container.removeClass('bogo-updated');
+                }, 300);
+            }
+        });
+    }
+
+    // Function to check for admin changes and update frontend
+    function checkForAdminChanges() {
+        if (typeof wc_advanced_bogo_ajax !== 'undefined' && wc_advanced_bogo_ajax.is_admin) {
+            $.ajax({
+                url: wc_advanced_bogo_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'get_bogo_template_settings',
+                    template: 'template1', // Default template
+                    nonce: wc_advanced_bogo_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Compare with current settings to avoid unnecessary updates
+                        var currentSettings = wc_advanced_bogo_ajax.template_settings || {};
+                        var newSettings = response.data;
+                        
+                        // Check if settings have changed
+                        var hasChanges = false;
+                        for (var templateKey in newSettings) {
+                            if (newSettings.hasOwnProperty(templateKey) && templateKey !== 'selected_template') {
+                                var currentColors = currentSettings[templateKey] || {};
+                                var newColors = newSettings[templateKey] || {};
+                                
+                                for (var colorKey in newColors) {
+                                    if (newColors.hasOwnProperty(colorKey) && currentColors[colorKey] !== newColors[colorKey]) {
+                                        hasChanges = true;
+                                        break;
+                                    }
+                                }
+                                if (hasChanges) break;
+                            }
+                        }
+                        
+                        if (hasChanges) {
+                            console.log('BOGO: Template settings changed, updating frontend...');
+                            updateBogoTemplateColors(newSettings);
+                            // Update the stored settings
+                            wc_advanced_bogo_ajax.template_settings = newSettings;
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('BOGO: Error getting template settings:', error);
+                }
+            });
+        }
+    }
+
+    // Check for admin changes every 2 seconds if user is admin
+    if (typeof wc_advanced_bogo_ajax !== 'undefined' && wc_advanced_bogo_ajax.is_admin) {
+        setInterval(checkForAdminChanges, 2000);
+        
+        // Also check immediately on page load
+        setTimeout(checkForAdminChanges, 1000);
+    }
+
     // Handle grab offer button clicks
     $(document).on('click', '.grab-bogo-offer-btn', function(e) {
         e.preventDefault();

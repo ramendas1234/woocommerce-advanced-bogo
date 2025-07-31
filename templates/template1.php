@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg" style="background: <?php echo esc_attr( $background_color ); ?>;">
+<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg" style="background: <?php echo esc_attr( $background_color ); ?>;" <?php echo $template_data_attrs; ?>>
     <div class="flex items-center gap-4">
         <div class="relative w-24 h-24 flex-shrink-0">
             <?php echo $get_image; ?>

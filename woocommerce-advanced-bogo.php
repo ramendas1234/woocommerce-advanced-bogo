@@ -27,6 +27,8 @@ class WC_Advanced_BOGO {
         add_action( 'wp_ajax_nopriv_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
         add_action( 'wp_ajax_save_bogo_template_colors', array( $this, 'save_bogo_template_colors' ) );
         add_action( 'wp_ajax_save_bogo_template_selection', array( $this, 'save_bogo_template_selection' ) );
+        add_action( 'wp_ajax_get_bogo_template_settings', array( $this, 'get_bogo_template_settings' ) );
+        add_action( 'wp_ajax_nopriv_get_bogo_template_settings', array( $this, 'get_bogo_template_settings' ) );
     }
 
 	/**
@@ -394,6 +396,17 @@ class WC_Advanced_BOGO {
 					font-size: 0.75rem;
 					padding: 0.375rem 0.75rem;
 				}
+				
+				/* Dynamic update feedback */
+				.bogo-updated {
+					animation: bogoUpdate 0.3s ease-in-out;
+				}
+				
+				@keyframes bogoUpdate {
+					0% { transform: scale(1); }
+					50% { transform: scale(1.02); }
+					100% { transform: scale(1); }
+				}
 			' );
 
 			// Enqueue frontend JavaScript
@@ -409,7 +422,9 @@ class WC_Advanced_BOGO {
 			wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
-				'cartUrl' => wc_get_cart_url()
+				'cartUrl' => wc_get_cart_url(),
+				'is_admin' => current_user_can( 'manage_woocommerce' ),
+				'template_settings' => get_option( self::TEMPLATE_OPTION_KEY, array() )
 			) );
 		}
 	}
@@ -1209,6 +1224,9 @@ class WC_Advanced_BOGO {
 			<div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid ' . esc_attr( $colors['primary'] ) . '; border-radius: 50%; animation: spin 1s linear infinite;"></div>
 		</div>';
 		
+		// Add template data attributes for dynamic updates
+		$template_data_attrs = 'data-template="' . $template . '" data-template-key="template' . $template . '"';
+		
 		return $this->load_template( $template, [
 			'buy_qty' => $buy_qty,
 			'get_qty' => $get_qty,
@@ -1226,7 +1244,8 @@ class WC_Advanced_BOGO {
 			'button_bg_color' => $colors['button_bg'],
 			'button_text_color' => $colors['button_text'],
 			'common_button_data' => $common_button_data,
-			'loading_spinner' => $loading_spinner
+			'loading_spinner' => $loading_spinner,
+			'template_data_attrs' => $template_data_attrs
 		] );
 	}
 
@@ -1816,6 +1835,22 @@ class WC_Advanced_BOGO {
 		} else {
 			wp_send_json_error( array( 'message' => 'Failed to save colors' ) );
 		}
+	}
+
+	/**
+	 * Handle getting BOGO template settings via AJAX
+	 */
+	public function get_bogo_template_settings() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'wc_advanced_bogo_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		// Get current template settings
+		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
+
+		// Return template settings
+		wp_send_json_success( $template_settings );
 	}
 
 }
