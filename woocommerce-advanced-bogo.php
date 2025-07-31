@@ -23,6 +23,8 @@ class WC_Advanced_BOGO {
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'wp_ajax_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
         add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
+        add_action( 'wp_ajax_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
+        add_action( 'wp_ajax_nopriv_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
     }
 
 	/**
@@ -37,9 +39,219 @@ class WC_Advanced_BOGO {
 			add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
 			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
 			
-			// Add BOGO hints inside cart line items
+			// Add BOGO hints inside cart line items (classic cart)
 			add_action( 'woocommerce_after_cart_item_name', [ $this, 'display_cart_item_bogo_hint' ], 10, 2 );
+			
+			// Add cart blocks compatibility
+			add_action( 'init', [ $this, 'register_cart_blocks_hints' ] );
+			
+			// Add content filters for cart blocks
+			add_filter( 'woocommerce_blocks_cart_item_block_content', [ $this, 'add_cart_blocks_hint_content' ], 10, 2 );
+			add_filter( 'woocommerce_cart_item_name', [ $this, 'add_cart_item_hint_to_name' ], 10, 3 );
 		}
+	}
+
+	/**
+	 * Register cart blocks hints
+	 */
+	public function register_cart_blocks_hints() {
+		// Add BOGO hints to cart blocks
+		add_action( 'woocommerce_blocks_cart_block_registry', [ $this, 'add_cart_blocks_hints' ] );
+		add_action( 'woocommerce_blocks_checkout_block_registry', [ $this, 'add_cart_blocks_hints' ] );
+		
+		// Add custom hook for cart blocks
+		add_action( 'woocommerce_blocks_cart_item_block_registry', [ $this, 'add_cart_item_blocks_hints' ] );
+		
+		// Add content filter for cart blocks
+		add_filter( 'woocommerce_blocks_cart_item_block_content', [ $this, 'add_cart_blocks_hint_content' ], 10, 2 );
+	}
+
+	/**
+	 * Add cart blocks hints
+	 */
+	public function add_cart_blocks_hints( $registry ) {
+		// Add hints to cart blocks using JavaScript
+		add_action( 'wp_footer', [ $this, 'add_cart_blocks_js' ] );
+	}
+
+	/**
+	 * Add cart item blocks hints
+	 */
+	public function add_cart_item_blocks_hints( $registry ) {
+		// Add hints to individual cart item blocks
+		add_action( 'wp_footer', [ $this, 'add_cart_item_blocks_js' ] );
+	}
+
+	/**
+	 * Add BOGO hint content to cart blocks
+	 */
+	public function add_cart_blocks_hint_content( $content, $cart_item ) {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Check if this cart item matches the buy product
+			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+						
+						$content .= $hint;
+						break;
+					}
+				}
+			}
+		}
+		
+		return $content;
+	}
+
+	/**
+	 * AJAX handler for getting BOGO hints
+	 */
+	public function get_bogo_hints() {
+		check_ajax_referer( 'wc_advanced_bogo_nonce', 'nonce' );
+		
+		$product_id = intval( $_POST['product_id'] );
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		$hint = '';
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Check if this product matches the buy product
+			if ( $buy_product_id === 'all' || $product_id == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+						break;
+					}
+				}
+			}
+		}
+		
+		wp_send_json_success( array( 'hint' => $hint ) );
+	}
+
+	/**
+	 * Add JavaScript for cart blocks compatibility
+	 */
+	public function add_cart_blocks_js() {
+		if ( !is_cart() && !is_checkout() ) {
+			return;
+		}
+		?>
+		<script>
+		jQuery(document).ready(function($) {
+			// Function to add BOGO hints to cart blocks
+			function addBogoHintsToCartBlocks() {
+				// Check for cart blocks
+				$('.wp-block-woocommerce-cart-item').each(function() {
+					var $cartItem = $(this);
+					var productName = $cartItem.find('.wc-block-components-cart-item__name').text();
+					var productId = $cartItem.data('product-id') || $cartItem.find('[data-product-id]').data('product-id');
+					
+					// Only add hint if not already added
+					if ($cartItem.find('.bogo-cart-hint').length === 0) {
+						// Get BOGO rules via AJAX
+						$.ajax({
+							url: wc_advanced_bogo_ajax.ajax_url,
+							type: 'POST',
+							data: {
+								action: 'get_bogo_hints',
+								product_id: productId,
+								nonce: wc_advanced_bogo_ajax.nonce
+							},
+							success: function(response) {
+								if (response.success && response.data.hint) {
+									$cartItem.find('.wc-block-components-cart-item__name').after(response.data.hint);
+								}
+							}
+						});
+					}
+				});
+			}
+			
+			// Run on page load
+			addBogoHintsToCartBlocks();
+			
+			// Run when cart is updated
+			$(document.body).on('updated_cart_totals', function() {
+				setTimeout(addBogoHintsToCartBlocks, 500);
+			});
+			
+			// Run when blocks are rendered
+			$(document.body).on('wc-blocks-cart-updated', function() {
+				setTimeout(addBogoHintsToCartBlocks, 500);
+			});
+		});
+		</script>
+		<?php
 	}
 
 	public function enqueue_assets() {
@@ -1083,6 +1295,63 @@ class WC_Advanced_BOGO {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Add BOGO hint to cart item name (works with blocks)
+	 */
+	public function add_cart_item_hint_to_name( $name, $cart_item, $cart_item_key ) {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
+
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
+
+			// Check if this cart item matches the buy product
+			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+						
+						$name .= $hint;
+						break;
+					}
+				}
+			}
+		}
+		
+		return $name;
 	}
 
 }
