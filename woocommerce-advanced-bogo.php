@@ -89,7 +89,7 @@ class WC_Advanced_BOGO {
 		wp_enqueue_script(
 			'wc-advanced-bogo-cart-blocks',
 			plugin_dir_url( __FILE__ ) . 'cart-blocks.js',
-			array( 'wp-element', 'wp-components', 'wp-data', 'wp-hooks' ),
+			array( 'wp-element', 'wp-components', 'wp-data', 'wp-hooks', 'wp-compose', 'jquery' ),
 			'1.0.0',
 			true
 		);
