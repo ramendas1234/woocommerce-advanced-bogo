@@ -251,7 +251,7 @@ class WC_Advanced_BOGO {
                     <div class="bogo-template-section" style="margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
                         <h2>🎨 BOGO Message Template</h2>
                         <p>Choose how your BOGO offers will appear to customers:</p>
-                        <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 15px;">
+                        <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 15px;">
                             <?php 
                             $available_templates = $this->get_available_templates();
                             $template_count = 0;
@@ -259,6 +259,12 @@ class WC_Advanced_BOGO {
                                 $template_count++;
                                 if ($template_count > 3) break; // Only show first 3 templates
                                 $template_info = $this->get_template_info( $template_name );
+                                
+                                // Get saved colors for this template
+                                $primary_color = get_option( "bogo_template_{$template_name}_primary_color", '#007cba' );
+                                $secondary_color = get_option( "bogo_template_{$template_name}_secondary_color", '#28a745' );
+                                $text_color = get_option( "bogo_template_{$template_name}_text_color", '#ffffff' );
+                                $background_color = get_option( "bogo_template_{$template_name}_background_color", '#ffffff' );
                             ?>
                             <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 20px; background: white;">
                                 <label style="display: block; cursor: pointer;">
@@ -271,42 +277,62 @@ class WC_Advanced_BOGO {
                                 
                                 <!-- Color Palette Settings -->
                                 <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                                    <h4 style="margin: 0 0 10px 0; font-size: 14px;">🎨 Color Settings</h4>
-                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                    <h4 style="margin: 0 0 15px 0; font-size: 14px; color: #333;">🎨 Color Settings</h4>
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                                         <div>
-                                            <label style="font-size: 12px; color: #666;">Primary Color:</label>
-                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][primary]" 
-                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_primary_color", '#007cba' ) ); ?>" 
-                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Primary Color:</label>
+                                            <div style="position: relative; display: inline-block;">
+                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $primary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][primary]" 
+                                                       value="<?php echo esc_attr( $primary_color ); ?>" 
+                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                       data-color-type="primary">
+                                            </div>
                                         </div>
                                         <div>
-                                            <label style="font-size: 12px; color: #666;">Secondary Color:</label>
-                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][secondary]" 
-                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_secondary_color", '#28a745' ) ); ?>" 
-                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Secondary Color:</label>
+                                            <div style="position: relative; display: inline-block;">
+                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $secondary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][secondary]" 
+                                                       value="<?php echo esc_attr( $secondary_color ); ?>" 
+                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                       data-color-type="secondary">
+                                            </div>
                                         </div>
                                         <div>
-                                            <label style="font-size: 12px; color: #666;">Text Color:</label>
-                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][text]" 
-                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_text_color", '#ffffff' ) ); ?>" 
-                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Text Color:</label>
+                                            <div style="position: relative; display: inline-block;">
+                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][text]" 
+                                                       value="<?php echo esc_attr( $text_color ); ?>" 
+                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                       data-color-type="text">
+                                            </div>
                                         </div>
                                         <div>
-                                            <label style="font-size: 12px; color: #666;">Background Color:</label>
-                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][background]" 
-                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_background_color", '#ffffff' ) ); ?>" 
-                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Background Color:</label>
+                                            <div style="position: relative; display: inline-block;">
+                                                <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $background_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][background]" 
+                                                       value="<?php echo esc_attr( $background_color ); ?>" 
+                                                       style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                       data-template="<?php echo esc_attr( $template_name ); ?>"
+                                                       data-color-type="background">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div style="margin-top: 10px; padding: 10px; <?php echo esc_attr( $template_info['style'] ); ?> font-size: 11px; position: relative;">
+                                <div style="margin-top: 15px; padding: 15px; background: <?php echo esc_attr( $background_color ); ?>; border-radius: 6px; position: relative;">
                                     <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
                                         <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
                                     <?php endif; ?>
-                                    <strong><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
-                                    <?php echo esc_html( $template_info['preview_text'] ); ?><br>
-                                    <span style="background: <?php echo $template_name === 'template1' ? 'linear-gradient(to right, #10b981, #3b82f6)' : ($template_name === 'template2' ? 'rgba(255,255,255,0.2)' : 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'); ?>; color: <?php echo $template_name === 'template2' ? 'white' : 'white'; ?>; padding: 4px 8px; border-radius: <?php echo $template_name === 'template3' ? '25px' : '4px'; ?>; margin-top: 5px; display: inline-block; <?php echo $template_name === 'template2' ? 'border: 1px solid rgba(255,255,255,0.3);' : ''; ?> <?php echo $template_name === 'template3' ? 'box-shadow: 0 4px 15px rgba(0,0,0,0.2);' : ''; ?>">
+                                    <strong style="color: <?php echo esc_attr( $text_color ); ?>;"><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
+                                    <span style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 11px;"><?php echo esc_html( $template_info['preview_text'] ); ?></span><br>
+                                    <span style="background: linear-gradient(45deg, <?php echo esc_attr( $primary_color ); ?>, <?php echo esc_attr( $secondary_color ); ?>); color: <?php echo esc_attr( $text_color ); ?>; padding: 6px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; font-size: 11px; font-weight: bold;">
                                         <?php echo esc_html( $template_info['button_text'] ); ?>
                                     </span>
                                 </div>
@@ -337,6 +363,33 @@ class WC_Advanced_BOGO {
                         <input type="submit" class="button-primary" value="Save UI Settings" style="background: #28a745; border-color: #28a745; color: white;">
                     </div>
                 </form>
+                
+                <script>
+                jQuery(document).ready(function($) {
+                    // Handle color picker changes
+                    $('input[type="color"]').on('change', function() {
+                        var template = $(this).data('template');
+                        var colorType = $(this).data('color-type');
+                        var color = $(this).val();
+                        
+                        // Update the color preview span
+                        $(this).siblings('span').css('background-color', color);
+                        
+                        // Update the preview section
+                        var previewSection = $(this).closest('.template-option').find('.template-option > div:last-child');
+                        if (colorType === 'background') {
+                            previewSection.css('background-color', color);
+                        } else if (colorType === 'text') {
+                            previewSection.find('strong, span').css('color', color);
+                        } else if (colorType === 'primary' || colorType === 'secondary') {
+                            // Update gradient button
+                            var primaryColor = previewSection.find('input[data-color-type="primary"]').val();
+                            var secondaryColor = previewSection.find('input[data-color-type="secondary"]').val();
+                            previewSection.find('span:last-child').css('background', 'linear-gradient(45deg, ' + primaryColor + ', ' + secondaryColor + ')');
+                        }
+                    });
+                });
+                </script>
             <?php endif; ?>
         </div>
         <style>
