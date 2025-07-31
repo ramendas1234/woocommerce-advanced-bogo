@@ -208,12 +208,10 @@ class WC_Advanced_BOGO {
                                         <span style="margin: 0 8px;">at</span>
                                         <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
                                         <span style="margin-left: 4px;">% off</span>
-                                        <div style="margin-top: 12px; font-size: 14px; color: #666;">
-                                            <span style="margin-right: 8px;">📅 Start:</span>
-                                            <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px; margin-right: 15px;" />
-                                            <span style="margin-right: 8px;">📅 End:</span>
-                                            <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" />
-                                        </div>
+                                        <span style="margin: 0 8px; font-size: 14px; color: #666;">📅 Start:</span>
+                                        <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px; margin-right: 8px;" />
+                                        <span style="margin: 0 8px; font-size: 14px; color: #666;">📅 End:</span>
+                                        <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" />
                                     </td>
                                     <td style="text-align: center; vertical-align: top; padding-top: 20px;">
                                         <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
