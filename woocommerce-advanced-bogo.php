@@ -82,19 +82,11 @@ class WC_Advanced_BOGO {
     public function add_admin_menu() {
         add_submenu_page(
             'woocommerce',
-            'BOGO Discount Rules',
-            'BOGO Discount Rules',
+            'Advanced BOGO',
+            'Advanced BOGO',
             'manage_woocommerce',
-            'wc-advanced-bogo-rules',
-            [ $this, 'rules_page' ]
-        );
-        add_submenu_page(
-            'woocommerce',
-            'BOGO UI Settings',
-            'BOGO UI Settings',
-            'manage_woocommerce',
-            'wc-advanced-bogo-ui',
-            [ $this, 'ui_settings_page' ]
+            'wc-advanced-bogo',
+            [ $this, 'settings_page' ]
         );
     }
 
@@ -103,9 +95,11 @@ class WC_Advanced_BOGO {
         register_setting( 'wc_advanced_bogo', self::TEMPLATE_OPTION_KEY );
     }
 
-    public function rules_page() {
-        $rules = get_option( self::OPTION_KEY, [] );
-        if ( isset( $_POST['bogo_rules'] ) ) {
+    public function settings_page() {
+        $current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : 'rules';
+        
+        // Handle form submissions
+        if ( isset( $_POST['bogo_rules'] ) && $current_tab === 'rules' ) {
             check_admin_referer( 'save_bogo_rules' );
             $filtered_rules = [];
             if ( is_array( $_POST['bogo_rules'] ) ) {
@@ -126,10 +120,20 @@ class WC_Advanced_BOGO {
             update_option( self::OPTION_KEY, $filtered_rules );
             echo '<div class="updated"><p>BOGO discount rules saved successfully!</p></div>';
         }
+
+        if ( isset( $_POST['bogo_template'] ) && $current_tab === 'ui-settings' ) {
+            check_admin_referer( 'save_bogo_template' );
+            update_option( self::TEMPLATE_OPTION_KEY, sanitize_text_field( $_POST['bogo_template'] ) );
+            echo '<div class="updated"><p>BOGO message template saved successfully!</p></div>';
+        }
+
+        $rules = get_option( self::OPTION_KEY, [] );
+        $selected_template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
         $products = wc_get_products([
             'limit' => -1,
             'status' => 'publish',
         ]);
+        
         if ( empty( $rules ) ) {
             $rules = [
                 [
@@ -145,89 +149,143 @@ class WC_Advanced_BOGO {
         }
         ?>
         <div class="wrap">
-            <h1>BOGO Discount Rules</h1>
-            <form method="post" id="bogo-rules-form">
-                <?php wp_nonce_field( 'save_bogo_rules' ); ?>
-                <div class="bogo-rules-container">
-                    <h2>💰 BOGO Discount Rules</h2>
-                    <p>Configure your BOGO (Buy One Get One) discount rules. Define which products customers need to buy to get discounts on other products.</p>
-                    <table class="widefat" id="bogo-rules-table">
-                        <thead>
-                            <tr>
-                                <th>Buy Product</th>
-                                <th>Buy Quantity</th>
-                                <th>Get Product</th>
-                                <th>Get Quantity</th>
-                                <th>Discount (%)</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bogo-rules-tbody">
-                            <?php foreach ( $rules as $index => $rule ) : ?>
-                            <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
-                                <td>
-                                    <select name="bogo_rules[<?php echo $index; ?>][buy_product]" required>
-                                        <option value="">— Select Product —</option>
-                                        <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
-                                        <?php foreach ( $products as $product ) : ?>
-                                            <option value="<?php echo $product->get_id(); ?>"
-                                                <?php selected( $rule['buy_product'], $product->get_id() ); ?>>
-                                                <?php echo esc_html( $product->get_name() ); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]"
-                                        value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required />
-                                </td>
-                                <td>
-                                    <select name="bogo_rules[<?php echo $index; ?>][get_product]" required>
-                                        <option value="">— Select Product —</option>
-                                        <?php foreach ( $products as $product ) : ?>
-                                            <option value="<?php echo $product->get_id(); ?>"
-                                                <?php selected( $rule['get_product'], $product->get_id() ); ?>>
-                                                <?php echo esc_html( $product->get_name() ); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]"
-                                        value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" />
-                                </td>
-                                <td>
-                                    <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]"
-                                        value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required />
-                                </td>
-                                <td>
-                                    <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" 
-                                        value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" />
-                                </td>
-                                <td>
-                                    <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" 
-                                        value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" />
-                                </td>
-                                <td>
-                                    <button type="button" class="button remove-bogo-rule" title="Remove this rule" 
-                                        style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                        <span style="font-size: 16px; font-weight: bold;">×</span>
-                                    </button>
-                                </td>
-                            </tr>
+            <h1>Advanced BOGO</h1>
+            
+            <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
+                <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=rules' ); ?>" 
+                   class="nav-tab <?php echo $current_tab === 'rules' ? 'nav-tab-active' : ''; ?>">
+                    Discount Rules
+                </a>
+                <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=ui-settings' ); ?>" 
+                   class="nav-tab <?php echo $current_tab === 'ui-settings' ? 'nav-tab-active' : ''; ?>">
+                    UI Settings
+                </a>
+            </nav>
+
+            <?php if ( $current_tab === 'rules' ) : ?>
+                <form method="post" id="bogo-rules-form">
+                    <?php wp_nonce_field( 'save_bogo_rules' ); ?>
+                    <div class="bogo-rules-container">
+                        <h2>💰 BOGO Discount Rules</h2>
+                        <p>Configure your BOGO (Buy One Get One) discount rules. Define which products customers need to buy to get discounts on other products.</p>
+                        <table class="widefat" id="bogo-rules-table">
+                            <thead>
+                                <tr>
+                                    <th>Buy Product</th>
+                                    <th>Buy Quantity</th>
+                                    <th>Get Product</th>
+                                    <th>Get Quantity</th>
+                                    <th>Discount (%)</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bogo-rules-tbody">
+                                <?php foreach ( $rules as $index => $rule ) : ?>
+                                <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
+                                    <td>
+                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" required>
+                                            <option value="">— Select Product —</option>
+                                            <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
+                                            <?php foreach ( $products as $product ) : ?>
+                                                <option value="<?php echo $product->get_id(); ?>"
+                                                    <?php selected( $rule['buy_product'], $product->get_id() ); ?>>
+                                                    <?php echo esc_html( $product->get_name() ); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]"
+                                            value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required />
+                                    </td>
+                                    <td>
+                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" required>
+                                            <option value="">— Select Product —</option>
+                                            <?php foreach ( $products as $product ) : ?>
+                                                <option value="<?php echo $product->get_id(); ?>"
+                                                    <?php selected( $rule['get_product'], $product->get_id() ); ?>>
+                                                    <?php echo esc_html( $product->get_name() ); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]"
+                                            value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]"
+                                            value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required />
+                                    </td>
+                                    <td>
+                                        <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" 
+                                            value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" />
+                                    </td>
+                                    <td>
+                                        <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" 
+                                            value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" />
+                                    </td>
+                                    <td>
+                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" 
+                                            style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                            <span style="font-size: 16px; font-weight: bold;">×</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bogo-actions">
+                        <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
+                            + Add New Rule
+                        </button>
+                        <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px;">
+                    </div>
+                </form>
+            <?php endif; ?>
+
+            <?php if ( $current_tab === 'ui-settings' ) : ?>
+                <form method="post" id="bogo-template-form">
+                    <?php wp_nonce_field( 'save_bogo_template' ); ?>
+                    <div class="bogo-template-section" style="margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                        <h2>🎨 BOGO Message Template</h2>
+                        <p>Choose how your BOGO offers will appear to customers:</p>
+                        <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                            <?php 
+                            $available_templates = $this->get_available_templates();
+                            foreach ( $available_templates as $template_name ) :
+                                $template_info = $this->get_template_info( $template_name );
+                            ?>
+                            <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
+                                <label style="display: block; cursor: pointer;">
+                                    <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-bottom: 10px;">
+                                    <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
+                                </label>
+                                <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                                    <?php echo esc_html( $template_info['description'] ); ?>
+                                </div>
+                                <div style="margin-top: 10px; padding: 10px; <?php echo esc_attr( $template_info['style'] ); ?> font-size: 11px; position: relative;">
+                                    <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
+                                        <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
+                                    <?php endif; ?>
+                                    <strong><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
+                                    <?php echo esc_html( $template_info['preview_text'] ); ?><br>
+                                    <span style="background: <?php echo $template_name === 'template1' ? 'linear-gradient(to right, #10b981, #3b82f6)' : ($template_name === 'template2' ? 'rgba(255,255,255,0.2)' : 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'); ?>; color: <?php echo $template_name === 'template2' ? 'white' : 'white'; ?>; padding: 4px 8px; border-radius: <?php echo $template_name === 'template3' ? '25px' : '4px'; ?>; margin-top: 5px; display: inline-block; <?php echo $template_name === 'template2' ? 'border: 1px solid rgba(255,255,255,0.3);' : ''; ?> <?php echo $template_name === 'template3' ? 'box-shadow: 0 4px 15px rgba(0,0,0,0.2);' : ''; ?>">
+                                        <?php echo esc_html( $template_info['button_text'] ); ?>
+                                    </span>
+                                </div>
+                            </div>
                             <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="bogo-actions">
-                    <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
-                        + Add New Rule
-                    </button>
-                    <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px;">
-                </div>
-            </form>
+                        </div>
+                    </div>
+                    <div class="bogo-actions">
+                        <input type="submit" class="button-primary" value="Save UI Settings">
+                    </div>
+                </form>
+            <?php endif; ?>
         </div>
         <style>
             .remove-bogo-rule { transition: all 0.2s ease; border-radius: 4px !important; }
@@ -236,62 +294,6 @@ class WC_Advanced_BOGO {
             .add-bogo-rule:hover { background: #005a87 !important; border-color: #005a87 !important; }
             .bogo-rules-container { margin-bottom: 20px; }
             .no-rules-message { text-align: center; padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; margin: 10px 0; }
-        </style>
-        <?php
-    }
-
-    public function ui_settings_page() {
-        $selected_template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
-        if ( isset( $_POST['bogo_template'] ) ) {
-            check_admin_referer( 'save_bogo_template' );
-            update_option( self::TEMPLATE_OPTION_KEY, sanitize_text_field( $_POST['bogo_template'] ) );
-            $selected_template = sanitize_text_field( $_POST['bogo_template'] );
-            echo '<div class="updated"><p>BOGO message template saved successfully!</p></div>';
-        }
-        ?>
-        <div class="wrap">
-            <h1>BOGO UI Settings</h1>
-            <form method="post" id="bogo-template-form">
-                <?php wp_nonce_field( 'save_bogo_template' ); ?>
-                <div class="bogo-template-section" style="margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
-                    <h2>🎨 BOGO Message Template</h2>
-                    <p>Choose how your BOGO offers will appear to customers:</p>
-                    <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
-                        <?php 
-                        $available_templates = $this->get_available_templates();
-                        foreach ( $available_templates as $template_name ) :
-                            $template_info = $this->get_template_info( $template_name );
-                        ?>
-                        <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
-                            <label style="display: block; cursor: pointer;">
-                                <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-bottom: 10px;">
-                                <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
-                            </label>
-                            <div style="font-size: 12px; color: #666; margin-top: 8px;">
-                                <?php echo esc_html( $template_info['description'] ); ?>
-                            </div>
-                            <div style="margin-top: 10px; padding: 10px; <?php echo esc_attr( $template_info['style'] ); ?> font-size: 11px; position: relative;">
-                                <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
-                                    <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
-                                <?php endif; ?>
-                                <strong><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
-                                <?php echo esc_html( $template_info['preview_text'] ); ?><br>
-                                <span style="background: <?php echo $template_name === 'template1' ? 'linear-gradient(to right, #10b981, #3b82f6)' : ($template_name === 'template2' ? 'rgba(255,255,255,0.2)' : 'linear-gradient(45deg, #ff6b6b, #4ecdc4)'); ?>; color: <?php echo $template_name === 'template2' ? 'white' : 'white'; ?>; padding: 4px 8px; border-radius: <?php echo $template_name === 'template3' ? '25px' : '4px'; ?>; margin-top: 5px; display: inline-block; <?php echo $template_name === 'template2' ? 'border: 1px solid rgba(255,255,255,0.3);' : ''; ?> <?php echo $template_name === 'template3' ? 'box-shadow: 0 4px 15px rgba(0,0,0,0.2);' : ''; ?>">
-                                    <?php echo esc_html( $template_info['button_text'] ); ?>
-                                </span>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div class="bogo-actions">
-                    <input type="submit" class="button-primary" value="Save UI Settings">
-                </div>
-            </form>
-        </div>
-        <style>
-            .template-option { border: 2px solid #ddd; border-radius: 8px; padding: 15px; background: white; transition: all 0.2s ease; }
-            .template-option.selected, .template-option input[type=radio]:checked + strong { border-color: #007cba; background: #f0f8ff; }
         </style>
         <?php
     }
