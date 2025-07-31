@@ -129,7 +129,20 @@ class WC_Advanced_BOGO {
         if ( isset( $_POST['bogo_template'] ) && $current_tab === 'ui-settings' ) {
             check_admin_referer( 'save_bogo_template' );
             update_option( self::TEMPLATE_OPTION_KEY, sanitize_text_field( $_POST['bogo_template'] ) );
-            echo '<div class="updated"><p>BOGO message template saved successfully!</p></div>';
+            
+            // Save color palette settings
+            if ( isset( $_POST['bogo_template_colors'] ) && is_array( $_POST['bogo_template_colors'] ) ) {
+                foreach ( $_POST['bogo_template_colors'] as $template_name => $colors ) {
+                    if ( is_array( $colors ) ) {
+                        foreach ( $colors as $color_type => $color_value ) {
+                            $option_name = "bogo_template_{$template_name}_{$color_type}_color";
+                            update_option( $option_name, sanitize_hex_color( $color_value ) );
+                        }
+                    }
+                }
+            }
+            
+            echo '<div class="updated"><p>BOGO message template and color settings saved successfully!</p></div>';
         }
 
         $rules = get_option( self::OPTION_KEY, [] );
@@ -170,14 +183,7 @@ class WC_Advanced_BOGO {
                         <h2>💰 BOGO Discount Rules</h2>
                         <p style="margin-bottom: 20px;">Create rules in plain language. Example: <em>Buy 2 units of T-shirt and get 2 Hat at 50% off</em></p>
                         
-                        <div class="bogo-actions" style="margin-bottom: 20px;">
-                            <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
-                                + Add New Rule
-                            </button>
-                            <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px;">
-                        </div>
-                        
-                        <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table">
+                        <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table" style="margin-left: 20px;">
                             <thead>
                                 <tr>
                                     <th style="width: 100%;">Rule</th>
@@ -220,13 +226,21 @@ class WC_Advanced_BOGO {
                                     </td>
                                     <td style="text-align: center; vertical-align: top; padding-top: 20px;">
                                         <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-                                            <span style="font-size: 16px;">🗑️</span>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
                                         </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="bogo-actions" style="margin-top: 20px; margin-left: 20px;">
+                        <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
+                            + Add New Rule
+                        </button>
+                        <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px; background: #28a745; border-color: #28a745; color: white;">
                     </div>
                 </form>
             <?php endif; ?>
@@ -237,13 +251,16 @@ class WC_Advanced_BOGO {
                     <div class="bogo-template-section" style="margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
                         <h2>🎨 BOGO Message Template</h2>
                         <p>Choose how your BOGO offers will appear to customers:</p>
-                        <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                        <div class="template-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-top: 15px;">
                             <?php 
                             $available_templates = $this->get_available_templates();
+                            $template_count = 0;
                             foreach ( $available_templates as $template_name ) :
+                                $template_count++;
+                                if ($template_count > 3) break; // Only show first 3 templates
                                 $template_info = $this->get_template_info( $template_name );
                             ?>
-                            <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 15px; background: white;">
+                            <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 20px; background: white;">
                                 <label style="display: block; cursor: pointer;">
                                     <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" <?php checked( $selected_template, $template_name ); ?> style="margin-bottom: 10px;">
                                     <strong><?php echo esc_html( $template_info['name'] ); ?></strong>
@@ -251,6 +268,38 @@ class WC_Advanced_BOGO {
                                 <div style="font-size: 12px; color: #666; margin-top: 8px;">
                                     <?php echo esc_html( $template_info['description'] ); ?>
                                 </div>
+                                
+                                <!-- Color Palette Settings -->
+                                <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                    <h4 style="margin: 0 0 10px 0; font-size: 14px;">🎨 Color Settings</h4>
+                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                        <div>
+                                            <label style="font-size: 12px; color: #666;">Primary Color:</label>
+                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][primary]" 
+                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_primary_color", '#007cba' ) ); ?>" 
+                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 12px; color: #666;">Secondary Color:</label>
+                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][secondary]" 
+                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_secondary_color", '#28a745' ) ); ?>" 
+                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 12px; color: #666;">Text Color:</label>
+                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][text]" 
+                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_text_color", '#ffffff' ) ); ?>" 
+                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 12px; color: #666;">Background Color:</label>
+                                            <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][background]" 
+                                                   value="<?php echo esc_attr( get_option( "bogo_template_{$template_name}_background_color", '#ffffff' ) ); ?>" 
+                                                   style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div style="margin-top: 10px; padding: 10px; <?php echo esc_attr( $template_info['style'] ); ?> font-size: 11px; position: relative;">
                                     <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
                                         <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
@@ -263,10 +312,29 @@ class WC_Advanced_BOGO {
                                 </div>
                             </div>
                             <?php endforeach; ?>
+                            
+                            <!-- Commented out templates for future use -->
+                            <?php /*
+                            <?php foreach ( $available_templates as $template_name ) :
+                                $template_count++;
+                                if ($template_count <= 3) continue; // Skip first 3 templates
+                                $template_info = $this->get_template_info( $template_name );
+                            ?>
+                            <div class="template-option" style="border: 2px solid #ddd; border-radius: 8px; padding: 20px; background: white; opacity: 0.5;">
+                                <label style="display: block; cursor: pointer;">
+                                    <input type="radio" name="bogo_template" value="<?php echo esc_attr( $template_name ); ?>" disabled style="margin-bottom: 10px;">
+                                    <strong><?php echo esc_html( $template_info['name'] ); ?> (Coming Soon)</strong>
+                                </label>
+                                <div style="font-size: 12px; color: #666; margin-top: 8px;">
+                                    <?php echo esc_html( $template_info['description'] ); ?>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                            */ ?>
                         </div>
                     </div>
                     <div class="bogo-actions">
-                        <input type="submit" class="button-primary" value="Save UI Settings">
+                        <input type="submit" class="button-primary" value="Save UI Settings" style="background: #28a745; border-color: #28a745; color: white;">
                     </div>
                 </form>
             <?php endif; ?>
