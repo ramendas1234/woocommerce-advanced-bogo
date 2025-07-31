@@ -29,6 +29,8 @@ class WC_Advanced_BOGO {
         add_action( 'wp_ajax_save_bogo_template_selection', array( $this, 'save_bogo_template_selection' ) );
         add_action( 'wp_ajax_get_bogo_template_settings', array( $this, 'get_bogo_template_settings' ) );
         add_action( 'wp_ajax_nopriv_get_bogo_template_settings', array( $this, 'get_bogo_template_settings' ) );
+        add_action( 'wp_ajax_refresh_bogo_templates', array( $this, 'refresh_bogo_templates' ) );
+        add_action( 'wp_ajax_nopriv_refresh_bogo_templates', array( $this, 'refresh_bogo_templates' ) );
     }
 
 	/**
@@ -406,6 +408,24 @@ class WC_Advanced_BOGO {
 					0% { transform: scale(1); }
 					50% { transform: scale(1.02); }
 					100% { transform: scale(1); }
+				}
+				
+				/* Loading state */
+				.bogo-loading {
+					opacity: 0.7;
+					pointer-events: none;
+				}
+				
+				.bogo-loading-indicator {
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					background: rgba(255, 255, 255, 0.9);
+					padding: 10px 20px;
+					border-radius: 5px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					z-index: 1000;
 				}
 			' );
 
@@ -1167,6 +1187,7 @@ class WC_Advanced_BOGO {
 					$selected_template = isset( $template_settings['selected_template'] ) ? $template_settings['selected_template'] : 1;
 					
 					// Generate template based on selection
+					echo '<div class="bogo-template-wrapper" data-product-id="' . $product->get_id() . '" data-rule-index="' . $index . '">';
 					echo $this->get_bogo_template( 
 						$selected_template, 
 						$buy_qty, 
@@ -1179,6 +1200,7 @@ class WC_Advanced_BOGO {
 						$discount, 
 						$index 
 					);
+					echo '</div>';
 				}
 			}
 		}
@@ -1764,6 +1786,16 @@ class WC_Advanced_BOGO {
 	}
 
 	/**
+	 * Broadcast template changes to frontend
+	 */
+	private function broadcast_template_changes() {
+		// This could be implemented with WebSockets or Server-Sent Events
+		// For now, we'll rely on the polling mechanism
+		// In a production environment, you might want to use WebSockets
+		do_action( 'bogo_template_changed' );
+	}
+
+	/**
 	 * Handle saving BOGO template selection via AJAX
 	 */
 	public function save_bogo_template_selection() {
@@ -1792,6 +1824,8 @@ class WC_Advanced_BOGO {
 		$result = update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
 
 		if ( $result ) {
+			// Broadcast the change
+			$this->broadcast_template_changes();
 			wp_send_json_success( array( 'message' => 'Template selection saved successfully' ) );
 		} else {
 			wp_send_json_error( array( 'message' => 'Failed to save template selection' ) );
@@ -1831,6 +1865,8 @@ class WC_Advanced_BOGO {
 		$result = update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
 
 		if ( $result ) {
+			// Broadcast the change
+			$this->broadcast_template_changes();
 			wp_send_json_success( array( 'message' => 'Colors saved successfully' ) );
 		} else {
 			wp_send_json_error( array( 'message' => 'Failed to save colors' ) );
@@ -1851,6 +1887,66 @@ class WC_Advanced_BOGO {
 
 		// Return template settings
 		wp_send_json_success( $template_settings );
+	}
+
+	/**
+	 * Handle refreshing BOGO templates via AJAX
+	 */
+	public function refresh_bogo_templates() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'wc_advanced_bogo_nonce' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		$product_id = intval( $_POST['product_id'] );
+		$rule_index = intval( $_POST['rule_index'] );
+		
+		// Get current template settings
+		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
+		$rules = get_option( self::OPTION_KEY, [] );
+		
+		if ( isset( $rules[$rule_index] ) ) {
+			$rule = $rules[$rule_index];
+			$product = wc_get_product( $product_id );
+			
+			if ( $product && ! empty( $rule['buy_product'] ) && ( $rule['buy_product'] === 'all' || intval( $rule['buy_product'] ) === $product_id ) ) {
+				$buy_qty     = intval( $rule['buy_qty'] );
+				$get_qty     = intval( $rule['get_qty'] ) ?: 1;
+				$get_product = wc_get_product( intval( $rule['get_product'] ) );
+				$discount    = intval( $rule['discount'] );
+
+				if ( $get_product ) {
+					$discount_text = ( $discount == 100 )
+						? 'for free!'
+						: "at {$discount}% off!";
+
+					$get_image = $get_product->get_image( 'thumbnail' );
+					$get_name  = $get_product->get_name();
+					$buy_product_id = $rule['buy_product'] === 'all' ? $product_id : intval( $rule['buy_product'] );
+
+					// Get the selected template
+					$selected_template = isset( $template_settings['selected_template'] ) ? $template_settings['selected_template'] : 1;
+					
+					// Generate new template HTML
+					$template_html = $this->get_bogo_template( 
+						$selected_template, 
+						$buy_qty, 
+						$get_qty, 
+						$get_name, 
+						$discount_text, 
+						$get_image, 
+						$buy_product_id, 
+						$get_product->get_id(), 
+						$discount, 
+						$rule_index 
+					);
+					
+					wp_send_json_success( array( 'html' => $template_html ) );
+				}
+			}
+		}
+		
+		wp_send_json_error( array( 'message' => 'Failed to refresh template' ) );
 	}
 
 }

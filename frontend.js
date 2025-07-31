@@ -1,6 +1,52 @@
 jQuery(document).ready(function($) {
     console.log('BOGO Frontend JS loaded');
 
+    // Function to refresh BOGO templates with new settings
+    function refreshBogoTemplates() {
+        $('.bogo-template-wrapper').each(function() {
+            var $wrapper = $(this);
+            var productId = $wrapper.data('product-id');
+            var ruleIndex = $wrapper.data('rule-index');
+            
+            if (productId) {
+                // Add loading indicator
+                $wrapper.addClass('bogo-loading');
+                $wrapper.append('<div class="bogo-loading-indicator" style="text-align: center; padding: 10px; color: #666;">🔄 Updating template...</div>');
+                
+                $.ajax({
+                    url: wc_advanced_bogo_ajax.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'refresh_bogo_templates',
+                        product_id: productId,
+                        rule_index: ruleIndex,
+                        nonce: wc_advanced_bogo_ajax.nonce
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('BOGO: Template refreshed successfully');
+                            // Replace the wrapper content with new HTML
+                            $wrapper.html(response.data.html);
+                            // Remove loading state
+                            $wrapper.removeClass('bogo-loading');
+                            // Reinitialize any necessary scripts
+                            initializeBogoScripts();
+                        } else {
+                            console.error('BOGO: Error refreshing template:', response.data);
+                            $wrapper.removeClass('bogo-loading');
+                            $wrapper.find('.bogo-loading-indicator').remove();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('BOGO: AJAX error refreshing template:', error);
+                        $wrapper.removeClass('bogo-loading');
+                        $wrapper.find('.bogo-loading-indicator').remove();
+                    }
+                });
+            }
+        });
+    }
+
     // Function to update BOGO template colors dynamically
     function updateBogoTemplateColors(templateSettings) {
         $('.bogo-offer-container').each(function() {
@@ -69,16 +115,26 @@ jQuery(document).ready(function($) {
                 type: 'POST',
                 data: {
                     action: 'get_bogo_template_settings',
-                    template: 'template1', // Default template
+                    template: 'template1',
                     nonce: wc_advanced_bogo_ajax.nonce
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Compare with current settings to avoid unnecessary updates
                         var currentSettings = wc_advanced_bogo_ajax.template_settings || {};
                         var newSettings = response.data;
                         
-                        // Check if settings have changed
+                        // Check if template selection changed
+                        var currentTemplate = currentSettings.selected_template || 1;
+                        var newTemplate = newSettings.selected_template || 1;
+                        
+                        if (currentTemplate !== newTemplate) {
+                            console.log('BOGO: Template selection changed, refreshing templates...');
+                            refreshBogoTemplates();
+                            wc_advanced_bogo_ajax.template_settings = newSettings;
+                            return;
+                        }
+                        
+                        // Check if colors changed
                         var hasChanges = false;
                         for (var templateKey in newSettings) {
                             if (newSettings.hasOwnProperty(templateKey) && templateKey !== 'selected_template') {
@@ -96,9 +152,8 @@ jQuery(document).ready(function($) {
                         }
                         
                         if (hasChanges) {
-                            console.log('BOGO: Template settings changed, updating frontend...');
+                            console.log('BOGO: Template colors changed, updating frontend...');
                             updateBogoTemplateColors(newSettings);
-                            // Update the stored settings
                             wc_advanced_bogo_ajax.template_settings = newSettings;
                         }
                     }
@@ -110,12 +165,28 @@ jQuery(document).ready(function($) {
         }
     }
 
-    // Check for admin changes every 2 seconds if user is admin
+    // Function to initialize BOGO scripts after template refresh
+    function initializeBogoScripts() {
+        // Re-initialize any necessary event handlers or scripts
+        console.log('BOGO: Scripts reinitialized');
+    }
+
+    // Check for admin changes every 1 second if user is admin (more responsive)
     if (typeof wc_advanced_bogo_ajax !== 'undefined' && wc_advanced_bogo_ajax.is_admin) {
-        setInterval(checkForAdminChanges, 2000);
+        setInterval(checkForAdminChanges, 1000);
         
         // Also check immediately on page load
-        setTimeout(checkForAdminChanges, 1000);
+        setTimeout(checkForAdminChanges, 500);
+        
+        // Add manual refresh trigger (for testing)
+        $(document).on('keydown', function(e) {
+            // Press Ctrl+R to manually refresh templates
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                console.log('BOGO: Manual refresh triggered');
+                checkForAdminChanges();
+            }
+        });
     }
 
     // Handle grab offer button clicks
