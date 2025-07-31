@@ -36,41 +36,45 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('BOGO: Using fallback nonce from meta tag');
             }
 
-            jQuery(this).select2({
-                ajax: {
-                    url: ajaxurl,
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            term: params.term,
-                            action: 'woocommerce_json_search_products',
-                            security: nonce
-                        };
-                    },
-                    processResults: function(data) {
-                        var terms = [];
-                        if (data) {
-                            jQuery.each(data, function(id, text) {
-                                terms.push({
-                                    id: id,
-                                    text: text
+            try {
+                jQuery(this).select2({
+                    ajax: {
+                        url: ajaxurl,
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                action: 'woocommerce_json_search_products',
+                                security: nonce
+                            };
+                        },
+                        processResults: function(data) {
+                            var terms = [];
+                            if (data) {
+                                jQuery.each(data, function(id, text) {
+                                    terms.push({
+                                        id: id,
+                                        text: text
+                                    });
                                 });
-                            });
-                        }
-                        return {
-                            results: terms
-                        };
+                            }
+                            return {
+                                results: terms
+                            };
+                        },
+                        cache: true
                     },
-                    cache: true
-                },
-                minimumInputLength: 2,
-                placeholder: jQuery(this).data('placeholder') || 'Search for a product...',
-                allowClear: true,
-                width: '100%'
-            });
+                    minimumInputLength: 2,
+                    placeholder: jQuery(this).data('placeholder') || 'Search for a product...',
+                    allowClear: true,
+                    width: '100%'
+                });
 
-            console.log('BOGO: Select2 initialized successfully');
+                console.log('BOGO: Select2 initialized successfully');
+            } catch (error) {
+                console.error('BOGO: Error initializing Select2:', error);
+            }
         });
     }
 
@@ -171,9 +175,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const selects = newRow.querySelectorAll('select');
         selects.forEach(select => {
             select.selectedIndex = 0;
-            // Remove any existing Select2 initialization
-            if (select.classList.contains('select2-hidden-accessible')) {
-                jQuery(select).select2('destroy');
+            // Clear any existing Select2 classes (no need to destroy since it's a new element)
+            select.classList.remove('select2-hidden-accessible');
+            const select2Container = select.parentNode.querySelector('.select2-container');
+            if (select2Container) {
+                select2Container.remove();
             }
         });
         
@@ -203,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             console.log('BOGO: Reinitializing product search for new row...');
             initializeProductSearch();
-        }, 100);
+        }, 200);
         
         ruleIndex++;
         
@@ -256,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeExistingButtons();
     
     // Initialize product search with delay to ensure WooCommerce scripts are loaded
-    setTimeout(initializeProductSearch, 500);
+    setTimeout(initializeProductSearch, 1000);
     
     console.log('BOGO: Admin functionality initialized');
 
