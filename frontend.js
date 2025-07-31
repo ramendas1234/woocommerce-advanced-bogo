@@ -1,6 +1,152 @@
 jQuery(document).ready(function($) {
     console.log('BOGO Frontend JS loaded');
 
+    // Check if Tailwind CSS is loaded and apply fallback styles if needed
+    function checkTailwindCSS() {
+        // Test if Tailwind classes are working
+        const testElement = $('<div class="flex items-center" style="display: none;"></div>');
+        $('body').append(testElement);
+        
+        const computedStyle = window.getComputedStyle(testElement[0]);
+        const isTailwindWorking = computedStyle.display === 'flex';
+        
+        testElement.remove();
+        
+        if (!isTailwindWorking) {
+            console.log('BOGO: Tailwind CSS not detected, applying fallback styles');
+            applyFallbackStyles();
+        } else {
+            console.log('BOGO: Tailwind CSS is working properly');
+        }
+    }
+
+    // Apply fallback styles for BOGO templates
+    function applyFallbackStyles() {
+        const fallbackCSS = `
+            <style id="bogo-fallback-styles">
+                .bogo-offer-container {
+                    margin: 1rem 0 !important;
+                    padding: 1rem !important;
+                    border: 1px solid #e5e7eb !important;
+                    border-radius: 0.5rem !important;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+                    background: #ffffff !important;
+                }
+                
+                .bogo-offer-container .flex {
+                    display: flex !important;
+                }
+                
+                .bogo-offer-container .items-center {
+                    align-items: center !important;
+                }
+                
+                .bogo-offer-container .gap-4 {
+                    gap: 1rem !important;
+                }
+                
+                .bogo-offer-container .w-24 {
+                    width: 6rem !important;
+                }
+                
+                .bogo-offer-container .h-24 {
+                    height: 6rem !important;
+                }
+                
+                .bogo-offer-container .flex-shrink-0 {
+                    flex-shrink: 0 !important;
+                }
+                
+                .bogo-offer-container .flex-grow {
+                    flex-grow: 1 !important;
+                }
+                
+                .bogo-offer-container .text-lg {
+                    font-size: 1.125rem !important;
+                }
+                
+                .bogo-offer-container .font-bold {
+                    font-weight: 700 !important;
+                }
+                
+                .bogo-offer-container .mb-1 {
+                    margin-bottom: 0.25rem !important;
+                }
+                
+                .bogo-offer-container .text-sm {
+                    font-size: 0.875rem !important;
+                }
+                
+                .bogo-offer-container .mb-3 {
+                    margin-bottom: 0.75rem !important;
+                }
+                
+                .bogo-offer-container .font-semibold {
+                    font-weight: 600 !important;
+                }
+                
+                .bogo-offer-container .inline-flex {
+                    display: inline-flex !important;
+                }
+                
+                .bogo-offer-container .px-4 {
+                    padding-left: 1rem !important;
+                    padding-right: 1rem !important;
+                }
+                
+                .bogo-offer-container .py-2 {
+                    padding-top: 0.5rem !important;
+                    padding-bottom: 0.5rem !important;
+                }
+                
+                .bogo-offer-container .rounded-lg {
+                    border-radius: 0.5rem !important;
+                }
+                
+                .bogo-offer-container .shadow-md {
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+                }
+                
+                .bogo-offer-container .w-4 {
+                    width: 1rem !important;
+                }
+                
+                .bogo-offer-container .h-4 {
+                    height: 1rem !important;
+                }
+                
+                .bogo-offer-container .mr-2 {
+                    margin-right: 0.5rem !important;
+                }
+                
+                .bogo-offer-container .ml-2 {
+                    margin-left: 0.5rem !important;
+                }
+                
+                .bogo-offer-container .grab-bogo-offer-btn {
+                    cursor: pointer !important;
+                    border: none !important;
+                    font-weight: 600 !important;
+                    transition: all 0.2s ease !important;
+                }
+                
+                .bogo-offer-container .grab-bogo-offer-btn:hover {
+                    transform: scale(1.05) !important;
+                }
+                
+                .bogo-offer-container .grab-bogo-offer-btn:disabled {
+                    opacity: 0.5 !important;
+                    cursor: not-allowed !important;
+                }
+            </style>
+        `;
+        
+        $('head').append(fallbackCSS);
+    }
+
+    // Check Tailwind CSS on page load
+    checkTailwindCSS();
+
     // Handle grab offer button clicks
     $(document).on('click', '.grab-bogo-offer-btn', function(e) {
         e.preventDefault();

@@ -323,20 +323,111 @@ class WC_Advanced_BOGO {
 	public function enqueue_assets() {
 		// Only load on product pages, cart, and checkout
 		if ( is_product() || is_cart() || is_checkout() ) {
-			// Enqueue Tailwind CSS from CDN
+			// Enqueue Tailwind CSS from CDN with proper version and fallback
 			wp_enqueue_style(
 				'wc-advanced-bogo-tailwind',
-				'https://cdn.tailwindcss.com',
+				'https://cdn.jsdelivr.net/npm/tailwindcss@3.4.17/lib/index.min.css',
 				array(),
-				'3.0.0'
+				'3.4.17'
 			);
 
-			// Add custom CSS for spinner animation
+			// Add custom CSS for spinner animation and BOGO styling
 			wp_add_inline_style( 'wc-advanced-bogo-tailwind', '
 				@keyframes spin {
 					0% { transform: rotate(0deg); }
 					100% { transform: rotate(360deg); }
 				}
+				
+				/* BOGO Template Styling */
+				.bogo-offer-container {
+					margin: 1rem 0;
+					padding: 1rem;
+					border-radius: 0.5rem;
+					box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+					transition: all 0.3s ease;
+					border: 1px solid #e5e7eb;
+				}
+				
+				.bogo-offer-container:hover {
+					transform: translateY(-2px);
+					box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+				}
+				
+				.bogo-offer-button {
+					display: inline-block;
+					padding: 0.5rem 1rem;
+					border-radius: 0.375rem;
+					font-weight: 600;
+					text-decoration: none;
+					transition: all 0.2s ease;
+					cursor: pointer;
+					border: none;
+				}
+				
+				.bogo-offer-button:hover {
+					transform: scale(1.05);
+				}
+				
+				/* Template 3 (Dynamic Burst) specific styling */
+				.bogo-template-3 .bogo-offer-container {
+					max-width: 15rem;
+					margin: 0.5rem auto;
+				}
+				
+				.bogo-template-3 .bogo-offer-content {
+					padding: 0.75rem;
+				}
+				
+				.bogo-template-3 .bogo-offer-title {
+					font-size: 0.875rem;
+					margin-bottom: 0.5rem;
+				}
+				
+				.bogo-template-3 .bogo-offer-description {
+					font-size: 0.75rem;
+					margin-bottom: 0.5rem;
+				}
+				
+				.bogo-template-3 .bogo-offer-button {
+					font-size: 0.75rem;
+					padding: 0.375rem 0.75rem;
+				}
+				
+				/* Fallback styles in case Tailwind doesn\'t load */
+				.my-4 { margin-top: 1rem; margin-bottom: 1rem; }
+				.p-4 { padding: 1rem; }
+				.border { border-width: 1px; }
+				.border-gray-200 { border-color: #e5e7eb; }
+				.rounded-lg { border-radius: 0.5rem; }
+				.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+				.flex { display: flex; }
+				.items-center { align-items: center; }
+				.gap-4 { gap: 1rem; }
+				.w-24 { width: 6rem; }
+				.h-24 { height: 6rem; }
+				.flex-shrink-0 { flex-shrink: 0; }
+				.flex-grow { flex-grow: 1; }
+				.text-lg { font-size: 1.125rem; }
+				.font-bold { font-weight: 700; }
+				.mb-1 { margin-bottom: 0.25rem; }
+				.text-sm { font-size: 0.875rem; }
+				.mb-3 { margin-bottom: 0.75rem; }
+				.font-semibold { font-weight: 600; }
+				.inline-flex { display: inline-flex; }
+				.px-4 { padding-left: 1rem; padding-right: 1rem; }
+				.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+				.rounded-lg { border-radius: 0.5rem; }
+				.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+				.hover\\:shadow-lg:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+				.transform { transform: translateZ(0); }
+				.hover\\:scale-105:hover { transform: scale(1.05); }
+				.transition-all { transition-property: all; }
+				.duration-200 { transition-duration: 200ms; }
+				.text-sm { font-size: 0.875rem; }
+				.w-4 { width: 1rem; }
+				.h-4 { height: 1rem; }
+				.mr-2 { margin-right: 0.5rem; }
+				.ml-2 { margin-left: 0.5rem; }
 			' );
 
 			// Enqueue frontend JavaScript
