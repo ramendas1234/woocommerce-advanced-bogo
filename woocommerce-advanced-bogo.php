@@ -378,6 +378,18 @@ class WC_Advanced_BOGO {
 			wp_localize_script( 'wc-advanced-bogo-admin', 'woocommerce_admin_meta_boxes', array(
 				'search_products_nonce' => wp_create_nonce( 'search-products' )
 			) );
+			
+			// Also localize the main WooCommerce admin script if not already done
+			if ( ! wp_script_is( 'woocommerce_admin', 'localized' ) ) {
+				wp_localize_script( 'woocommerce_admin', 'woocommerce_admin_meta_boxes', array(
+					'search_products_nonce' => wp_create_nonce( 'search-products' )
+				) );
+			}
+			
+			// Add ajaxurl to our script
+			wp_localize_script( 'wc-advanced-bogo-admin', 'bogo_ajax', array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' )
+			) );
 		}
 	}
 

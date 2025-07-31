@@ -31,15 +31,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 nonce = wc_enhanced_select_params.search_products_nonce;
                 console.log('BOGO: Using nonce from wc_enhanced_select_params');
             } else {
-                // Fallback: create a nonce
+                // Fallback: create a nonce from meta tag
                 nonce = jQuery('meta[name="woocommerce-search-products-nonce"]').attr('content') || '';
-                console.log('BOGO: Using fallback nonce from meta tag');
+                console.log('BOGO: Using fallback nonce from meta tag:', nonce);
+            }
+
+            // If still no nonce, create a basic one
+            if (!nonce) {
+                nonce = 'bogo_search_nonce';
+                console.log('BOGO: Using default nonce');
             }
 
             try {
                 jQuery(this).select2({
                     ajax: {
-                        url: ajaxurl,
+                        url: typeof ajaxurl !== 'undefined' ? ajaxurl : (typeof bogo_ajax !== 'undefined' ? bogo_ajax.ajaxurl : '/wp-admin/admin-ajax.php'),
                         dataType: 'json',
                         delay: 250,
                         data: function(params) {
