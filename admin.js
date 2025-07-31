@@ -230,7 +230,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const addButton = document.getElementById('add-bogo-rule');
     
     if (addButton) {
+        console.log('BOGO: Add button found, adding event listener');
         addButton.addEventListener('click', function(e) {
+            console.log('BOGO: Add button clicked');
             e.preventDefault();
             addEmptyRule();
             
@@ -245,14 +247,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     } else {
         console.error('BOGO Error: Add button not found');
+        console.log('BOGO: Available buttons:', document.querySelectorAll('button'));
     }
 
     // Initialize everything
+    console.log('BOGO: Initializing admin functionality...');
     initializeRuleIndex();
     initializeExistingButtons();
     
     // Initialize product search with delay to ensure WooCommerce scripts are loaded
     setTimeout(initializeProductSearch, 500);
+    
+    console.log('BOGO: Admin functionality initialized');
 
     // Form validation before submit
     const form = document.getElementById('bogo-rules-form');
