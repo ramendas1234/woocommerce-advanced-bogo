@@ -25,6 +25,8 @@ class WC_Advanced_BOGO {
         add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
         add_action( 'wp_ajax_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
         add_action( 'wp_ajax_nopriv_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
+        add_action( 'wp_ajax_save_bogo_template_colors', array( $this, 'save_bogo_template_colors' ) );
+        add_action( 'wp_ajax_save_bogo_template_selection', array( $this, 'save_bogo_template_selection' ) );
     }
 
 	/**
@@ -726,7 +728,8 @@ class WC_Advanced_BOGO {
                                                            style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="primary"
-                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['primary'] ); ?>">
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['primary'] ); ?>"
+                                                           class="template-color-input">
                                                 </div>
                                             </div>
                                             <div>
@@ -738,7 +741,8 @@ class WC_Advanced_BOGO {
                                                            style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="secondary"
-                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['secondary'] ); ?>">
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['secondary'] ); ?>"
+                                                           class="template-color-input">
                                                 </div>
                                             </div>
                                             <div>
@@ -750,7 +754,8 @@ class WC_Advanced_BOGO {
                                                            style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="text"
-                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['text'] ); ?>">
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['text'] ); ?>"
+                                                           class="template-color-input">
                                                 </div>
                                             </div>
                                             <div>
@@ -762,7 +767,8 @@ class WC_Advanced_BOGO {
                                                            style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="background"
-                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['background'] ); ?>">
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['background'] ); ?>"
+                                                           class="template-color-input">
                                                 </div>
                                             </div>
                                             <div>
@@ -774,7 +780,8 @@ class WC_Advanced_BOGO {
                                                            style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="button_bg"
-                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['button_bg'] ); ?>">
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['button_bg'] ); ?>"
+                                                           class="template-color-input">
                                                 </div>
                                             </div>
                                             <div>
@@ -786,7 +793,8 @@ class WC_Advanced_BOGO {
                                                            style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="button_text"
-                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['button_text'] ); ?>">
+                                                           data-default="<?php echo esc_attr( $default_colors[$template_name]['button_text'] ); ?>"
+                                                           class="template-color-input">
                                                 </div>
                                             </div>
                                         </div>
@@ -957,6 +965,103 @@ class WC_Advanced_BOGO {
                             $(this).text('🔄 Reset Colors').css('background', '#f8f9fa').css('color', '#666');
                         }.bind(this), 1000);
                     });
+
+                    // Add color change handlers for dynamic preview
+                    $('.template-color-input').on('input change', function() {
+                        var templateOption = $(this).closest('.template-option');
+                        var templateKey = templateOption.data('template');
+                        var colorType = $(this).data('color-type');
+                        var colorValue = $(this).val();
+                        
+                        // Update the preview immediately
+                        var previewSection = templateOption.find('> div:last-child');
+                        var previewButton = previewSection.find('span[data-button-bg]');
+                        
+                        if (colorType === 'background') {
+                            previewSection.css('background-color', colorValue);
+                        } else if (colorType === 'text') {
+                            previewSection.find('strong, span:not([data-button-bg])').css('color', colorValue);
+                        } else if (colorType === 'button_bg') {
+                            previewButton.css('background-color', colorValue);
+                        } else if (colorType === 'button_text') {
+                            previewButton.css('color', colorValue);
+                        }
+                        
+                        // Add visual feedback
+                        $(this).closest('.color-group').addClass('color-changed');
+                        setTimeout(function() {
+                            $(this).closest('.color-group').removeClass('color-changed');
+                        }.bind(this), 200);
+                        
+                        // Show saving state
+                        templateOption.addClass('color-saving');
+                        
+                        // Save colors to database via AJAX
+                        var colors = {};
+                        templateOption.find('.template-color-input').each(function() {
+                            var type = $(this).data('color-type');
+                            colors[type] = $(this).val();
+                        });
+                        
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'save_bogo_template_colors',
+                                template: templateKey,
+                                colors: colors,
+                                nonce: '<?php echo wp_create_nonce("save_bogo_colors"); ?>'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    console.log('BOGO: Colors saved successfully');
+                                    templateOption.removeClass('color-saving').addClass('color-saved');
+                                    setTimeout(function() {
+                                        templateOption.removeClass('color-saved');
+                                    }, 500);
+                                } else {
+                                    console.error('BOGO: Error saving colors:', response.data);
+                                    templateOption.removeClass('color-saving');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('BOGO: AJAX error saving colors:', error);
+                                templateOption.removeClass('color-saving');
+                            }
+                        });
+                    });
+
+                    // Add template selection handler
+                    $('input[name="bogo_template"]').on('change', function() {
+                        var selectedTemplate = $(this).val();
+                        
+                        // Update visual selection
+                        $('.template-option').css('border-color', '#ddd');
+                        $(this).closest('.template-option').css('border-color', '#007cba');
+                        
+                        // Save template selection via AJAX
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'save_bogo_template_selection',
+                                template: selectedTemplate,
+                                nonce: '<?php echo wp_create_nonce("save_bogo_template"); ?>'
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    console.log('BOGO: Template selection saved successfully');
+                                } else {
+                                    console.error('BOGO: Error saving template selection:', response.data);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('BOGO: AJAX error saving template selection:', error);
+                            }
+                        });
+                    });
+
+                    // Add color change handlers for dynamic preview
                 });
                 </script>
                 
@@ -982,6 +1087,24 @@ class WC_Advanced_BOGO {
                 input[type="color"]:hover {
                     transform: scale(1.05);
                     transition: transform 0.2s ease;
+                }
+                .template-color-input {
+                    transition: all 0.2s ease;
+                }
+                .template-color-input:focus {
+                    box-shadow: 0 0 0 2px #007cba;
+                    border-color: #007cba;
+                }
+                .color-saving {
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+                .color-saved {
+                    animation: saveSuccess 0.5s ease-in-out;
+                }
+                @keyframes saveSuccess {
+                    0% { background-color: #d4edda; }
+                    100% { background-color: transparent; }
                 }
                 </style>
             <?php endif; ?>
@@ -1025,12 +1148,12 @@ class WC_Advanced_BOGO {
 					$current_product_id = $product->get_id();
 					$buy_product_id = $rule['buy_product'] === 'all' ? $current_product_id : intval( $rule['buy_product'] );
 
-					// Use template1 by default, or the first available template
-					$template_number = 1;
+					// Get the selected template (default to template1)
+					$selected_template = isset( $template_settings['selected_template'] ) ? $template_settings['selected_template'] : 1;
 					
 					// Generate template based on selection
 					echo $this->get_bogo_template( 
-						$template_number, 
+						$selected_template, 
 						$buy_qty, 
 						$get_qty, 
 						$get_name, 
@@ -1619,6 +1742,80 @@ class WC_Advanced_BOGO {
 		}
 		
 		return '';
+	}
+
+	/**
+	 * Handle saving BOGO template selection via AJAX
+	 */
+	public function save_bogo_template_selection() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'save_bogo_template' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		// Check permissions
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( 'Insufficient permissions' );
+		}
+
+		$template = sanitize_text_field( $_POST['template'] );
+		
+		// Extract template number from template name (e.g., 'template1' -> 1)
+		$template_number = intval( str_replace( 'template', '', $template ) );
+
+		// Get current template settings
+		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
+
+		// Update the selected template
+		$template_settings['selected_template'] = $template_number;
+
+		// Save to database
+		$result = update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
+
+		if ( $result ) {
+			wp_send_json_success( array( 'message' => 'Template selection saved successfully' ) );
+		} else {
+			wp_send_json_error( array( 'message' => 'Failed to save template selection' ) );
+		}
+	}
+
+	/**
+	 * Handle saving BOGO template colors via AJAX
+	 */
+	public function save_bogo_template_colors() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'save_bogo_colors' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		// Check permissions
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( 'Insufficient permissions' );
+		}
+
+		$template = sanitize_text_field( $_POST['template'] );
+		$colors = $_POST['colors'];
+
+		// Sanitize colors
+		$sanitized_colors = array();
+		foreach ( $colors as $key => $value ) {
+			$sanitized_colors[ sanitize_text_field( $key ) ] = sanitize_hex_color( $value );
+		}
+
+		// Get current template settings
+		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
+
+		// Update the specific template colors
+		$template_settings[ $template ] = $sanitized_colors;
+
+		// Save to database
+		$result = update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
+
+		if ( $result ) {
+			wp_send_json_success( array( 'message' => 'Colors saved successfully' ) );
+		} else {
+			wp_send_json_error( array( 'message' => 'Failed to save colors' ) );
+		}
 	}
 
 }
