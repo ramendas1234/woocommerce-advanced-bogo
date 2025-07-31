@@ -1,6 +1,6 @@
 /**
  * WooCommerce Advanced BOGO - Cart Blocks Integration
- * This script adds BOGO hints to WooCommerce cart blocks using Store API extensions
+ * Simple and direct approach for cart blocks
  */
 
 (function() {
@@ -15,23 +15,9 @@
     function initBogoCartBlocks() {
         // Function to add BOGO hints to cart blocks
         function addBogoHintsToCartBlocks() {
-            // Get all cart items (multiple possible selectors for different themes/blocks)
-            const cartItemSelectors = [
-                '.wp-block-woocommerce-cart-item',
-                '.wc-block-components-cart-item',
-                '[data-block-name="woocommerce/cart-item"]',
-                '.cart-item',
-                '.woocommerce-cart-item'
-            ];
-
-            let cartItems = [];
-            cartItemSelectors.forEach(selector => {
-                const items = document.querySelectorAll(selector);
-                if (items.length > 0) {
-                    cartItems = Array.from(items);
-                }
-            });
-
+            // Get all cart items
+            const cartItems = document.querySelectorAll('.wp-block-woocommerce-cart-item, .wc-block-components-cart-item');
+            
             if (cartItems.length === 0) {
                 return;
             }
@@ -43,73 +29,46 @@
                 }
 
                 // Find product name element
-                const productNameSelectors = [
-                    '.wc-block-components-cart-item__name',
-                    '.cart-item-name',
-                    '.product-name',
-                    'h4',
-                    'h3'
-                ];
-
-                let productNameElement = null;
-                productNameSelectors.forEach(selector => {
-                    const element = cartItem.querySelector(selector);
-                    if (element) {
-                        productNameElement = element;
-                    }
-                });
-
+                const productNameElement = cartItem.querySelector('.wc-block-components-cart-item__name, .cart-item-name, h4, h3');
+                
                 if (!productNameElement) {
                     return;
                 }
 
-                // Get BOGO hint from Store API extensions
-                const bogoHint = getBogoHintFromStoreAPI(cartItem);
+                // Get product ID
+                const productId = getProductIdFromCartItem(cartItem);
                 
-                if (bogoHint && bogoHint.html) {
-                    const hintElement = document.createElement('div');
-                    hintElement.innerHTML = bogoHint.html;
-                    hintElement.className = 'bogo-cart-hint';
-                    
-                    // Insert after product name
-                    productNameElement.parentNode.insertBefore(hintElement, productNameElement.nextSibling);
+                if (!productId) {
+                    return;
                 }
+
+                // Get BOGO hint via AJAX
+                fetch(wc_advanced_bogo_ajax.ajax_url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'get_bogo_hints',
+                        product_id: productId,
+                        nonce: wc_advanced_bogo_ajax.nonce
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.hint) {
+                        const hintElement = document.createElement('div');
+                        hintElement.innerHTML = data.data.hint;
+                        hintElement.className = 'bogo-cart-hint';
+                        
+                        // Insert after product name
+                        productNameElement.parentNode.insertBefore(hintElement, productNameElement.nextSibling);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading BOGO hints:', error);
+                });
             });
-        }
-
-        // Function to get BOGO hint from Store API
-        function getBogoHintFromStoreAPI(cartItem) {
-            // Try to get cart data from WooCommerce blocks
-            if (window.wc_cart_data && window.wc_cart_data.items) {
-                const cartItemKey = cartItem.dataset.cartItemKey;
-                if (cartItemKey && window.wc_cart_data.items[cartItemKey]) {
-                    const itemData = window.wc_cart_data.items[cartItemKey];
-                    if (itemData.extensions && itemData.extensions.wc_advanced_bogo) {
-                        return itemData.extensions.wc_advanced_bogo;
-                    }
-                }
-            }
-
-            // Try to get from cart item data attributes
-            const extensionsData = cartItem.dataset.extensions;
-            if (extensionsData) {
-                try {
-                    const extensions = JSON.parse(extensionsData);
-                    if (extensions.wc_advanced_bogo) {
-                        return extensions.wc_advanced_bogo;
-                    }
-                } catch (e) {
-                    console.log('Error parsing extensions data:', e);
-                }
-            }
-
-            // Fallback: Get product ID and fetch via AJAX
-            const productId = getProductIdFromCartItem(cartItem);
-            if (productId) {
-                return fetchBogoHintViaAjax(productId);
-            }
-
-            return null;
         }
 
         // Function to get product ID from cart item
@@ -146,39 +105,19 @@
                 }
             }
 
-            return productId;
-        }
-
-        // Function to fetch BOGO hint via AJAX
-        function fetchBogoHintViaAjax(productId) {
-            return fetch(wc_advanced_bogo_ajax.ajax_url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    action: 'get_bogo_hints',
-                    product_id: productId,
-                    nonce: wc_advanced_bogo_ajax.nonce
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data.hint) {
-                    return {
-                        html: data.data.hint,
-                        remaining_qty: data.data.remaining_qty,
-                        get_qty: data.data.get_qty,
-                        get_product_name: data.data.get_product_name,
-                        discount_text: data.data.discount_text
-                    };
+            // Try from cart item key
+            if (!productId) {
+                const cartItemKey = cartItem.dataset.cartItemKey;
+                if (cartItemKey) {
+                    // Try to extract product ID from cart item key or other attributes
+                    const productElement = cartItem.querySelector('[data-product-id], [data-product_id]');
+                    if (productElement) {
+                        productId = productElement.dataset.productId || productElement.dataset.product_id;
+                    }
                 }
-                return null;
-            })
-            .catch(error => {
-                console.error('Error loading BOGO hints:', error);
-                return null;
-            });
+            }
+
+            return productId;
         }
 
         // Run on page load with delay
@@ -243,6 +182,9 @@
 
         // Also run periodically to catch any missed updates
         setInterval(addBogoHintsToCartBlocks, 5000);
+
+        // Debug: Log cart items found
+        console.log('BOGO Cart Blocks: Found', document.querySelectorAll('.wp-block-woocommerce-cart-item, .wc-block-components-cart-item').length, 'cart items');
     }
 
     // Export for external use
@@ -256,12 +198,31 @@
                         // Trigger the hint loading logic
                         const productNameElement = cartItem.querySelector('.wc-block-components-cart-item__name, .cart-item-name');
                         if (productNameElement) {
-                            const bogoHint = getBogoHintFromStoreAPI(cartItem);
-                            if (bogoHint && bogoHint.html) {
-                                const hintElement = document.createElement('div');
-                                hintElement.innerHTML = bogoHint.html;
-                                hintElement.className = 'bogo-cart-hint';
-                                productNameElement.parentNode.insertBefore(hintElement, productNameElement.nextSibling);
+                            const productId = getProductIdFromCartItem(cartItem);
+                            if (productId) {
+                                fetch(wc_advanced_bogo_ajax.ajax_url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: new URLSearchParams({
+                                        action: 'get_bogo_hints',
+                                        product_id: productId,
+                                        nonce: wc_advanced_bogo_ajax.nonce
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success && data.data.hint) {
+                                        const hintElement = document.createElement('div');
+                                        hintElement.innerHTML = data.data.hint;
+                                        hintElement.className = 'bogo-cart-hint';
+                                        productNameElement.parentNode.insertBefore(hintElement, productNameElement.nextSibling);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error loading BOGO hints:', error);
+                                });
                             }
                         }
                     }
