@@ -360,18 +360,24 @@ class WC_Advanced_BOGO {
 	public function enqueue_admin_scripts( $hook ) {
 		// Only load on our BOGO settings page
 		if ( $hook === 'woocommerce_page_wc-advanced-bogo' ) {
+			// Enqueue WooCommerce admin scripts first
+			wp_enqueue_script( 'woocommerce_admin' );
+			wp_enqueue_script( 'wc-enhanced-select' );
+			wp_enqueue_style( 'woocommerce_admin_styles' );
+			
+			// Enqueue our admin script after WooCommerce scripts
 			wp_enqueue_script( 
 				'wc-advanced-bogo-admin', 
 				plugin_dir_url(__FILE__) . 'admin.js', 
-				['jquery'], 
+				['jquery', 'woocommerce_admin', 'wc-enhanced-select'], 
 				filemtime( plugin_dir_path(__FILE__) . 'admin.js' ), 
 				true 
 			);
 			
-			// Enqueue WooCommerce product search scripts
-			wp_enqueue_script( 'woocommerce_admin' );
-			wp_enqueue_script( 'wc-enhanced-select' );
-			wp_enqueue_style( 'woocommerce_admin_styles' );
+			// Localize script with necessary parameters
+			wp_localize_script( 'wc-advanced-bogo-admin', 'woocommerce_admin_meta_boxes', array(
+				'search_products_nonce' => wp_create_nonce( 'search-products' )
+			) );
 		}
 	}
 
@@ -454,6 +460,7 @@ class WC_Advanced_BOGO {
             ];
         }
         ?>
+        <meta name="woocommerce-search-products-nonce" content="<?php echo wp_create_nonce( 'search-products' ); ?>">
         <div class="wrap">
             <h1>Advanced BOGO</h1>
             

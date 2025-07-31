@@ -3,42 +3,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize WooCommerce product search
     function initializeProductSearch() {
-        if (typeof wc_enhanced_select_params !== 'undefined') {
-            $('.wc-product-search').each(function() {
-                $(this).select2({
-                    ajax: {
-                        url: wc_enhanced_select_params.search_products_nonce,
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return {
-                                term: params.term,
-                                action: 'woocommerce_json_search_products',
-                                security: wc_enhanced_select_params.search_products_nonce
-                            };
-                        },
-                        processResults: function(data) {
-                            var terms = [];
-                            if (data) {
-                                $.each(data, function(id, text) {
-                                    terms.push({
-                                        id: id,
-                                        text: text
-                                    });
-                                });
-                            }
-                            return {
-                                results: terms
-                            };
-                        },
-                        cache: true
-                    },
-                    minimumInputLength: 2,
-                    placeholder: $(this).data('placeholder'),
-                    allowClear: true
-                });
-            });
+        // Wait for WooCommerce scripts to be available
+        if (typeof jQuery === 'undefined' || typeof jQuery.fn.select2 === 'undefined') {
+            console.log('BOGO: Waiting for Select2 to be available...');
+            setTimeout(initializeProductSearch, 100);
+            return;
         }
+
+        console.log('BOGO: Initializing product search...');
+
+        // Initialize product search for all wc-product-search elements
+        jQuery('.wc-product-search').each(function() {
+            // Skip if already initialized
+            if (jQuery(this).hasClass('select2-hidden-accessible')) {
+                console.log('BOGO: Select2 already initialized for this element');
+                return;
+            }
+
+            console.log('BOGO: Setting up Select2 for element:', this);
+
+            // Get nonce from various possible sources
+            let nonce = '';
+            if (typeof woocommerce_admin_meta_boxes !== 'undefined' && woocommerce_admin_meta_boxes.search_products_nonce) {
+                nonce = woocommerce_admin_meta_boxes.search_products_nonce;
+                console.log('BOGO: Using nonce from woocommerce_admin_meta_boxes');
+            } else if (typeof wc_enhanced_select_params !== 'undefined' && wc_enhanced_select_params.search_products_nonce) {
+                nonce = wc_enhanced_select_params.search_products_nonce;
+                console.log('BOGO: Using nonce from wc_enhanced_select_params');
+            } else {
+                // Fallback: create a nonce
+                nonce = jQuery('meta[name="woocommerce-search-products-nonce"]').attr('content') || '';
+                console.log('BOGO: Using fallback nonce from meta tag');
+            }
+
+            jQuery(this).select2({
+                ajax: {
+                    url: ajaxurl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            term: params.term,
+                            action: 'woocommerce_json_search_products',
+                            security: nonce
+                        };
+                    },
+                    processResults: function(data) {
+                        var terms = [];
+                        if (data) {
+                            jQuery.each(data, function(id, text) {
+                                terms.push({
+                                    id: id,
+                                    text: text
+                                });
+                            });
+                        }
+                        return {
+                            results: terms
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                placeholder: jQuery(this).data('placeholder') || 'Search for a product...',
+                allowClear: true,
+                width: '100%'
+            });
+
+            console.log('BOGO: Select2 initialized successfully');
+        });
     }
 
     // Initialize rule counter based on existing rows
@@ -138,6 +171,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const selects = newRow.querySelectorAll('select');
         selects.forEach(select => {
             select.selectedIndex = 0;
+            // Remove any existing Select2 initialization
+            if (select.classList.contains('select2-hidden-accessible')) {
+                jQuery(select).select2('destroy');
+            }
         });
         
         // Update all name attributes with new index
@@ -162,8 +199,11 @@ document.addEventListener('DOMContentLoaded', function () {
             addRemoveHandler(removeButton);
         }
         
-        // Reinitialize product search for new row
-        initializeProductSearch();
+        // Reinitialize product search for new row with delay
+        setTimeout(() => {
+            console.log('BOGO: Reinitializing product search for new row...');
+            initializeProductSearch();
+        }, 100);
         
         ruleIndex++;
         
@@ -210,7 +250,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize everything
     initializeRuleIndex();
     initializeExistingButtons();
-    initializeProductSearch();
+    
+    // Initialize product search with delay to ensure WooCommerce scripts are loaded
+    setTimeout(initializeProductSearch, 500);
 
     // Form validation before submit
     const form = document.getElementById('bogo-rules-form');
