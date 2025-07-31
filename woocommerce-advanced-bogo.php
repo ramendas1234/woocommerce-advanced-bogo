@@ -168,49 +168,56 @@ class WC_Advanced_BOGO {
                     <div class="bogo-rules-container">
                         <h2>💰 BOGO Discount Rules</h2>
                         <p style="margin-bottom: 20px;">Create rules in plain language. Example: <em>Buy 2 units of T-shirt and get 2 Hat at 50% off</em></p>
+                        
+                        <div class="bogo-actions" style="margin-bottom: 20px;">
+                            <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
+                                + Add New Rule
+                            </button>
+                            <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px;">
+                        </div>
+                        
                         <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table">
                             <thead>
                                 <tr>
                                     <th style="width: 100%;">Rule</th>
-                                    <th style="min-width: 80px;">Actions</th>
+                                    <th style="min-width: 60px;"></th>
                                 </tr>
                             </thead>
                             <tbody id="bogo-rules-tbody">
                                 <?php foreach ( $rules as $index => $rule ) : ?>
                                 <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
-                                    <td style="font-size: 15px;">
-                                        <span style="margin-right: 6px;">🛒 Buy</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 60px; display: inline-block;" placeholder="e.g. 2" />
-                                        <span style="margin: 0 6px;">units of</span>
-                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" required style="min-width: 120px; display: inline-block;">
+                                    <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
+                                        <span style="margin-right: 8px;">🛒 Buy</span>
+                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
+                                        <span style="margin: 0 8px;">units of</span>
+                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" required style="min-width: 140px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;">
                                             <option value="">— Select Product —</option>
                                             <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
                                             <?php foreach ( $products as $product ) : ?>
                                                 <option value="<?php echo $product->get_id(); ?>" <?php selected( $rule['buy_product'], $product->get_id() ); ?>><?php echo esc_html( $product->get_name() ); ?></option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <span style="margin: 0 6px;">and get</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 60px; display: inline-block;" placeholder="e.g. 2" />
-                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" required style="min-width: 120px; display: inline-block;">
+                                        <span style="margin: 0 8px;">and get</span>
+                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
+                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" required style="min-width: 140px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;">
                                             <option value="">— Select Product —</option>
                                             <?php foreach ( $products as $product ) : ?>
                                                 <option value="<?php echo $product->get_id(); ?>" <?php selected( $rule['get_product'], $product->get_id() ); ?>><?php echo esc_html( $product->get_name() ); ?></option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <span style="margin: 0 6px;">at</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 60px; display: inline-block;" placeholder="e.g. 50" />
-                                        <span style="margin-left: 2px;">% off</span>
-                                        <a href="#" class="bogo-advanced-toggle" style="margin-left: 12px; font-size: 12px; text-decoration: underline;">More options</a>
-                                        <div class="bogo-advanced-fields" style="display: none; margin-top: 8px;">
-                                            <span style="margin-right: 6px;">Start:</span>
-                                            <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" style="width: 140px; display: inline-block; margin-right: 10px;" />
-                                            <span style="margin-right: 6px;">End:</span>
-                                            <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 140px; display: inline-block;" />
+                                        <span style="margin: 0 8px;">at</span>
+                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
+                                        <span style="margin-left: 4px;">% off</span>
+                                        <div style="margin-top: 12px; font-size: 14px; color: #666;">
+                                            <span style="margin-right: 8px;">📅 Start:</span>
+                                            <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px; margin-right: 15px;" />
+                                            <span style="margin-right: 8px;">📅 End:</span>
+                                            <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" />
                                         </div>
                                     </td>
-                                    <td style="text-align: center;">
-                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                            <span style="font-size: 16px; font-weight: bold;">×</span>
+                                    <td style="text-align: center; vertical-align: top; padding-top: 20px;">
+                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                            <span style="font-size: 16px;">🗑️</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -218,22 +225,7 @@ class WC_Advanced_BOGO {
                             </tbody>
                         </table>
                     </div>
-                    <div class="bogo-actions">
-                        <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
-                            + Add New Rule
-                        </button>
-                        <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px;">
-                    </div>
                 </form>
-                <script>
-                document.querySelectorAll('.bogo-advanced-toggle').forEach(function(toggle) {
-                    toggle.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        var adv = this.parentElement.querySelector('.bogo-advanced-fields');
-                        if (adv) adv.style.display = adv.style.display === 'none' ? 'block' : 'none';
-                    });
-                });
-                </script>
             <?php endif; ?>
 
             <?php if ( $current_tab === 'ui-settings' ) : ?>
