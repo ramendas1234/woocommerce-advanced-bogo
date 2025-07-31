@@ -331,6 +331,14 @@ class WC_Advanced_BOGO {
 				'3.0.0'
 			);
 
+			// Add custom CSS for spinner animation
+			wp_add_inline_style( 'wc-advanced-bogo-tailwind', '
+				@keyframes spin {
+					0% { transform: rotate(0deg); }
+					100% { transform: rotate(360deg); }
+				}
+			' );
+
 			// Enqueue frontend JavaScript
 			wp_enqueue_script(
 				'wc-advanced-bogo-frontend',
@@ -340,32 +348,12 @@ class WC_Advanced_BOGO {
 				true
 			);
 
-			// Enqueue cart blocks script for cart and checkout pages
-			if ( is_cart() || is_checkout() ) {
-				wp_enqueue_script(
-					'wc-advanced-bogo-cart-blocks',
-					plugin_dir_url( __FILE__ ) . 'cart-blocks.js',
-					array( 'jquery' ),
-					'1.0.0',
-					true
-				);
-			}
-
 			// Localize script with AJAX data
 			wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
 				'cartUrl' => wc_get_cart_url()
 			) );
-
-			// Also localize for cart blocks script
-			if ( is_cart() || is_checkout() ) {
-				wp_localize_script( 'wc-advanced-bogo-cart-blocks', 'wc_advanced_bogo_ajax', array(
-					'ajax_url' => admin_url( 'admin-ajax.php' ),
-					'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
-					'cartUrl' => wc_get_cart_url()
-				) );
-			}
 		}
 	}
 
@@ -905,7 +893,7 @@ class WC_Advanced_BOGO {
 		global $product;
 
 		$rules = get_option( self::OPTION_KEY, [] );
-		$template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
+		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
 		$now = date( 'Y-m-d' );
 		
 		foreach ( $rules as $index => $rule ) {
@@ -928,9 +916,12 @@ class WC_Advanced_BOGO {
 					$current_product_id = $product->get_id();
 					$buy_product_id = $rule['buy_product'] === 'all' ? $current_product_id : intval( $rule['buy_product'] );
 
+					// Use template1 by default, or the first available template
+					$template_number = 1;
+					
 					// Generate template based on selection
 					echo $this->get_bogo_template( 
-						$template, 
+						$template_number, 
 						$buy_qty, 
 						$get_qty, 
 						$get_name, 
@@ -947,51 +938,44 @@ class WC_Advanced_BOGO {
 	}
 
 	private function get_bogo_template( $template, $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $buy_product_id, $get_product_id, $discount, $index ) {
-		// Get saved color settings for this template
-		$primary_color = get_option( "bogo_template_{$template}_primary_color", '#3B82F6' );
-		$secondary_color = get_option( "bogo_template_{$template}_secondary_color", '#10B981' );
-		$text_color = get_option( "bogo_template_{$template}_text_color", '#1F2937' );
-		$background_color = get_option( "bogo_template_{$template}_background_color", '#F8FAFC' );
-		$button_bg_color = get_option( "bogo_template_{$template}_button_bg_color", '#3B82F6' );
-		$button_text_color = get_option( "bogo_template_{$template}_button_text_color", '#FFFFFF' );
+		// Get template settings
+		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
+		$template_key = "template{$template}";
 		
-		// Default colors for each template if no custom colors are set
+		// Default colors for each template
 		$default_colors = array(
 			'template1' => array(
-				'primary' => '#3B82F6',
-				'secondary' => '#10B981', 
-				'text' => '#1F2937',
-				'background' => '#F8FAFC',
-				'button_bg' => '#3B82F6',
-				'button_text' => '#FFFFFF'
+				'primary' => '#3B82F6', 'secondary' => '#10B981', 'text' => '#1F2937',
+				'background' => '#F8FAFC', 'button_bg' => '#3B82F6', 'button_text' => '#FFFFFF'
 			),
 			'template2' => array(
-				'primary' => '#8B5CF6',
-				'secondary' => '#EC4899',
-				'text' => '#FFFFFF',
-				'background' => '#1E1B4B',
-				'button_bg' => '#EC4899',
-				'button_text' => '#FFFFFF'
+				'primary' => '#8B5CF6', 'secondary' => '#EC4899', 'text' => '#FFFFFF',
+				'background' => '#1E1B4B', 'button_bg' => '#EC4899', 'button_text' => '#FFFFFF'
 			),
 			'template3' => array(
-				'primary' => '#F59E0B',
-				'secondary' => '#EF4444',
-				'text' => '#FFFFFF',
-				'background' => '#7C2D12',
-				'button_bg' => '#F59E0B',
-				'button_text' => '#FFFFFF'
+				'primary' => '#F59E0B', 'secondary' => '#EF4444', 'text' => '#FFFFFF',
+				'background' => '#7C2D12', 'button_bg' => '#F59E0B', 'button_text' => '#FFFFFF'
 			)
 		);
 		
-		// Use default colors if no custom colors are saved
-		if ( !get_option( "bogo_template_{$template}_primary_color" ) ) {
-			$primary_color = $default_colors[$template]['primary'];
-			$secondary_color = $default_colors[$template]['secondary'];
-			$text_color = $default_colors[$template]['text'];
-			$background_color = $default_colors[$template]['background'];
-			$button_bg_color = $default_colors[$template]['button_bg'];
-			$button_text_color = $default_colors[$template]['button_text'];
-		}
+		// Get colors from settings or use defaults
+		$colors = isset( $template_settings[$template_key] ) ? $template_settings[$template_key] : $default_colors[$template_key];
+		
+		// Common button data for AJAX
+		$common_button_data = sprintf(
+			'data-buy-product="%s" data-buy-qty="%d" data-get-product="%d" data-get-qty="%d" data-discount="%d" data-rule-index="%d"',
+			esc_attr( $buy_product_id ),
+			$buy_qty,
+			$get_product_id,
+			$get_qty,
+			$discount,
+			$index
+		);
+		
+		// Loading spinner
+		$loading_spinner = '<div class="bogo-loading-spinner" style="display: none; text-align: center; margin-top: 10px;">
+			<div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid ' . esc_attr( $colors['primary'] ) . '; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+		</div>';
 		
 		return $this->load_template( $template, [
 			'buy_qty' => $buy_qty,
@@ -1003,12 +987,15 @@ class WC_Advanced_BOGO {
 			'get_product_id' => $get_product_id,
 			'discount' => $discount,
 			'index' => $index,
-			'primary_color' => $primary_color,
-			'secondary_color' => $secondary_color,
-			'text_color' => $text_color,
-			'background_color' => $background_color,
-			'button_bg_color' => $button_bg_color,
-			'button_text_color' => $button_text_color,
+			'primary_color' => $colors['primary'],
+			'secondary_color' => $colors['secondary'],
+			'text_color' => $colors['text'],
+			'background_color' => $colors['background'],
+			'button_bg_color' => $colors['button_bg'],
+			'button_text_color' => $colors['button_text'],
+			'common_button_data' => $common_button_data,
+			'loading_spinner' => $loading_spinner
+		] );
 			'common_button_data' => 'data-buy-product="' . esc_attr( $buy_product_id ) . '"
 				data-buy-qty="' . esc_attr( $buy_qty ) . '"
 				data-get-product="' . esc_attr( $get_product_id ) . '"
