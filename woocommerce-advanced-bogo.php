@@ -60,10 +60,7 @@ class WC_Advanced_BOGO {
 	 * Register cart blocks hints
 	 */
 	public function register_cart_blocks_hints() {
-		// Add BOGO hints to cart blocks using WooCommerce blocks API
-		add_action( 'woocommerce_blocks_cart_block_registry', [ $this, 'register_cart_blocks' ] );
-		
-		// Add data to cart items for blocks
+		// Add BOGO hints to cart blocks using Store API extensions
 		add_filter( 'woocommerce_store_api_cart_item_data', [ $this, 'add_bogo_data_to_cart_item' ], 10, 2 );
 		
 		// Add JavaScript for cart blocks
@@ -71,39 +68,7 @@ class WC_Advanced_BOGO {
 	}
 
 	/**
-	 * Register cart blocks
-	 */
-	public function register_cart_blocks( $registry ) {
-		// Register custom cart item block
-		register_block_type( 'wc-advanced-bogo/cart-item-hint', array(
-			'editor_script' => 'wc-advanced-bogo-cart-blocks',
-			'editor_style'  => 'wc-advanced-bogo-cart-blocks-editor',
-			'style'         => 'wc-advanced-bogo-cart-blocks-style',
-			'render_callback' => [ $this, 'render_cart_item_hint' ]
-		) );
-	}
-
-	/**
-	 * Render cart item hint
-	 */
-	public function render_cart_item_hint( $attributes, $content ) {
-		$product_id = isset( $attributes['productId'] ) ? intval( $attributes['productId'] ) : 0;
-		
-		if ( ! $product_id ) {
-			return $content;
-		}
-		
-		$hint = $this->get_bogo_hint_for_product( $product_id );
-		
-		if ( $hint ) {
-			$content .= $hint;
-		}
-		
-		return $content;
-	}
-
-	/**
-	 * Add BOGO data to cart item for React components
+	 * Add BOGO data to cart item for Store API
 	 */
 	public function add_bogo_data_to_cart_item( $cart_item_data, $cart_item ) {
 		$rules = get_option( self::OPTION_KEY, [] );
@@ -151,7 +116,10 @@ class WC_Advanced_BOGO {
 							'get_qty' => $get_qty,
 							'get_product_name' => $get_product->get_name(),
 							'discount_text' => $discount_text,
-							'rule_index' => $index
+							'rule_index' => $index,
+							'html' => '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+								🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+							</div>'
 						);
 						break;
 					}
@@ -160,7 +128,11 @@ class WC_Advanced_BOGO {
 		}
 		
 		if ( $bogo_hint ) {
-			$cart_item_data['bogo_hint'] = $bogo_hint;
+			// Add to extensions field for Store API
+			if ( ! isset( $cart_item_data['extensions'] ) ) {
+				$cart_item_data['extensions'] = array();
+			}
+			$cart_item_data['extensions']['wc_advanced_bogo'] = $bogo_hint;
 		}
 		
 		return $cart_item_data;
@@ -276,6 +248,7 @@ class WC_Advanced_BOGO {
 		$rules = get_option( self::OPTION_KEY, [] );
 		$now = date( 'Y-m-d' );
 		$hint = '';
+		$hint_data = array();
 		
 		foreach ( $rules as $index => $rule ) {
 			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
@@ -316,13 +289,28 @@ class WC_Advanced_BOGO {
 						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
 							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
 						</div>';
+						
+						$hint_data = array(
+							'remaining_qty' => $remaining_qty,
+							'get_qty' => $get_qty,
+							'get_product_name' => $get_product->get_name(),
+							'discount_text' => $discount_text,
+							'rule_index' => $index,
+							'html' => $hint
+						);
 						break;
 					}
 				}
 			}
 		}
 		
-		wp_send_json_success( array( 'hint' => $hint ) );
+		wp_send_json_success( array( 
+			'hint' => $hint,
+			'remaining_qty' => isset( $hint_data['remaining_qty'] ) ? $hint_data['remaining_qty'] : 0,
+			'get_qty' => isset( $hint_data['get_qty'] ) ? $hint_data['get_qty'] : 0,
+			'get_product_name' => isset( $hint_data['get_product_name'] ) ? $hint_data['get_product_name'] : '',
+			'discount_text' => isset( $hint_data['discount_text'] ) ? $hint_data['discount_text'] : ''
+		) );
 	}
 
 	/**
