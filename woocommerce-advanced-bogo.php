@@ -37,13 +37,8 @@ class WC_Advanced_BOGO {
 			add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
 			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
 			
-			// Cart hints hooks - only on cart and checkout pages
-			if ( is_cart() || is_checkout() ) {
-				add_action( 'woocommerce_cart_collaterals', [ $this, 'display_cart_bogo_hints' ] );
-				add_action( 'woocommerce_cart_totals_before_shipping', [ $this, 'display_cart_bogo_hints' ] );
-				add_action( 'woocommerce_review_order_before_payment', [ $this, 'display_cart_bogo_hints' ] );
-				add_action( 'woocommerce_checkout_before_order_review_heading', [ $this, 'display_cart_bogo_hints' ] );
-			}
+			// Add BOGO hints inside cart line items
+			add_action( 'woocommerce_after_cart_item_name', [ $this, 'display_cart_item_bogo_hint' ], 10, 2 );
 		}
 	}
 
@@ -1039,9 +1034,9 @@ class WC_Advanced_BOGO {
 	}
 
 	/**
-	 * Display BOGO offer hints in cart line items
+	 * Display BOGO hint inside cart line items
 	 */
-	public function display_cart_bogo_hints() {
+	public function display_cart_item_bogo_hint( $cart_item, $cart_item_key ) {
 		$rules = get_option( self::OPTION_KEY, [] );
 		$now = date( 'Y-m-d' );
 		
@@ -1059,115 +1054,35 @@ class WC_Advanced_BOGO {
 			$get_qty = intval( $rule['get_qty'] ) ?: 1;
 			$discount = intval( $rule['discount'] );
 
-			// Count current BUY items in cart
-			$buy_count = 0;
-			foreach ( WC()->cart->get_cart() as $cart_item ) {
-				if ( ! empty( $cart_item['wc_advanced_bogo_gift'] ) ) {
-					continue;
+			// Check if this cart item matches the buy product
+			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
+
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
 				}
 
-				if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
-					$buy_count += $cart_item['quantity'];
-				}
-			}
-
-			// Check if customer is close to qualifying
-			if ( $buy_count > 0 && $buy_count < $buy_qty ) {
-				$remaining_qty = $buy_qty - $buy_count;
-				$get_product = wc_get_product( $get_product_id );
-				
-				if ( $get_product ) {
-					$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
-					$buy_product_name = $buy_product_id === 'all' ? 'this product' : wc_get_product( $buy_product_id )->get_name();
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
 					
-					$this->display_cart_bogo_hint( $remaining_qty, $buy_product_name, $get_qty, $get_product->get_name(), $discount_text, $buy_product_id, $get_product_id, $discount, $index );
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						echo '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+					}
 				}
 			}
 		}
-	}
-
-	/**
-	 * Display individual BOGO hint in cart
-	 */
-	private function display_cart_bogo_hint( $remaining_qty, $buy_product_name, $get_qty, $get_product_name, $discount_text, $buy_product_id, $get_product_id, $discount, $index ) {
-		$template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
-		
-		// Get saved color settings for this template
-		$primary_color = get_option( "bogo_template_{$template}_primary_color", '#3B82F6' );
-		$secondary_color = get_option( "bogo_template_{$template}_secondary_color", '#10B981' );
-		$text_color = get_option( "bogo_template_{$template}_text_color", '#1F2937' );
-		$background_color = get_option( "bogo_template_{$template}_background_color", '#F8FAFC' );
-		$button_bg_color = get_option( "bogo_template_{$template}_button_bg_color", '#3B82F6' );
-		$button_text_color = get_option( "bogo_template_{$template}_button_text_color", '#FFFFFF' );
-		
-		// Default colors for each template if no custom colors are set
-		$default_colors = array(
-			'template1' => array(
-				'primary' => '#3B82F6',
-				'secondary' => '#10B981', 
-				'text' => '#1F2937',
-				'background' => '#F8FAFC',
-				'button_bg' => '#3B82F6',
-				'button_text' => '#FFFFFF'
-			),
-			'template2' => array(
-				'primary' => '#8B5CF6',
-				'secondary' => '#EC4899',
-				'text' => '#FFFFFF',
-				'background' => '#1E1B4B',
-				'button_bg' => '#EC4899',
-				'button_text' => '#FFFFFF'
-			),
-			'template3' => array(
-				'primary' => '#F59E0B',
-				'secondary' => '#EF4444',
-				'text' => '#FFFFFF',
-				'background' => '#7C2D12',
-				'button_bg' => '#F59E0B',
-				'button_text' => '#FFFFFF'
-			)
-		);
-		
-		// Use default colors if no custom colors are saved
-		if ( !get_option( "bogo_template_{$template}_primary_color" ) ) {
-			$primary_color = $default_colors[$template]['primary'];
-			$secondary_color = $default_colors[$template]['secondary'];
-			$text_color = $default_colors[$template]['text'];
-			$background_color = $default_colors[$template]['background'];
-			$button_bg_color = $default_colors[$template]['button_bg'];
-			$button_text_color = $default_colors[$template]['button_text'];
-		}
-		
-		?>
-		<div class="bogo-cart-hint" style="margin: 10px 0; padding: 12px; border-radius: 8px; border-left: 4px solid <?php echo esc_attr( $secondary_color ); ?>; background: <?php echo esc_attr( $background_color ); ?>; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-			<div class="flex items-center justify-between">
-				<div class="flex-1">
-					<div style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 13px; font-weight: 600; margin-bottom: 4px;">
-						🎉 Almost there! Add <span style="color: <?php echo esc_attr( $primary_color ); ?>; font-weight: bold;"><?php echo $remaining_qty; ?> more</span> 
-						<?php echo esc_html( $buy_product_name ); ?> to get:
-					</div>
-					<div style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 12px; margin-bottom: 8px;">
-						<span style="color: <?php echo esc_attr( $secondary_color ); ?>; font-weight: bold;"><?php echo $get_qty; ?>x <?php echo esc_html( $get_product_name ); ?></span> 
-						<span style="color: <?php echo esc_attr( $primary_color ); ?>; font-weight: bold;"><?php echo esc_html( $discount_text ); ?></span>
-					</div>
-				</div>
-				<button 
-					class="bogo-quick-add-btn"
-					style="background: <?php echo esc_attr( $button_bg_color ); ?>; color: <?php echo esc_attr( $button_text_color ); ?>; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
-					data-buy-product="<?php echo esc_attr( $buy_product_id ); ?>"
-					data-buy-qty="<?php echo esc_attr( $buy_qty ); ?>"
-					data-get-product="<?php echo esc_attr( $get_product_id ); ?>"
-					data-get-qty="<?php echo esc_attr( $get_qty ); ?>"
-					data-discount="<?php echo esc_attr( $discount ); ?>"
-					data-rule-index="<?php echo esc_attr( $index ); ?>"
-					onmouseover="this.style.transform='scale(1.05)'"
-					onmouseout="this.style.transform='scale(1)'"
-				>
-					🚀 Grab This Offer!
-				</button>
-			</div>
-		</div>
-		<?php
 	}
 
 }
