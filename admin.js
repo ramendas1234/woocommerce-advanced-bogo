@@ -1,6 +1,18 @@
 document.addEventListener('DOMContentLoaded', function () {
     let ruleIndex = 0;
 
+    // Function to ensure proper Select2 styling
+    function ensureSelect2Styling() {
+        jQuery('.bogo-rule-row .select2-container').each(function() {
+            jQuery(this).css({
+                'min-width': '200px',
+                'max-width': '300px',
+                'width': 'auto',
+                'display': 'inline-block'
+            });
+        });
+    }
+
     // Initialize WooCommerce product search
     function initializeProductSearch() {
         // Wait for jQuery and Select2 to be available
@@ -86,15 +98,36 @@ document.addEventListener('DOMContentLoaded', function () {
                     minimumInputLength: 2,
                     placeholder: jQuery(this).data('placeholder') || 'Search for a product...',
                     allowClear: true,
-                    width: '100%',
-                    dropdownParent: jQuery('body') // Ensure dropdown appears correctly
+                    width: 'auto',
+                    dropdownParent: jQuery('body'), // Ensure dropdown appears correctly
+                    templateResult: function(data) {
+                        if (data.loading) return data.text;
+                        return jQuery('<span>').text(data.text);
+                    },
+                    templateSelection: function(data) {
+                        if (data.id === '') return data.text;
+                        return jQuery('<span>').text(data.text);
+                    }
                 });
+
+                // Ensure the Select2 container has proper width
+                const select2Container = jQuery(this).next('.select2-container');
+                if (select2Container.length) {
+                    select2Container.css({
+                        'min-width': '200px',
+                        'max-width': '300px',
+                        'width': 'auto'
+                    });
+                }
 
                 console.log('BOGO: Select2 initialized successfully');
             } catch (error) {
                 console.error('BOGO: Error initializing Select2:', error);
             }
         });
+        
+        // Ensure proper styling after initialization
+        setTimeout(ensureSelect2Styling, 100);
     }
 
     // Initialize rule counter based on existing rows
@@ -194,17 +227,36 @@ document.addEventListener('DOMContentLoaded', function () {
         const selects = newRow.querySelectorAll('select');
         selects.forEach(select => {
             select.selectedIndex = 0;
-            // Clear any existing Select2 classes and containers
+            
+            // Completely clean up any Select2 elements
             select.classList.remove('select2-hidden-accessible');
+            select.removeAttribute('data-select2-id');
+            select.removeAttribute('aria-hidden');
+            select.removeAttribute('tabindex');
+            
+            // Remove any Select2 containers
             const select2Container = select.parentNode.querySelector('.select2-container');
             if (select2Container) {
                 select2Container.remove();
             }
-            // Also remove any Select2 dropdowns that might be attached
+            
+            // Remove any Select2 dropdowns
             const select2Dropdown = document.querySelector('.select2-dropdown');
             if (select2Dropdown) {
                 select2Dropdown.remove();
             }
+            
+            // Remove any Select2 results
+            const select2Results = document.querySelector('.select2-results');
+            if (select2Results) {
+                select2Results.remove();
+            }
+            
+            // Reset the select element to its original state
+            select.style.width = '';
+            select.style.display = '';
+            select.style.position = '';
+            select.style.opacity = '';
         });
         
         // Update all name attributes with new index
@@ -233,6 +285,9 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             console.log('BOGO: Reinitializing product search for new row...');
             initializeProductSearch();
+            
+            // Ensure proper styling after a longer delay
+            setTimeout(ensureSelect2Styling, 500);
         }, 300);
         
         ruleIndex++;

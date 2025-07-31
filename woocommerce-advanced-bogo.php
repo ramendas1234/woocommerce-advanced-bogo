@@ -402,7 +402,27 @@ class WC_Advanced_BOGO {
 					overflow-y: auto;
 				}
 				.bogo-rule-row .select2-container {
-					min-width: 200px;
+					min-width: 200px !important;
+					max-width: 300px !important;
+					width: auto !important;
+					display: inline-block !important;
+				}
+				.bogo-rule-row select.wc-product-search {
+					min-width: 200px !important;
+					max-width: 300px !important;
+					width: auto !important;
+				}
+				.bogo-rule-row .select2-container--default .select2-selection--single {
+					height: 35px !important;
+					line-height: 33px !important;
+				}
+				.bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__rendered {
+					line-height: 33px !important;
+					padding-left: 8px !important;
+					padding-right: 20px !important;
+				}
+				.bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__arrow {
+					height: 33px !important;
 				}
 			' );
 		}
