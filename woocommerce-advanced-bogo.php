@@ -379,26 +379,32 @@ class WC_Advanced_BOGO {
 				true 
 			);
 			
-			// Localize WooCommerce admin script with necessary parameters
-			wp_localize_script( 'woocommerce_admin', 'woocommerce_admin_meta_boxes', array(
-				'search_products_nonce' => wp_create_nonce( 'search-products' ),
-				'ajax_url' => admin_url( 'admin-ajax.php' )
-			) );
-			
-			// Also localize our script with the same parameters
-			wp_localize_script( 'wc-advanced-bogo-admin', 'woocommerce_admin_meta_boxes', array(
-				'search_products_nonce' => wp_create_nonce( 'search-products' ),
-				'ajax_url' => admin_url( 'admin-ajax.php' )
-			) );
-			
-			// Add additional parameters for our script
-			wp_localize_script( 'wc-advanced-bogo-admin', 'bogo_ajax', array(
+			// Localize our script with all necessary parameters
+			wp_localize_script( 'wc-advanced-bogo-admin', 'bogo_admin', array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'nonce' => wp_create_nonce( 'search-products' )
+				'nonce' => wp_create_nonce( 'search-products' ),
+				'search_products_nonce' => wp_create_nonce( 'search-products' )
 			) );
 			
-			// Add global ajaxurl for compatibility
-			wp_localize_script( 'wc-advanced-bogo-admin', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
+			// Add inline script to ensure ajaxurl is available globally
+			wp_add_inline_script( 'wc-advanced-bogo-admin', 'var ajaxurl = "' . admin_url( 'admin-ajax.php' ) . '";', 'before' );
+			
+			// Add CSS to ensure Select2 dropdowns display correctly
+			wp_add_inline_style( 'woocommerce_admin_styles', '
+				.select2-container {
+					z-index: 999999 !important;
+				}
+				.select2-dropdown {
+					z-index: 999999 !important;
+				}
+				.select2-results {
+					max-height: 200px;
+					overflow-y: auto;
+				}
+				.bogo-rule-row .select2-container {
+					min-width: 200px;
+				}
+			' );
 		}
 	}
 

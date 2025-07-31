@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize WooCommerce product search
     function initializeProductSearch() {
-        // Wait for WooCommerce scripts to be available
+        // Wait for jQuery and Select2 to be available
         if (typeof jQuery === 'undefined' || typeof jQuery.fn.select2 === 'undefined') {
             console.log('BOGO: Waiting for Select2 to be available...');
             setTimeout(initializeProductSearch, 100);
@@ -11,12 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         console.log('BOGO: Initializing product search...');
-        console.log('BOGO: Available global variables:', {
-            'woocommerce_admin_meta_boxes': typeof woocommerce_admin_meta_boxes,
-            'wc_enhanced_select_params': typeof wc_enhanced_select_params,
-            'ajaxurl': typeof ajaxurl,
-            'bogo_ajax': typeof bogo_ajax
-        });
 
         // Initialize product search for all wc-product-search elements
         jQuery('.wc-product-search').each(function() {
@@ -30,15 +24,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Get nonce from various possible sources
             let nonce = '';
-            if (typeof woocommerce_admin_meta_boxes !== 'undefined' && woocommerce_admin_meta_boxes.search_products_nonce) {
-                nonce = woocommerce_admin_meta_boxes.search_products_nonce;
-                console.log('BOGO: Using nonce from woocommerce_admin_meta_boxes');
-            } else if (typeof wc_enhanced_select_params !== 'undefined' && wc_enhanced_select_params.search_products_nonce) {
-                nonce = wc_enhanced_select_params.search_products_nonce;
-                console.log('BOGO: Using nonce from wc_enhanced_select_params');
-            } else if (typeof bogo_ajax !== 'undefined' && bogo_ajax.nonce) {
-                nonce = bogo_ajax.nonce;
-                console.log('BOGO: Using nonce from bogo_ajax');
+            if (typeof bogo_admin !== 'undefined' && bogo_admin.nonce) {
+                nonce = bogo_admin.nonce;
+                console.log('BOGO: Using nonce from bogo_admin');
+            } else if (typeof bogo_admin !== 'undefined' && bogo_admin.search_products_nonce) {
+                nonce = bogo_admin.search_products_nonce;
+                console.log('BOGO: Using nonce from bogo_admin.search_products_nonce');
             } else {
                 // Fallback: create a nonce from meta tag
                 nonce = jQuery('meta[name="woocommerce-search-products-nonce"]').attr('content') || '';
@@ -55,10 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let ajaxUrl = '';
             if (typeof ajaxurl !== 'undefined') {
                 ajaxUrl = ajaxurl;
-            } else if (typeof woocommerce_admin_meta_boxes !== 'undefined' && woocommerce_admin_meta_boxes.ajax_url) {
-                ajaxUrl = woocommerce_admin_meta_boxes.ajax_url;
-            } else if (typeof bogo_ajax !== 'undefined' && bogo_ajax.ajaxurl) {
-                ajaxUrl = bogo_ajax.ajaxurl;
+            } else if (typeof bogo_admin !== 'undefined' && bogo_admin.ajaxurl) {
+                ajaxUrl = bogo_admin.ajaxurl;
             } else {
                 ajaxUrl = '/wp-admin/admin-ajax.php';
             }
@@ -97,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     minimumInputLength: 2,
                     placeholder: jQuery(this).data('placeholder') || 'Search for a product...',
                     allowClear: true,
-                    width: '100%'
+                    width: '100%',
+                    dropdownParent: jQuery('body') // Ensure dropdown appears correctly
                 });
 
                 console.log('BOGO: Select2 initialized successfully');
@@ -204,11 +194,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const selects = newRow.querySelectorAll('select');
         selects.forEach(select => {
             select.selectedIndex = 0;
-            // Clear any existing Select2 classes (no need to destroy since it's a new element)
+            // Clear any existing Select2 classes and containers
             select.classList.remove('select2-hidden-accessible');
             const select2Container = select.parentNode.querySelector('.select2-container');
             if (select2Container) {
                 select2Container.remove();
+            }
+            // Also remove any Select2 dropdowns that might be attached
+            const select2Dropdown = document.querySelector('.select2-dropdown');
+            if (select2Dropdown) {
+                select2Dropdown.remove();
             }
         });
         
@@ -238,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             console.log('BOGO: Reinitializing product search for new row...');
             initializeProductSearch();
-        }, 200);
+        }, 300);
         
         ruleIndex++;
         
