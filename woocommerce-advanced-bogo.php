@@ -60,54 +60,46 @@ class WC_Advanced_BOGO {
 	 * Register cart blocks hints
 	 */
 	public function register_cart_blocks_hints() {
-		// Add BOGO hints to cart blocks using content filter
-		add_filter( 'woocommerce_blocks_cart_item_block_content', [ $this, 'add_cart_blocks_hint_content' ], 10, 2 );
+		// Add BOGO hints to cart blocks using WooCommerce blocks API
+		add_action( 'woocommerce_blocks_cart_block_registry', [ $this, 'register_cart_blocks' ] );
 		
-		// Add render hooks for cart blocks
-		add_action( 'woocommerce_blocks_cart_item_block_render', [ $this, 'add_cart_blocks_hint_render' ], 10, 2 );
+		// Add data to cart items for blocks
+		add_filter( 'woocommerce_store_api_cart_item_data', [ $this, 'add_bogo_data_to_cart_item' ], 10, 2 );
 		
-		// Add WordPress render hooks for blocks
-		add_filter( 'render_block', [ $this, 'add_cart_blocks_hint_to_block' ], 10, 2 );
-		
-		// Add React hooks for cart blocks
-		add_action( 'init', [ $this, 'register_react_hooks' ] );
-		
-		// Add JavaScript for dynamic cart blocks
+		// Add JavaScript for cart blocks
 		add_action( 'wp_footer', [ $this, 'add_cart_blocks_js' ] );
 	}
 
 	/**
-	 * Register React hooks for cart blocks
+	 * Register cart blocks
 	 */
-	public function register_react_hooks() {
-		// Add React component for cart item hints
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_react_assets' ] );
-		
-		// Add data to cart blocks
-		add_filter( 'woocommerce_store_api_cart_item_data', [ $this, 'add_bogo_data_to_cart_item' ], 10, 2 );
+	public function register_cart_blocks( $registry ) {
+		// Register custom cart item block
+		register_block_type( 'wc-advanced-bogo/cart-item-hint', array(
+			'editor_script' => 'wc-advanced-bogo-cart-blocks',
+			'editor_style'  => 'wc-advanced-bogo-cart-blocks-editor',
+			'style'         => 'wc-advanced-bogo-cart-blocks-style',
+			'render_callback' => [ $this, 'render_cart_item_hint' ]
+		) );
 	}
 
 	/**
-	 * Enqueue React assets for cart blocks
+	 * Render cart item hint
 	 */
-	public function enqueue_react_assets() {
-		if ( !is_cart() && !is_checkout() ) {
-			return;
+	public function render_cart_item_hint( $attributes, $content ) {
+		$product_id = isset( $attributes['productId'] ) ? intval( $attributes['productId'] ) : 0;
+		
+		if ( ! $product_id ) {
+			return $content;
 		}
 		
-		wp_enqueue_script(
-			'wc-advanced-bogo-cart-blocks',
-			plugin_dir_url( __FILE__ ) . 'cart-blocks.js',
-			array( 'wp-element', 'wp-components', 'wp-data' ),
-			'1.0.0',
-			true
-		);
+		$hint = $this->get_bogo_hint_for_product( $product_id );
 		
-		wp_localize_script( 'wc-advanced-bogo-cart-blocks', 'wcAdvancedBogoCart', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
-			'rules' => $this->get_bogo_rules_for_js()
-		) );
+		if ( $hint ) {
+			$content .= $hint;
+		}
+		
+		return $content;
 	}
 
 	/**
@@ -416,13 +408,15 @@ class WC_Advanced_BOGO {
 	public function enqueue_assets() {
 		// Only load on product pages, cart, and checkout
 		if ( is_product() || is_cart() || is_checkout() ) {
+			// Enqueue Tailwind CSS from CDN
 			wp_enqueue_style(
 				'wc-advanced-bogo-tailwind',
-				'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+				'https://cdn.tailwindcss.com',
 				array(),
-				'2.2.19'
+				'3.0.0'
 			);
 
+			// Enqueue frontend JavaScript
 			wp_enqueue_script(
 				'wc-advanced-bogo-frontend',
 				plugin_dir_url( __FILE__ ) . 'frontend.js',
@@ -431,12 +425,32 @@ class WC_Advanced_BOGO {
 				true
 			);
 
+			// Enqueue cart blocks script for cart and checkout pages
+			if ( is_cart() || is_checkout() ) {
+				wp_enqueue_script(
+					'wc-advanced-bogo-cart-blocks',
+					plugin_dir_url( __FILE__ ) . 'cart-blocks.js',
+					array( 'jquery' ),
+					'1.0.0',
+					true
+				);
+			}
+
+			// Localize script with AJAX data
 			wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
-				'cart_url' => wc_get_cart_url(),
-				'checkout_url' => wc_get_checkout_url()
+				'cartUrl' => wc_get_cart_url()
 			) );
+
+			// Also localize for cart blocks script
+			if ( is_cart() || is_checkout() ) {
+				wp_localize_script( 'wc-advanced-bogo-cart-blocks', 'wc_advanced_bogo_ajax', array(
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
+					'cartUrl' => wc_get_cart_url()
+				) );
+			}
 		}
 	}
 
