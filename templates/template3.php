@@ -17,8 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 </style>
 
-<div class="bogo-offer-container my-3 relative">
-    <div class="max-w-sm mx-auto">
+<div class="bogo-offer-container my-3 relative" style="max-width: 15rem; margin-left: auto; margin-right: auto;">
+    <div class="w-full">
         <div class="p-1 rounded-xl shadow-lg animate-pulse" style="background: linear-gradient(45deg, <?php echo esc_attr( $primary_color ); ?>, <?php echo esc_attr( $secondary_color ); ?>); background-size: 200% 200%; animation: gradientShift 2s ease infinite;">
             <div class="backdrop-filter backdrop-blur-sm rounded-xl p-4 relative overflow-hidden" style="background: <?php echo esc_attr( $background_color ); ?>;">
                 
