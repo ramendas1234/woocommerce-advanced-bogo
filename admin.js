@@ -1,6 +1,46 @@
 document.addEventListener('DOMContentLoaded', function () {
     let ruleIndex = 0;
 
+    // Initialize WooCommerce product search
+    function initializeProductSearch() {
+        if (typeof wc_enhanced_select_params !== 'undefined') {
+            $('.wc-product-search').each(function() {
+                $(this).select2({
+                    ajax: {
+                        url: wc_enhanced_select_params.search_products_nonce,
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                action: 'woocommerce_json_search_products',
+                                security: wc_enhanced_select_params.search_products_nonce
+                            };
+                        },
+                        processResults: function(data) {
+                            var terms = [];
+                            if (data) {
+                                $.each(data, function(id, text) {
+                                    terms.push({
+                                        id: id,
+                                        text: text
+                                    });
+                                });
+                            }
+                            return {
+                                results: terms
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 2,
+                    placeholder: $(this).data('placeholder'),
+                    allowClear: true
+                });
+            });
+        }
+    }
+
     // Initialize rule counter based on existing rows
     function initializeRuleIndex() {
         const existingRows = document.querySelectorAll('.bogo-rule-row');
@@ -122,6 +162,9 @@ document.addEventListener('DOMContentLoaded', function () {
             addRemoveHandler(removeButton);
         }
         
+        // Reinitialize product search for new row
+        initializeProductSearch();
+        
         ruleIndex++;
         
         // Add slide-in effect
@@ -134,8 +177,6 @@ document.addEventListener('DOMContentLoaded', function () {
             newRow.style.transform = 'translateY(0)';
         }, 10);
     }
-
-
 
     // Initialize existing remove buttons
     function initializeExistingButtons() {
@@ -169,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize everything
     initializeRuleIndex();
     initializeExistingButtons();
+    initializeProductSearch();
 
     // Form validation before submit
     const form = document.getElementById('bogo-rules-form');

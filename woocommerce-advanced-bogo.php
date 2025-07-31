@@ -75,6 +75,11 @@ class WC_Advanced_BOGO {
 				filemtime( plugin_dir_path(__FILE__) . 'admin.js' ), 
 				true 
 			);
+			
+			// Enqueue WooCommerce product search scripts
+			wp_enqueue_script( 'woocommerce_admin' );
+			wp_enqueue_script( 'wc-enhanced-select' );
+			wp_enqueue_style( 'woocommerce_admin_styles' );
 		}
 	}
 
@@ -129,10 +134,6 @@ class WC_Advanced_BOGO {
 
         $rules = get_option( self::OPTION_KEY, [] );
         $selected_template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
-        $products = wc_get_products([
-            'limit' => -1,
-            'status' => 'publish',
-        ]);
         
         if ( empty( $rules ) ) {
             $rules = [
@@ -190,20 +191,24 @@ class WC_Advanced_BOGO {
                                         <span style="margin-right: 8px;">🛒 Buy</span>
                                         <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
                                         <span style="margin: 0 8px;">units of</span>
-                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" required style="min-width: 140px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;">
-                                            <option value="">— Select Product —</option>
+                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
+                                            <option value="">Search for a product...</option>
                                             <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
-                                            <?php foreach ( $products as $product ) : ?>
-                                                <option value="<?php echo $product->get_id(); ?>" <?php selected( $rule['buy_product'], $product->get_id() ); ?>><?php echo esc_html( $product->get_name() ); ?></option>
-                                            <?php endforeach; ?>
+                                            <?php if ( !empty( $rule['buy_product'] ) && $rule['buy_product'] !== 'all' ) : 
+                                                $buy_product = wc_get_product( $rule['buy_product'] );
+                                                if ( $buy_product ) : ?>
+                                                <option value="<?php echo esc_attr( $rule['buy_product'] ); ?>" selected><?php echo esc_html( $buy_product->get_name() ); ?></option>
+                                            <?php endif; endif; ?>
                                         </select>
                                         <span style="margin: 0 8px;">and get</span>
                                         <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
-                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" required style="min-width: 140px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;">
-                                            <option value="">— Select Product —</option>
-                                            <?php foreach ( $products as $product ) : ?>
-                                                <option value="<?php echo $product->get_id(); ?>" <?php selected( $rule['get_product'], $product->get_id() ); ?>><?php echo esc_html( $product->get_name() ); ?></option>
-                                            <?php endforeach; ?>
+                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
+                                            <option value="">Search for a product...</option>
+                                            <?php if ( !empty( $rule['get_product'] ) ) : 
+                                                $get_product = wc_get_product( $rule['get_product'] );
+                                                if ( $get_product ) : ?>
+                                                <option value="<?php echo esc_attr( $rule['get_product'] ); ?>" selected><?php echo esc_html( $get_product->get_name() ); ?></option>
+                                            <?php endif; endif; ?>
                                         </select>
                                         <span style="margin: 0 8px;">at</span>
                                         <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
