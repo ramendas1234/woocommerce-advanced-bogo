@@ -12,7 +12,7 @@ jQuery(document).ready(function($) {
         // Get offer data from button attributes
         const offerData = {
             action: 'grab_bogo_offer',
-            nonce: bogoAjax.nonce,
+            nonce: wc_advanced_bogo_ajax.nonce,
             buy_product: $button.data('buy-product'),
             buy_qty: $button.data('buy-qty'),
             get_product: $button.data('get-product'),
@@ -30,7 +30,7 @@ jQuery(document).ready(function($) {
 
         // AJAX request
         $.ajax({
-            url: bogoAjax.ajaxurl,
+            url: wc_advanced_bogo_ajax.ajax_url,
             type: 'POST',
             data: offerData,
             dataType: 'json',
@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
                         
                         // Make button redirect to cart
                         $button.off('click').on('click', function() {
-                            window.location.href = response.data.cart_url || bogoAjax.cartUrl;
+                            window.location.href = response.data.cart_url || wc_advanced_bogo_ajax.cart_url;
                         });
                     }, 2000);
                     

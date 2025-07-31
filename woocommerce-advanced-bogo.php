@@ -21,21 +21,8 @@ class WC_Advanced_BOGO {
         add_action( 'init', array( $this, 'init' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-        add_action( 'woocommerce_before_single_product', array( $this, 'display_bogo_message' ) );
-        add_action( 'woocommerce_apply_bogo_discount', array( $this, 'apply_bogo_discount' ) );
-        add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'maybe_remove_remove_link' ), 10, 2 );
         add_action( 'wp_ajax_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
         add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
-        
-        // Cart hints hooks
-        add_action( 'woocommerce_cart_collaterals', array( $this, 'display_cart_bogo_hints' ) );
-        add_action( 'woocommerce_cart_totals_before_shipping', array( $this, 'display_cart_bogo_hints' ) );
-        add_action( 'woocommerce_review_order_before_payment', array( $this, 'display_cart_bogo_hints' ) );
-        add_action( 'woocommerce_checkout_before_order_review_heading', array( $this, 'display_cart_bogo_hints' ) );
-        
-        // Cart blocks support
-        add_action( 'woocommerce_blocks_cart_block_registry', array( $this, 'register_cart_blocks_hints' ) );
-        add_action( 'woocommerce_blocks_checkout_block_registry', array( $this, 'register_cart_blocks_hints' ) );
     }
 
 	/**
@@ -48,46 +35,43 @@ class WC_Advanced_BOGO {
 			add_action( 'admin_init', [ $this, 'register_settings' ] );
 			add_action( 'woocommerce_single_product_summary', [ $this, 'display_bogo_message' ], 25 );
 			add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
+			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
+			
+			// Cart hints hooks - only on cart and checkout pages
+			if ( is_cart() || is_checkout() ) {
+				add_action( 'woocommerce_cart_collaterals', [ $this, 'display_cart_bogo_hints' ] );
+				add_action( 'woocommerce_cart_totals_before_shipping', [ $this, 'display_cart_bogo_hints' ] );
+				add_action( 'woocommerce_review_order_before_payment', [ $this, 'display_cart_bogo_hints' ] );
+				add_action( 'woocommerce_checkout_before_order_review_heading', [ $this, 'display_cart_bogo_hints' ] );
+			}
 		}
 	}
 
-	/**
-	 * Register cart blocks hints
-	 */
-	public function register_cart_blocks_hints( $registry ) {
-		// Add hints to cart blocks
-		add_action( 'woocommerce_blocks_cart_block_registry', function() {
-			$this->display_cart_bogo_hints();
-		});
-		
-		// Add hints to checkout blocks
-		add_action( 'woocommerce_blocks_checkout_block_registry', function() {
-			$this->display_cart_bogo_hints();
-		});
-	}
-
 	public function enqueue_assets() {
-		wp_enqueue_style(
-			'wc-advanced-bogo-tailwind',
-			plugin_dir_url( __FILE__ ) . 'tailwind.css',
-			array(),
-			'1.0.0'
-		);
+		// Only load on product pages, cart, and checkout
+		if ( is_product() || is_cart() || is_checkout() ) {
+			wp_enqueue_style(
+				'wc-advanced-bogo-tailwind',
+				'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+				array(),
+				'2.2.19'
+			);
 
-		wp_enqueue_script(
-			'wc-advanced-bogo-frontend',
-			plugin_dir_url( __FILE__ ) . 'frontend.js',
-			array( 'jquery' ),
-			'1.0.0',
-			true
-		);
+			wp_enqueue_script(
+				'wc-advanced-bogo-frontend',
+				plugin_dir_url( __FILE__ ) . 'frontend.js',
+				array( 'jquery' ),
+				'1.0.0',
+				true
+			);
 
-		wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
-			'cart_url' => wc_get_cart_url(),
-			'checkout_url' => wc_get_checkout_url()
-		) );
+			wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
+				'cart_url' => wc_get_cart_url(),
+				'checkout_url' => wc_get_checkout_url()
+			) );
+		}
 	}
 
 	public function enqueue_admin_scripts( $hook ) {
@@ -1010,7 +994,7 @@ class WC_Advanced_BOGO {
 				// For 'all' products, we need to get the current product ID
 				$current_product_id = get_queried_object_id();
 				if ( ! $current_product_id ) {
-					wp_die( 'Product not found' );
+					wp_send_json_error( array( 'message' => 'Product not found' ) );
 				}
 				$product_id = $current_product_id;
 			} else {
@@ -1019,7 +1003,12 @@ class WC_Advanced_BOGO {
 
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				wp_die( 'Product not found' );
+				wp_send_json_error( array( 'message' => 'Product not found' ) );
+			}
+
+			// Check if product is in stock
+			if ( ! $product->is_in_stock() ) {
+				wp_send_json_error( array( 'message' => 'Product is out of stock' ) );
 			}
 
 			// Add the required quantity to cart
@@ -1036,12 +1025,16 @@ class WC_Advanced_BOGO {
 					'rule_index' => $rule_index,
 				];
 
-				wp_send_json_success( 'BOGO offer added to cart successfully!' );
+				wp_send_json_success( array(
+					'message' => 'BOGO offer added to cart successfully!',
+					'cart_count' => WC()->cart->get_cart_contents_count(),
+					'cart_url' => wc_get_cart_url()
+				) );
 			} else {
-				wp_send_json_error( 'Failed to add product to cart' );
+				wp_send_json_error( array( 'message' => 'Failed to add product to cart' ) );
 			}
 		} catch ( Exception $e ) {
-			wp_send_json_error( $e->getMessage() );
+			wp_send_json_error( array( 'message' => $e->getMessage() ) );
 		}
 	}
 
