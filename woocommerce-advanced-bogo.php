@@ -565,6 +565,11 @@ class WC_Advanced_BOGO {
             // Get current template settings
             $template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
             
+            // Ensure template_settings is an array (handle old string data)
+            if ( !is_array( $template_settings ) ) {
+                $template_settings = array();
+            }
+            
             // Update selected template
             $template_settings['selected_template'] = intval( str_replace( 'template', '', $selected_template ) );
             
@@ -592,6 +597,12 @@ class WC_Advanced_BOGO {
 
         $rules = get_option( self::OPTION_KEY, [] );
         $template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
+        
+        // Ensure template_settings is an array (handle old string data)
+        if ( !is_array( $template_settings ) ) {
+            $template_settings = array();
+        }
+        
         $selected_template = isset( $template_settings['selected_template'] ) ? 'template' . $template_settings['selected_template'] : 'template1';
         
         if ( empty( $rules ) ) {
@@ -736,7 +747,7 @@ class WC_Advanced_BOGO {
                                     );
                                     
                                     // Get saved colors or use defaults
-                                    $template_colors = isset( $template_settings[$template_name] ) ? $template_settings[$template_name] : array();
+                                    $template_colors = isset( $template_settings[$template_name] ) && is_array( $template_settings[$template_name] ) ? $template_settings[$template_name] : array();
                                     $primary_color = isset( $template_colors['primary'] ) ? $template_colors['primary'] : $default_colors[$template_name]['primary'];
                                     $secondary_color = isset( $template_colors['secondary'] ) ? $template_colors['secondary'] : $default_colors[$template_name]['secondary'];
                                     $text_color = isset( $template_colors['text'] ) ? $template_colors['text'] : $default_colors[$template_name]['text'];
@@ -1171,6 +1182,12 @@ class WC_Advanced_BOGO {
 
 		$rules = get_option( self::OPTION_KEY, [] );
 		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
+		
+		// Ensure template_settings is an array (handle old string data)
+		if ( !is_array( $template_settings ) ) {
+			$template_settings = array();
+		}
+		
 		$now = date( 'Y-m-d' );
 		
 		foreach ( $rules as $index => $rule ) {
@@ -1219,6 +1236,12 @@ class WC_Advanced_BOGO {
 	private function get_bogo_template( $template, $buy_qty, $get_qty, $get_name, $discount_text, $get_image, $buy_product_id, $get_product_id, $discount, $index ) {
 		// Get template settings
 		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
+		
+		// Ensure template_settings is an array (handle old string data)
+		if ( !is_array( $template_settings ) ) {
+			$template_settings = array();
+		}
+		
 		$template_key = "template{$template}";
 		
 		// Default colors for each template
@@ -1238,7 +1261,7 @@ class WC_Advanced_BOGO {
 		);
 		
 		// Get colors from settings or use defaults
-		$colors = isset( $template_settings[$template_key] ) ? $template_settings[$template_key] : $default_colors[$template_key];
+		$colors = isset( $template_settings[$template_key] ) && is_array( $template_settings[$template_key] ) ? $template_settings[$template_key] : $default_colors[$template_key];
 		
 		// Common button data for AJAX
 		$common_button_data = sprintf(
