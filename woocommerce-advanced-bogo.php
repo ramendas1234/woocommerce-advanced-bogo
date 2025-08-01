@@ -1566,7 +1566,7 @@ class WC_Advanced_BOGO {
 				// For 'all' products, we need to get the current product ID
 				$current_product_id = get_queried_object_id();
 				if ( ! $current_product_id ) {
-					wp_send_json_error( array( 'message' => 'Product not found' ) );
+					wp_send_json_error( array( 'message' => 'Product not found. Please refresh the page and try again.' ) );
 				}
 				$product_id = $current_product_id;
 			} else {
@@ -1575,12 +1575,17 @@ class WC_Advanced_BOGO {
 
 			$product = wc_get_product( $product_id );
 			if ( ! $product ) {
-				wp_send_json_error( array( 'message' => 'Product not found' ) );
+				wp_send_json_error( array( 'message' => 'Product not found. Please try again.' ) );
 			}
 
 			// Check if product is in stock
 			if ( ! $product->is_in_stock() ) {
-				wp_send_json_error( array( 'message' => 'Product is out of stock' ) );
+				wp_send_json_error( array( 'message' => 'Product is out of stock. Please try a different product.' ) );
+			}
+
+			// Check if product is purchasable
+			if ( ! $product->is_purchasable() ) {
+				wp_send_json_error( array( 'message' => 'Product is not available for purchase.' ) );
 			}
 
 			// Add the required quantity to cart
@@ -1603,10 +1608,10 @@ class WC_Advanced_BOGO {
 					'cart_url' => wc_get_cart_url()
 				) );
 			} else {
-				wp_send_json_error( array( 'message' => 'Failed to add product to cart' ) );
+				wp_send_json_error( array( 'message' => 'Failed to add product to cart. Please try again.' ) );
 			}
 		} catch ( Exception $e ) {
-			wp_send_json_error( array( 'message' => $e->getMessage() ) );
+			wp_send_json_error( array( 'message' => 'An error occurred: ' . $e->getMessage() ) );
 		}
 	}
 

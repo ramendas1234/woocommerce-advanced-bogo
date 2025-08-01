@@ -6,21 +6,26 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         
         var $button = $(this);
-        var $container = $button.closest('.bogo-offer-container');
-        var buyProductId = $container.data('buy-product-id');
-        var getProductId = $container.data('get-product-id');
-        var buyQty = $container.data('buy-qty');
-        var getQty = $container.data('get-qty');
-        var discount = $container.data('discount');
-        var ruleIndex = $container.data('rule-index');
+        var buyProduct = $button.data('buy-product');
+        var buyQty = $button.data('buy-qty');
+        var getProduct = $button.data('get-product');
+        var getQty = $button.data('get-qty');
+        var discount = $button.data('discount');
+        var ruleIndex = $button.data('rule-index');
         
-        if (!buyProductId || !getProductId) {
-            console.error('BOGO: Missing product IDs');
+        if (!buyProduct || !getProduct) {
+            console.error('BOGO: Missing product data');
             return;
         }
         
         // Show loading state
-        $button.prop('disabled', true).text('Adding...');
+        $button.prop('disabled', true);
+        $button.html(`
+            <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Adding to Cart...
+        `);
         
         // Add to cart via AJAX
         $.ajax({
@@ -28,9 +33,9 @@ jQuery(document).ready(function($) {
             type: 'POST',
             data: {
                 action: 'grab_bogo_offer',
-                buy_product_id: buyProductId,
-                get_product_id: getProductId,
+                buy_product: buyProduct,
                 buy_qty: buyQty,
+                get_product: getProduct,
                 get_qty: getQty,
                 discount: discount,
                 rule_index: ruleIndex,
@@ -39,27 +44,103 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     // Show success message
-                    $button.text('Added!').addClass('success');
+                    $button.removeClass('hover:scale-105').addClass('bg-green-600');
+                    $button.html(`
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        ✅ Added to Cart!
+                    `);
+                    
+                    // Show success notification
+                    showNotification('BOGO offer added successfully!', 'success');
                     
                     // Redirect to cart after a short delay
                     setTimeout(function() {
                         window.location.href = wc_advanced_bogo_ajax.cartUrl;
-                    }, 1000);
+                    }, 1500);
                 } else {
                     // Show error message
-                    $button.text('Error').addClass('error');
+                    $button.removeClass('hover:scale-105').addClass('bg-red-600');
+                    $button.html(`
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        ❌ Error
+                    `);
+                    
+                    showNotification(response.data.message || 'Failed to add offer to cart', 'error');
+                    
+                    // Reset button after delay
                     setTimeout(function() {
-                        $button.prop('disabled', false).text('Grab This Offer').removeClass('error');
-                    }, 2000);
+                        resetButton($button);
+                    }, 3000);
                 }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.error('BOGO AJAX Error:', error);
+                
                 // Show error message
-                $button.text('Error').addClass('error');
+                $button.removeClass('hover:scale-105').addClass('bg-red-600');
+                $button.html(`
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    ❌ Error
+                `);
+                
+                showNotification('Network error. Please try again.', 'error');
+                
+                // Reset button after delay
                 setTimeout(function() {
-                    $button.prop('disabled', false).text('Grab This Offer').removeClass('error');
-                }, 2000);
+                    resetButton($button);
+                }, 3000);
             }
         });
     });
+    
+    // Function to reset button to original state
+    function resetButton($button) {
+        $button.prop('disabled', false);
+        $button.removeClass('bg-green-600 bg-red-600').addClass('hover:scale-105');
+        $button.html(`
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            🛒 Grab This Offer!
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+        `);
+    }
+    
+    // Function to show notifications
+    function showNotification(message, type) {
+        var bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700';
+        var icon = type === 'success' ? '✅' : '❌';
+        
+        var $notification = $(`
+            <div class="fixed top-4 right-4 z-50 ${bgColor} border px-4 py-3 rounded shadow-lg transform translate-x-full transition-transform duration-300 max-w-sm">
+                <div class="flex items-center">
+                    <span class="mr-2">${icon}</span>
+                    <span class="text-sm font-medium">${message}</span>
+                </div>
+            </div>
+        `);
+        
+        $('body').append($notification);
+        
+        // Slide in
+        setTimeout(function() {
+            $notification.removeClass('translate-x-full');
+        }, 100);
+        
+        // Slide out and remove after delay
+        setTimeout(function() {
+            $notification.addClass('translate-x-full');
+            setTimeout(function() {
+                $notification.remove();
+            }, 300);
+        }, 4000);
+    }
 });
