@@ -25,12 +25,7 @@ class WC_Advanced_BOGO {
         add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
         add_action( 'wp_ajax_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
         add_action( 'wp_ajax_nopriv_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
-        add_action( 'wp_ajax_save_bogo_template_colors', array( $this, 'save_bogo_template_colors' ) );
-        add_action( 'wp_ajax_save_bogo_template_selection', array( $this, 'save_bogo_template_selection' ) );
-        add_action( 'wp_ajax_get_bogo_template_settings', array( $this, 'get_bogo_template_settings' ) );
-        add_action( 'wp_ajax_nopriv_get_bogo_template_settings', array( $this, 'get_bogo_template_settings' ) );
-        add_action( 'wp_ajax_refresh_bogo_templates', array( $this, 'refresh_bogo_templates' ) );
-        add_action( 'wp_ajax_nopriv_refresh_bogo_templates', array( $this, 'refresh_bogo_templates' ) );
+
     }
 
 	/**
@@ -442,9 +437,7 @@ class WC_Advanced_BOGO {
 			wp_localize_script( 'wc-advanced-bogo-frontend', 'wc_advanced_bogo_ajax', array(
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'nonce' => wp_create_nonce( 'wc_advanced_bogo_nonce' ),
-				'cartUrl' => wc_get_cart_url(),
-				'is_admin' => current_user_can( 'manage_woocommerce' ),
-				'template_settings' => get_option( self::TEMPLATE_OPTION_KEY, array() )
+				'cartUrl' => wc_get_cart_url()
 			) );
 		}
 	}
@@ -565,25 +558,41 @@ class WC_Advanced_BOGO {
 
         if ( isset( $_POST['bogo_template'] ) && $current_tab === 'ui-settings' ) {
             check_admin_referer( 'save_bogo_template' );
-            update_option( self::TEMPLATE_OPTION_KEY, sanitize_text_field( $_POST['bogo_template'] ) );
+            
+            // Save template selection
+            $selected_template = sanitize_text_field( $_POST['bogo_template'] );
+            
+            // Get current template settings
+            $template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
+            
+            // Update selected template
+            $template_settings['selected_template'] = intval( str_replace( 'template', '', $selected_template ) );
             
             // Save color palette settings
             if ( isset( $_POST['bogo_template_colors'] ) && is_array( $_POST['bogo_template_colors'] ) ) {
                 foreach ( $_POST['bogo_template_colors'] as $template_name => $colors ) {
                     if ( is_array( $colors ) ) {
+                        // Initialize template colors if not exists
+                        if ( !isset( $template_settings[$template_name] ) ) {
+                            $template_settings[$template_name] = array();
+                        }
+                        
                         foreach ( $colors as $color_type => $color_value ) {
-                            $option_name = "bogo_template_{$template_name}_{$color_type}_color";
-                            update_option( $option_name, sanitize_hex_color( $color_value ) );
+                            $template_settings[$template_name][$color_type] = sanitize_hex_color( $color_value );
                         }
                     }
                 }
             }
             
+            // Save all template settings
+            update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
+            
             echo '<div class="updated"><p>BOGO message template and color settings saved successfully!</p></div>';
         }
 
         $rules = get_option( self::OPTION_KEY, [] );
-        $selected_template = get_option( self::TEMPLATE_OPTION_KEY, 'template1' );
+        $template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
+        $selected_template = isset( $template_settings['selected_template'] ) ? 'template' . $template_settings['selected_template'] : 'template1';
         
         if ( empty( $rules ) ) {
             $rules = [
@@ -727,12 +736,13 @@ class WC_Advanced_BOGO {
                                     );
                                     
                                     // Get saved colors or use defaults
-                                    $primary_color = get_option( "bogo_template_{$template_name}_primary_color", $default_colors[$template_name]['primary'] );
-                                    $secondary_color = get_option( "bogo_template_{$template_name}_secondary_color", $default_colors[$template_name]['secondary'] );
-                                    $text_color = get_option( "bogo_template_{$template_name}_text_color", $default_colors[$template_name]['text'] );
-                                    $background_color = get_option( "bogo_template_{$template_name}_background_color", $default_colors[$template_name]['background'] );
-                                    $button_bg_color = get_option( "bogo_template_{$template_name}_button_bg_color", $default_colors[$template_name]['button_bg'] );
-                                    $button_text_color = get_option( "bogo_template_{$template_name}_button_text_color", $default_colors[$template_name]['button_text'] );
+                                    $template_colors = isset( $template_settings[$template_name] ) ? $template_settings[$template_name] : array();
+                                    $primary_color = isset( $template_colors['primary'] ) ? $template_colors['primary'] : $default_colors[$template_name]['primary'];
+                                    $secondary_color = isset( $template_colors['secondary'] ) ? $template_colors['secondary'] : $default_colors[$template_name]['secondary'];
+                                    $text_color = isset( $template_colors['text'] ) ? $template_colors['text'] : $default_colors[$template_name]['text'];
+                                    $background_color = isset( $template_colors['background'] ) ? $template_colors['background'] : $default_colors[$template_name]['background'];
+                                    $button_bg_color = isset( $template_colors['button_bg'] ) ? $template_colors['button_bg'] : $default_colors[$template_name]['button_bg'];
+                                    $button_text_color = isset( $template_colors['button_text'] ) ? $template_colors['button_text'] : $default_colors[$template_name]['button_text'];
                                 ?>
                                 <div class="template-option" style="border: 2px solid <?php echo $selected_template === $template_name ? '#007cba' : '#ddd'; ?>; border-radius: 8px; padding: 20px; background: white;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -1785,169 +1795,15 @@ class WC_Advanced_BOGO {
 		return '';
 	}
 
-	/**
-	 * Broadcast template changes to frontend
-	 */
-	private function broadcast_template_changes() {
-		// This could be implemented with WebSockets or Server-Sent Events
-		// For now, we'll rely on the polling mechanism
-		// In a production environment, you might want to use WebSockets
-		do_action( 'bogo_template_changed' );
-	}
 
-	/**
-	 * Handle saving BOGO template selection via AJAX
-	 */
-	public function save_bogo_template_selection() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'save_bogo_template' ) ) {
-			wp_die( 'Security check failed' );
-		}
 
-		// Check permissions
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( 'Insufficient permissions' );
-		}
 
-		$template = sanitize_text_field( $_POST['template'] );
-		
-		// Extract template number from template name (e.g., 'template1' -> 1)
-		$template_number = intval( str_replace( 'template', '', $template ) );
 
-		// Get current template settings
-		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
 
-		// Update the selected template
-		$template_settings['selected_template'] = $template_number;
 
-		// Save to database
-		$result = update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
 
-		if ( $result ) {
-			// Broadcast the change
-			$this->broadcast_template_changes();
-			wp_send_json_success( array( 'message' => 'Template selection saved successfully' ) );
-		} else {
-			wp_send_json_error( array( 'message' => 'Failed to save template selection' ) );
-		}
-	}
 
-	/**
-	 * Handle saving BOGO template colors via AJAX
-	 */
-	public function save_bogo_template_colors() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'save_bogo_colors' ) ) {
-			wp_die( 'Security check failed' );
-		}
 
-		// Check permissions
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( 'Insufficient permissions' );
-		}
-
-		$template = sanitize_text_field( $_POST['template'] );
-		$colors = $_POST['colors'];
-
-		// Sanitize colors
-		$sanitized_colors = array();
-		foreach ( $colors as $key => $value ) {
-			$sanitized_colors[ sanitize_text_field( $key ) ] = sanitize_hex_color( $value );
-		}
-
-		// Get current template settings
-		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
-
-		// Update the specific template colors
-		$template_settings[ $template ] = $sanitized_colors;
-
-		// Save to database
-		$result = update_option( self::TEMPLATE_OPTION_KEY, $template_settings );
-
-		if ( $result ) {
-			// Broadcast the change
-			$this->broadcast_template_changes();
-			wp_send_json_success( array( 'message' => 'Colors saved successfully' ) );
-		} else {
-			wp_send_json_error( array( 'message' => 'Failed to save colors' ) );
-		}
-	}
-
-	/**
-	 * Handle getting BOGO template settings via AJAX
-	 */
-	public function get_bogo_template_settings() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'wc_advanced_bogo_nonce' ) ) {
-			wp_die( 'Security check failed' );
-		}
-
-		// Get current template settings
-		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, array() );
-
-		// Return template settings
-		wp_send_json_success( $template_settings );
-	}
-
-	/**
-	 * Handle refreshing BOGO templates via AJAX
-	 */
-	public function refresh_bogo_templates() {
-		// Verify nonce
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'wc_advanced_bogo_nonce' ) ) {
-			wp_die( 'Security check failed' );
-		}
-
-		$product_id = intval( $_POST['product_id'] );
-		$rule_index = intval( $_POST['rule_index'] );
-		
-		// Get current template settings
-		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
-		$rules = get_option( self::OPTION_KEY, [] );
-		
-		if ( isset( $rules[$rule_index] ) ) {
-			$rule = $rules[$rule_index];
-			$product = wc_get_product( $product_id );
-			
-			if ( $product && ! empty( $rule['buy_product'] ) && ( $rule['buy_product'] === 'all' || intval( $rule['buy_product'] ) === $product_id ) ) {
-				$buy_qty     = intval( $rule['buy_qty'] );
-				$get_qty     = intval( $rule['get_qty'] ) ?: 1;
-				$get_product = wc_get_product( intval( $rule['get_product'] ) );
-				$discount    = intval( $rule['discount'] );
-
-				if ( $get_product ) {
-					$discount_text = ( $discount == 100 )
-						? 'for free!'
-						: "at {$discount}% off!";
-
-					$get_image = $get_product->get_image( 'thumbnail' );
-					$get_name  = $get_product->get_name();
-					$buy_product_id = $rule['buy_product'] === 'all' ? $product_id : intval( $rule['buy_product'] );
-
-					// Get the selected template
-					$selected_template = isset( $template_settings['selected_template'] ) ? $template_settings['selected_template'] : 1;
-					
-					// Generate new template HTML
-					$template_html = $this->get_bogo_template( 
-						$selected_template, 
-						$buy_qty, 
-						$get_qty, 
-						$get_name, 
-						$discount_text, 
-						$get_image, 
-						$buy_product_id, 
-						$get_product->get_id(), 
-						$discount, 
-						$rule_index 
-					);
-					
-					wp_send_json_success( array( 'html' => $template_html ) );
-				}
-			}
-		}
-		
-		wp_send_json_error( array( 'message' => 'Failed to refresh template' ) );
-	}
 
 }
 
