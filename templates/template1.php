@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg" style="background: <?php echo esc_attr( $background_color ); ?>;" <?php echo $template_data_attrs; ?>>
+<div class="bogo-offer-container my-4 p-4 border border-gray-200 rounded-lg shadow-lg" style="background: <?php echo esc_attr( $background_color ); ?>;">
     <div class="flex items-center gap-4">
         <div class="relative w-24 h-24 flex-shrink-0">
             <?php echo $get_image; ?>
@@ -21,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             <h3 class="text-lg font-bold mb-1" style="color: <?php echo esc_attr( $text_color ); ?>;">🎉 Special BOGO Offer!</h3>
             <p class="text-sm mb-3" style="color: <?php echo esc_attr( $text_color ); ?>;">
                 Buy <span class="font-semibold" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo $buy_qty; ?></span> of this product and get 
-                <span class="font-semibold" style="color: <?php echo esc_attr( $secondary_color ); ?>;"><?php echo $get_qty; ?></span> of 
-                <span class="font-semibold" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo esc_html( $get_name ); ?></span> 
+                <span class="font-semibold" style="color: <?php echo esc_attr( $secondary_color ); ?>;"><?php echo $get_qty; ?></span> of
+                <span class="font-semibold" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo esc_html( $get_name ); ?></span>
                 <span class="font-bold" style="color: <?php echo esc_attr( $secondary_color ); ?>;"><?php echo esc_html( $discount_text ); ?></span>
             </p>
             <button 

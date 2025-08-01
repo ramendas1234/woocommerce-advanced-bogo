@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 </style>
 
-<div class="bogo-offer-container my-4 mx-auto" style="max-width: 15rem;" <?php echo $template_data_attrs; ?>>
+<div class="bogo-offer-container my-3 relative" style="max-width: 15rem; margin-left: auto; margin-right: auto;">
     <div class="w-full">
         <div class="p-1 rounded-xl shadow-lg animate-pulse" style="background: linear-gradient(45deg, <?php echo esc_attr( $primary_color ); ?>, <?php echo esc_attr( $secondary_color ); ?>); background-size: 200% 200%; animation: gradientShift 2s ease infinite;">
             <div class="backdrop-filter backdrop-blur-sm rounded-xl p-4 relative overflow-hidden" style="background: <?php echo esc_attr( $background_color ); ?>;">
@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
                         <div class="text-center flex-1">
                             <div class="text-xs font-bold mb-1" style="color: <?php echo esc_attr( $text_color ); ?>;">
-                                Buy <span class="text-sm" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo $buy_qty; ?></span> 
+                                Buy <span class="text-sm" style="color: <?php echo esc_attr( $primary_color ); ?>;"><?php echo $buy_qty; ?></span>
                                 → Get <span class="text-sm" style="color: <?php echo esc_attr( $secondary_color ); ?>;"><?php echo $get_qty; ?></span>
                             </div>
                             <div class="text-xs" style="color: <?php echo esc_attr( $text_color ); ?>;">

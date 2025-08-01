@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div class="bogo-offer-container my-4 p-4 rounded-lg shadow-xl" style="background: <?php echo esc_attr( $background_color ); ?>; border: 2px solid <?php echo esc_attr( $primary_color ); ?>;" <?php echo $template_data_attrs; ?>>
+<div class="bogo-offer-container my-6 mx-auto max-w-md relative" style="perspective: 1000px;">
     <div class="rounded-2xl shadow-2xl p-6 text-white relative overflow-hidden transform hover:scale-105 transition-all duration-300" style="background: <?php echo esc_attr( $background_color ); ?>;">
         
         <!-- Special Badge -->
