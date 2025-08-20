@@ -481,42 +481,13 @@ class WC_Advanced_BOGO {
 			// Add inline script to ensure ajaxurl is available globally
 			wp_add_inline_script( 'wc-advanced-bogo-admin', 'var ajaxurl = "' . admin_url( 'admin-ajax.php' ) . '";', 'before' );
 			
-			// Add CSS to ensure Select2 dropdowns display correctly
-			wp_add_inline_style( 'woocommerce_admin_styles', '
-				.select2-container {
-					z-index: 999999 !important;
-				}
-				.select2-dropdown {
-					z-index: 999999 !important;
-				}
-				.select2-results {
-					max-height: 200px;
-					overflow-y: auto;
-				}
-				.bogo-rule-row .select2-container {
-					min-width: 200px !important;
-					max-width: 300px !important;
-					width: auto !important;
-					display: inline-block !important;
-				}
-				.bogo-rule-row select.wc-product-search {
-					min-width: 200px !important;
-					max-width: 300px !important;
-					width: auto !important;
-				}
-				.bogo-rule-row .select2-container--default .select2-selection--single {
-					height: 35px !important;
-					line-height: 33px !important;
-				}
-				.bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__rendered {
-					line-height: 33px !important;
-					padding-left: 8px !important;
-					padding-right: 20px !important;
-				}
-				.bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__arrow {
-					height: 33px !important;
-				}
-			' );
+			// Enqueue admin CSS file
+			wp_enqueue_style(
+				'wc-advanced-bogo-admin-css',
+				plugin_dir_url( __FILE__ ) . 'assets/css/admin.css',
+				array(),
+				'1.0.1'
+			);
 		}
 	}
 
@@ -1035,37 +1006,7 @@ class WC_Advanced_BOGO {
                 });
                 </script>
                 
-                <style>
-                .template-option {
-                    transition: all 0.3s ease;
-                }
-                .template-option.selected-template {
-                    border-color: #007cba !important;
-                    box-shadow: 0 0 0 1px #007cba;
-                }
-                .color-changed {
-                    animation: colorPulse 0.2s ease-in-out;
-                }
-                @keyframes colorPulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.02); }
-                    100% { transform: scale(1); }
-                }
-                input[type="color"] {
-                    cursor: pointer;
-                }
-                input[type="color"]:hover {
-                    transform: scale(1.05);
-                    transition: transform 0.2s ease;
-                }
-                .template-color-input {
-                    transition: all 0.2s ease;
-                }
-                .template-color-input:focus {
-                    box-shadow: 0 0 0 2px #007cba;
-                    border-color: #007cba;
-                }
-                </style>
+                <!-- Template and color picker styles are now in admin.css -->
             <?php endif; ?>
 
             <?php if ( $current_tab === 'reports' ) : ?>
@@ -1077,14 +1018,7 @@ class WC_Advanced_BOGO {
                 </div>
             <?php endif; ?>
         </div>
-        <style>
-            .remove-bogo-rule { transition: all 0.2s ease; border-radius: 4px !important; }
-            .remove-bogo-rule:hover { cursor: pointer; box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3); }
-            .add-bogo-rule { background: #007cba !important; border-color: #007cba !important; color: white !important; margin-left: 10px; }
-            .add-bogo-rule:hover { background: #005a87 !important; border-color: #005a87 !important; }
-            .bogo-rules-container { margin-bottom: 20px; }
-            .no-rules-message { text-align: center; padding: 20px; background: #f9f9f9; border: 1px dashed #ccc; margin: 10px 0; }
-        </style>
+        <!-- BOGO rules styles are now in admin.css -->
         <?php
     }
 
@@ -1948,19 +1882,7 @@ class WC_Advanced_BOGO {
 		});
 		</script>
 
-		<style>
-		.bogo-reports-wrapper .summary-card {
-			transition: transform 0.2s ease;
-		}
-		.bogo-reports-wrapper .summary-card:hover {
-			transform: translateY(-2px);
-		}
-		.order-status.status-completed { background: #28a745; color: white; }
-		.order-status.status-processing { background: #ffc107; color: #212529; }
-		.order-status.status-pending { background: #6c757d; color: white; }
-		.order-status.status-cancelled { background: #dc3545; color: white; }
-		.order-status.status-refunded { background: #fd7e14; color: white; }
-		</style>
+		<!-- Reports styles are now in admin.css -->
 		<?php
 		return ob_get_clean();
 	}
