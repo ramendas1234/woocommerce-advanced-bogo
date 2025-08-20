@@ -1013,48 +1013,13 @@ class WC_Advanced_BOGO {
                             previewButton.css('color', colorValue);
                         }
                         
-                        // Add visual feedback
+                        // Add visual feedback for color changes
                         $(this).closest('.color-group').addClass('color-changed');
                         setTimeout(function() {
                             $(this).closest('.color-group').removeClass('color-changed');
                         }.bind(this), 200);
                         
-                        // Show saving state
-                        templateOption.addClass('color-saving');
-                        
-                        // Save colors to database via AJAX
-                        var colors = {};
-                        templateOption.find('.template-color-input').each(function() {
-                            var type = $(this).data('color-type');
-                            colors[type] = $(this).val();
-                        });
-                        
-                        // $.ajax({
-                        //     url: ajaxurl,
-                        //     type: 'POST',
-                        //     data: {
-                        //         action: 'save_bogo_template_colors',
-                        //         template: templateKey,
-                        //         colors: colors,
-                        //         nonce: '<?php echo wp_create_nonce("save_bogo_colors"); ?>'
-                        //     },
-                        //     success: function(response) {
-                        //         if (response.success) {
-                        //             console.log('BOGO: Colors saved successfully');
-                        //             templateOption.removeClass('color-saving').addClass('color-saved');
-                        //             setTimeout(function() {
-                        //                 templateOption.removeClass('color-saved');
-                        //             }, 500);
-                        //         } else {
-                        //             console.error('BOGO: Error saving colors:', response.data);
-                        //             templateOption.removeClass('color-saving');
-                        //         }
-                        //     },
-                        //     error: function(xhr, status, error) {
-                        //         console.error('BOGO: AJAX error saving colors:', error);
-                        //         templateOption.removeClass('color-saving');
-                        //     }
-                        // });
+                        // Note: Colors are saved when the form is submitted, no AJAX needed
                     });
 
                     // Add template selection handler
@@ -1099,17 +1064,6 @@ class WC_Advanced_BOGO {
                 .template-color-input:focus {
                     box-shadow: 0 0 0 2px #007cba;
                     border-color: #007cba;
-                }
-                .color-saving {
-                    opacity: 0.7;
-                    pointer-events: none;
-                }
-                .color-saved {
-                    animation: saveSuccess 0.5s ease-in-out;
-                }
-                @keyframes saveSuccess {
-                    0% { background-color: #d4edda; }
-                    100% { background-color: transparent; }
                 }
                 </style>
             <?php endif; ?>
