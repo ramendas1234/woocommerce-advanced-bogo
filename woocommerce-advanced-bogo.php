@@ -45,6 +45,10 @@ class WC_Advanced_BOGO {
 			
 			// Add BOGO hints inside checkout cart items
 			add_filter( 'woocommerce_checkout_cart_item_quantity', [ $this, 'display_checkout_item_bogo_hint' ], 10, 3 );
+			
+			// Track BOGO discounts in orders
+			add_action( 'woocommerce_checkout_create_order_line_item', [ $this, 'save_bogo_order_item_meta' ], 10, 4 );
+			add_action( 'woocommerce_checkout_order_processed', [ $this, 'save_bogo_order_meta' ], 10, 3 );
 		}
 	}
 
@@ -635,6 +639,10 @@ class WC_Advanced_BOGO {
                    class="nav-tab <?php echo $current_tab === 'ui-settings' ? 'nav-tab-active' : ''; ?>">
                     UI Settings
                 </a>
+                <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=reports' ); ?>" 
+                   class="nav-tab <?php echo $current_tab === 'reports' ? 'nav-tab-active' : ''; ?>">
+                    📊 Reports
+                </a>
             </nav>
 
             <?php if ( $current_tab === 'rules' ) : ?>
@@ -1145,6 +1153,15 @@ class WC_Advanced_BOGO {
                     100% { background-color: transparent; }
                 }
                 </style>
+            <?php endif; ?>
+
+            <?php if ( $current_tab === 'reports' ) : ?>
+                <div class="bogo-reports-container">
+                    <h2>📊 BOGO Discount Reports</h2>
+                    <p style="margin-bottom: 20px;">Track your BOGO discount performance, orders, and revenue analytics.</p>
+                    
+                    <?php echo $this->render_bogo_reports(); ?>
+                </div>
             <?php endif; ?>
         </div>
         <style>
@@ -1682,6 +1699,470 @@ class WC_Advanced_BOGO {
 		}
 		
 		return $quantity_html . $hint_html;
+	}
+
+	/**
+	 * Save BOGO discount data to order line item meta
+	 */
+	public function save_bogo_order_item_meta( $item, $cart_item_key, $values, $order ) {
+		// Save BOGO gift item meta
+		if ( isset( $values['wc_advanced_bogo_gift'] ) && $values['wc_advanced_bogo_gift'] === true ) {
+			$item->add_meta_data( '_wc_advanced_bogo_gift', 'yes', true );
+		}
+		
+		// Save BOGO rule information
+		if ( isset( $values['wc_advanced_bogo_rule'] ) ) {
+			$item->add_meta_data( '_wc_advanced_bogo_rule', $values['wc_advanced_bogo_rule'], true );
+		}
+	}
+
+	/**
+	 * Save BOGO discount summary to order meta
+	 */
+	public function save_bogo_order_meta( $order_id, $posted_data, $order ) {
+		$bogo_items = [];
+		$total_bogo_discount = 0;
+		$bogo_rules_applied = [];
+
+		foreach ( $order->get_items() as $item_id => $item ) {
+			$is_gift = $item->get_meta( '_wc_advanced_bogo_gift' );
+			$rule_data = $item->get_meta( '_wc_advanced_bogo_rule' );
+			
+			if ( $is_gift === 'yes' ) {
+				$bogo_items[] = [
+					'item_id' => $item_id,
+					'product_id' => $item->get_product_id(),
+					'product_name' => $item->get_name(),
+					'quantity' => $item->get_quantity(),
+					'line_total' => $item->get_total(),
+					'type' => 'gift'
+				];
+				
+				// Calculate discount amount (original price - discounted price)
+				$product = $item->get_product();
+				if ( $product ) {
+					$original_price = $product->get_regular_price() * $item->get_quantity();
+					$discounted_price = $item->get_total();
+					$discount_amount = $original_price - $discounted_price;
+					$total_bogo_discount += $discount_amount;
+				}
+			}
+			
+			if ( $rule_data ) {
+				$bogo_rules_applied[] = $rule_data;
+				$bogo_items[] = [
+					'item_id' => $item_id,
+					'product_id' => $item->get_product_id(),
+					'product_name' => $item->get_name(),
+					'quantity' => $item->get_quantity(),
+					'line_total' => $item->get_total(),
+					'type' => 'trigger',
+					'rule' => $rule_data
+				];
+			}
+		}
+
+		if ( !empty( $bogo_items ) ) {
+			$order->update_meta_data( '_wc_advanced_bogo_items', $bogo_items );
+			$order->update_meta_data( '_wc_advanced_bogo_discount_total', $total_bogo_discount );
+			$order->update_meta_data( '_wc_advanced_bogo_rules_applied', $bogo_rules_applied );
+			$order->update_meta_data( '_wc_advanced_bogo_order_date', current_time( 'Y-m-d H:i:s' ) );
+			$order->save();
+		}
+	}
+
+	/**
+	 * Render BOGO reports page content
+	 */
+	public function render_bogo_reports() {
+		$date_from = isset( $_GET['date_from'] ) ? sanitize_text_field( $_GET['date_from'] ) : date( 'Y-m-01' );
+		$date_to = isset( $_GET['date_to'] ) ? sanitize_text_field( $_GET['date_to'] ) : date( 'Y-m-d' );
+		
+		// Get BOGO orders data
+		$bogo_data = $this->get_bogo_orders_data( $date_from, $date_to );
+		
+		ob_start();
+		?>
+		<div class="bogo-reports-wrapper">
+			<!-- Date Range Filter -->
+			<div class="bogo-date-filter" style="background: #fff; padding: 20px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
+				<h3>📅 Date Range Filter</h3>
+				<form method="get" style="display: flex; align-items: center; gap: 15px;">
+					<input type="hidden" name="page" value="wc-advanced-bogo">
+					<input type="hidden" name="tab" value="reports">
+					<label>From: <input type="date" name="date_from" value="<?php echo esc_attr( $date_from ); ?>" style="margin-left: 5px;"></label>
+					<label>To: <input type="date" name="date_to" value="<?php echo esc_attr( $date_to ); ?>" style="margin-left: 5px;"></label>
+					<input type="submit" class="button-primary" value="Filter Reports" style="background: #3b82f6; border-color: #3b82f6;">
+				</form>
+			</div>
+
+			<!-- Summary Cards -->
+			<div class="bogo-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+				<div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+					<div style="display: flex; align-items: center; justify-content: space-between;">
+						<div>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total BOGO Orders</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_orders'] ); ?></p>
+						</div>
+						<div style="font-size: 32px; opacity: 0.8;">🛍️</div>
+					</div>
+				</div>
+
+				<div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+					<div style="display: flex; align-items: center; justify-content: space-between;">
+						<div>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total Revenue</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['total_revenue'] ); ?></p>
+						</div>
+						<div style="font-size: 32px; opacity: 0.8;">💰</div>
+					</div>
+				</div>
+
+				<div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+					<div style="display: flex; align-items: center; justify-content: space-between;">
+						<div>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total Discount Given</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['total_discount'] ); ?></p>
+						</div>
+						<div style="font-size: 32px; opacity: 0.8;">🎁</div>
+					</div>
+				</div>
+
+				<div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+					<div style="display: flex; align-items: center; justify-content: space-between;">
+						<div>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Gift Items Given</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_gift_items'] ); ?></p>
+						</div>
+						<div style="font-size: 32px; opacity: 0.8;">🎉</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Detailed Reports -->
+			<div class="bogo-detailed-reports" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+				<!-- Top BOGO Rules -->
+				<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+					<h3>🏆 Top Performing BOGO Rules</h3>
+					<table class="widefat striped">
+						<thead>
+							<tr>
+								<th>Rule</th>
+								<th>Orders</th>
+								<th>Revenue</th>
+								<th>Discount</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $bogo_data['top_rules'] as $rule_stat ) : ?>
+							<tr>
+								<td>
+									<strong><?php echo esc_html( $rule_stat['rule_description'] ); ?></strong>
+								</td>
+								<td><?php echo number_format( $rule_stat['order_count'] ); ?></td>
+								<td><?php echo wc_price( $rule_stat['revenue'] ); ?></td>
+								<td><?php echo wc_price( $rule_stat['discount'] ); ?></td>
+							</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Recent BOGO Orders -->
+				<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+					<h3>🕒 Recent BOGO Orders</h3>
+					<table class="widefat striped">
+						<thead>
+							<tr>
+								<th>Order #</th>
+								<th>Date</th>
+								<th>Total</th>
+								<th>Discount</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $bogo_data['recent_orders'] as $order_data ) : ?>
+							<tr>
+								<td>
+									<a href="<?php echo admin_url( 'post.php?post=' . $order_data['id'] . '&action=edit' ); ?>" target="_blank">
+										#<?php echo $order_data['id']; ?>
+									</a>
+								</td>
+								<td><?php echo date( 'M j, Y', strtotime( $order_data['date'] ) ); ?></td>
+								<td><?php echo wc_price( $order_data['total'] ); ?></td>
+								<td><?php echo wc_price( $order_data['discount'] ); ?></td>
+							</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Monthly Performance Chart -->
+			<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
+				<h3>📈 Monthly BOGO Performance</h3>
+				<canvas id="bogoChart" width="400" height="200"></canvas>
+			</div>
+
+			<!-- Detailed Orders List -->
+			<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+				<h3>📋 All BOGO Orders (<?php echo $date_from; ?> to <?php echo $date_to; ?>)</h3>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th>Order #</th>
+							<th>Customer</th>
+							<th>Date</th>
+							<th>BOGO Items</th>
+							<th>Order Total</th>
+							<th>BOGO Discount</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $bogo_data['all_orders'] as $order_data ) : ?>
+						<tr>
+							<td>
+								<a href="<?php echo admin_url( 'post.php?post=' . $order_data['id'] . '&action=edit' ); ?>" target="_blank">
+									#<?php echo $order_data['id']; ?>
+								</a>
+							</td>
+							<td><?php echo esc_html( $order_data['customer_name'] ); ?></td>
+							<td><?php echo date( 'M j, Y H:i', strtotime( $order_data['date'] ) ); ?></td>
+							<td>
+								<div style="font-size: 12px;">
+									<?php foreach ( $order_data['bogo_items'] as $bogo_item ) : ?>
+										<div style="margin-bottom: 3px;">
+											<?php if ( $bogo_item['type'] === 'gift' ) : ?>
+												🎁 <strong><?php echo esc_html( $bogo_item['product_name'] ); ?></strong> (×<?php echo $bogo_item['quantity']; ?>) - Gift
+											<?php else : ?>
+												🛒 <?php echo esc_html( $bogo_item['product_name'] ); ?> (×<?php echo $bogo_item['quantity']; ?>) - Trigger
+											<?php endif; ?>
+										</div>
+									<?php endforeach; ?>
+								</div>
+							</td>
+							<td><?php echo wc_price( $order_data['total'] ); ?></td>
+							<td style="color: #28a745; font-weight: bold;"><?php echo wc_price( $order_data['discount'] ); ?></td>
+							<td>
+								<span class="order-status status-<?php echo esc_attr( $order_data['status'] ); ?>" style="padding: 4px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase;">
+									<?php echo esc_html( $order_data['status'] ); ?>
+								</span>
+							</td>
+						</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const ctx = document.getElementById('bogoChart').getContext('2d');
+			const chartData = <?php echo json_encode( $bogo_data['chart_data'] ); ?>;
+			
+			new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: chartData.labels,
+					datasets: [{
+						label: 'BOGO Orders',
+						data: chartData.orders,
+						borderColor: '#3b82f6',
+						backgroundColor: 'rgba(59, 130, 246, 0.1)',
+						tension: 0.4
+					}, {
+						label: 'Revenue (<?php echo get_woocommerce_currency_symbol(); ?>)',
+						data: chartData.revenue,
+						borderColor: '#10b981',
+						backgroundColor: 'rgba(16, 185, 129, 0.1)',
+						tension: 0.4,
+						yAxisID: 'y1'
+					}]
+				},
+				options: {
+					responsive: true,
+					scales: {
+						y: {
+							beginAtZero: true,
+							title: {
+								display: true,
+								text: 'Orders'
+							}
+						},
+						y1: {
+							type: 'linear',
+							display: true,
+							position: 'right',
+							title: {
+								display: true,
+								text: 'Revenue'
+							},
+							grid: {
+								drawOnChartArea: false,
+							},
+						}
+					},
+					plugins: {
+						title: {
+							display: true,
+							text: 'BOGO Performance Over Time'
+						}
+					}
+				}
+			});
+		});
+		</script>
+
+		<style>
+		.bogo-reports-wrapper .summary-card {
+			transition: transform 0.2s ease;
+		}
+		.bogo-reports-wrapper .summary-card:hover {
+			transform: translateY(-2px);
+		}
+		.order-status.status-completed { background: #28a745; color: white; }
+		.order-status.status-processing { background: #ffc107; color: #212529; }
+		.order-status.status-pending { background: #6c757d; color: white; }
+		.order-status.status-cancelled { background: #dc3545; color: white; }
+		.order-status.status-refunded { background: #fd7e14; color: white; }
+		</style>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Get BOGO orders data for reports
+	 */
+	public function get_bogo_orders_data( $date_from, $date_to ) {
+		global $wpdb;
+		
+		// Query orders with BOGO data
+		$orders = wc_get_orders( [
+			'limit' => -1,
+			'status' => ['completed', 'processing', 'pending', 'on-hold'],
+			'date_created' => $date_from . '...' . $date_to,
+			'meta_key' => '_wc_advanced_bogo_items',
+			'meta_compare' => 'EXISTS'
+		] );
+
+		$total_orders = count( $orders );
+		$total_revenue = 0;
+		$total_discount = 0;
+		$total_gift_items = 0;
+		$rule_stats = [];
+		$recent_orders = [];
+		$all_orders = [];
+		$monthly_data = [];
+
+		foreach ( $orders as $order ) {
+			$order_total = $order->get_total();
+			$bogo_discount = $order->get_meta( '_wc_advanced_bogo_discount_total' ) ?: 0;
+			$bogo_items = $order->get_meta( '_wc_advanced_bogo_items' ) ?: [];
+			$rules_applied = $order->get_meta( '_wc_advanced_bogo_rules_applied' ) ?: [];
+
+			$total_revenue += $order_total;
+			$total_discount += $bogo_discount;
+
+			// Count gift items
+			foreach ( $bogo_items as $item ) {
+				if ( $item['type'] === 'gift' ) {
+					$total_gift_items += $item['quantity'];
+				}
+			}
+
+			// Track rule performance
+			foreach ( $rules_applied as $rule ) {
+				$rule_key = $rule['buy_product'] . '_' . $rule['get_product'];
+				if ( !isset( $rule_stats[ $rule_key ] ) ) {
+					$buy_product = wc_get_product( $rule['buy_product'] );
+					$get_product = wc_get_product( $rule['get_product'] );
+					$rule_stats[ $rule_key ] = [
+						'rule_description' => sprintf( 
+							'Buy %d %s, Get %d %s at %d%% off',
+							$rule['buy_qty'],
+							$buy_product ? $buy_product->get_name() : 'Product',
+							$rule['get_qty'],
+							$get_product ? $get_product->get_name() : 'Product',
+							$rule['discount']
+						),
+						'order_count' => 0,
+						'revenue' => 0,
+						'discount' => 0
+					];
+				}
+				$rule_stats[ $rule_key ]['order_count']++;
+				$rule_stats[ $rule_key ]['revenue'] += $order_total;
+				$rule_stats[ $rule_key ]['discount'] += $bogo_discount;
+			}
+
+			// Prepare order data
+			$order_data = [
+				'id' => $order->get_id(),
+				'customer_name' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+				'date' => $order->get_date_created()->date( 'Y-m-d H:i:s' ),
+				'total' => $order_total,
+				'discount' => $bogo_discount,
+				'status' => $order->get_status(),
+				'bogo_items' => $bogo_items
+			];
+
+			$all_orders[] = $order_data;
+
+			// Keep recent orders (last 10)
+			if ( count( $recent_orders ) < 10 ) {
+				$recent_orders[] = $order_data;
+			}
+
+			// Monthly data for chart
+			$month_key = $order->get_date_created()->date( 'Y-m' );
+			if ( !isset( $monthly_data[ $month_key ] ) ) {
+				$monthly_data[ $month_key ] = [
+					'orders' => 0,
+					'revenue' => 0
+				];
+			}
+			$monthly_data[ $month_key ]['orders']++;
+			$monthly_data[ $month_key ]['revenue'] += $order_total;
+		}
+
+		// Sort rule stats by order count
+		uasort( $rule_stats, function( $a, $b ) {
+			return $b['order_count'] - $a['order_count'];
+		} );
+
+		// Sort orders by date (newest first)
+		usort( $all_orders, function( $a, $b ) {
+			return strtotime( $b['date'] ) - strtotime( $a['date'] );
+		} );
+
+		// Prepare chart data
+		ksort( $monthly_data );
+		$chart_labels = [];
+		$chart_orders = [];
+		$chart_revenue = [];
+
+		foreach ( $monthly_data as $month => $data ) {
+			$chart_labels[] = date( 'M Y', strtotime( $month . '-01' ) );
+			$chart_orders[] = $data['orders'];
+			$chart_revenue[] = round( $data['revenue'], 2 );
+		}
+
+		return [
+			'total_orders' => $total_orders,
+			'total_revenue' => $total_revenue,
+			'total_discount' => $total_discount,
+			'total_gift_items' => $total_gift_items,
+			'top_rules' => array_slice( $rule_stats, 0, 5 ),
+			'recent_orders' => $recent_orders,
+			'all_orders' => $all_orders,
+			'chart_data' => [
+				'labels' => $chart_labels,
+				'orders' => $chart_orders,
+				'revenue' => $chart_revenue
+			]
+		];
 	}
 }
 
