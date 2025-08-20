@@ -196,29 +196,25 @@ jQuery(document).ready(function($) {
         var previewSection = templateOption.find('> div:last-child');
         var previewButton = previewSection.find('span[data-button-bg]');
         
+        // Simplified color preview handling - only 3 colors to manage
         switch(colorType) {
             case 'background':
                 previewSection.css('background-color', color);
+                // Auto-calculate and update text color for contrast
+                var textColor = getContrastingColor(color);
+                previewSection.find('strong, span:not([data-button-bg])').css('color', textColor);
                 break;
-            case 'text':
-                previewSection.find('strong, span:not([data-button-bg])').css('color', color);
+            case 'theme_color':
+                // Theme color affects accents and highlights
+                // Could be used for borders, special elements, etc.
                 break;
-            case 'primary':
-            case 'secondary':
-                // Update gradient if both colors are available
-                var primaryColor = templateOption.find('input[data-color-type="primary"]').val();
-                var secondaryColor = templateOption.find('input[data-color-type="secondary"]').val();
-                if (primaryColor && secondaryColor) {
-                    previewButton.css('background', 'linear-gradient(45deg, ' + primaryColor + ', ' + secondaryColor + ')');
-                }
-                break;
-            case 'button_bg':
+            case 'button_color':
                 previewButton.css('background-color', color);
                 previewButton.attr('data-button-bg', color);
-                break;
-            case 'button_text':
-                previewButton.css('color', color);
-                previewButton.attr('data-button-text', color);
+                // Auto-calculate and update button text color for contrast
+                var buttonTextColor = getContrastingColor(color);
+                previewButton.css('color', buttonTextColor);
+                previewButton.attr('data-button-text', buttonTextColor);
                 break;
         }
         
@@ -241,31 +237,22 @@ jQuery(document).ready(function($) {
         var template = $(this).data('template');
         var templateOption = $(this).closest('.template-option');
         
-        // Get default colors for this template
+        // Simplified default colors - Only 3 colors for easier management
         var defaultColors = {
             'template1': {
-                'primary': '#3B82F6',
-                'secondary': '#10B981',
-                'text': '#1F2937',
+                'theme_color': '#3B82F6',
                 'background': '#F8FAFC',
-                'button_bg': '#3B82F6',
-                'button_text': '#FFFFFF'
+                'button_color': '#3B82F6'
             },
             'template2': {
-                'primary': '#8B5CF6',
-                'secondary': '#EC4899',
-                'text': '#FFFFFF',
+                'theme_color': '#8B5CF6',
                 'background': '#1E1B4B',
-                'button_bg': '#EC4899',
-                'button_text': '#FFFFFF'
+                'button_color': '#EC4899'
             },
             'template3': {
-                'primary': '#F59E0B',
-                'secondary': '#EF4444',
-                'text': '#FFFFFF',
+                'theme_color': '#F59E0B',
                 'background': '#7C2D12',
-                'button_bg': '#F59E0B',
-                'button_text': '#FFFFFF'
+                'button_color': '#F59E0B'
             }
         };
         
@@ -286,4 +273,21 @@ jQuery(document).ready(function($) {
             $(this).text('🔄 Reset Colors').removeClass('reset-success');
         }.bind(this), 1000);
     });
+
+    // Helper function to get contrasting color (white or black) based on background
+    function getContrastingColor(hexColor) {
+        // Remove # if present
+        hexColor = hexColor.replace('#', '');
+        
+        // Convert to RGB
+        var r = parseInt(hexColor.substr(0, 2), 16);
+        var g = parseInt(hexColor.substr(2, 2), 16);
+        var b = parseInt(hexColor.substr(4, 2), 16);
+        
+        // Calculate luminance
+        var luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        
+        // Return contrasting color
+        return luminance > 0.5 ? '#000000' : '#FFFFFF';
+    }
 });
