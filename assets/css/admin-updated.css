@@ -1,6 +1,7 @@
 /**
  * WooCommerce Advanced BOGO - Admin Styles
  * Contains all admin-related CSS for the plugin
+ * Updated with modern em/rem units for better responsiveness
  */
 
 /* ===================================
@@ -307,7 +308,7 @@ input[type="color"]:hover {
 }
 
 .bogo-reports-wrapper .summary-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-0.125em);
 }
 
 /* Order Status Badges */
@@ -340,60 +341,60 @@ input[type="color"]:hover {
    RESPONSIVE DESIGN
    =================================== */
 
-@media (max-width: 768px) {
+@media (max-width: 48em) {
     .bogo-rule-row .select2-container,
     .bogo-rule-row select.wc-product-search {
-        min-width: 180px !important;
-        max-width: 280px !important;
-        margin: 3px 2px !important;
+        min-width: 11.25em !important;
+        max-width: 17.5em !important;
+        margin: 0.1875em 0.125em !important;
     }
     
     .bogo-rule-row .select2-container--default .select2-selection--single {
-        height: 42px !important;
-        line-height: 40px !important;
+        height: 2.625em !important;
+        line-height: 2.5em !important;
     }
     
     .bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 40px !important;
-        font-size: 14px !important;
+        line-height: 2.5em !important;
+        font-size: 0.875rem !important;
     }
     
     .bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 40px !important;
+        height: 2.5em !important;
     }
     
     .template-option {
-        margin-bottom: 15px;
+        margin-bottom: 0.9375em;
     }
     
     .bogo-reports-wrapper .summary-card {
-        margin-bottom: 10px;
+        margin-bottom: 0.625em;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30em) {
     .bogo-rule-row .select2-container,
     .bogo-rule-row select.wc-product-search {
-        min-width: 160px !important;
-        max-width: 240px !important;
-        margin: 4px 1px !important;
+        min-width: 10em !important;
+        max-width: 15em !important;
+        margin: 0.25em 0.0625em !important;
         display: block !important;
         width: 100% !important;
     }
     
     .bogo-rule-row .select2-container--default .select2-selection--single {
-        height: 44px !important;
-        line-height: 42px !important;
+        height: 2.75em !important;
+        line-height: 2.625em !important;
     }
     
     .bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 42px !important;
-        font-size: 14px !important;
-        padding-left: 14px !important;
+        line-height: 2.625em !important;
+        font-size: 0.875rem !important;
+        padding-left: 0.875em !important;
     }
     
     .bogo-rule-row .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 42px !important;
+        height: 2.625em !important;
     }
     
     .select2-dropdown {
@@ -402,7 +403,7 @@ input[type="color"]:hover {
     
     .add-bogo-rule {
         margin-left: 0;
-        margin-top: 10px;
+        margin-top: 0.625em;
         display: block;
         width: 100%;
     }
