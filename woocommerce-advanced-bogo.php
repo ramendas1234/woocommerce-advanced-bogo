@@ -2148,13 +2148,18 @@ class WC_Advanced_BOGO {
 	 * Get contrasting color (white or black) based on background
 	 */
 	private function get_contrasting_color($hex_color) {
-		// Remove # if present
+		// Remove # if present and ensure valid hex color
 		$hex_color = ltrim($hex_color, '#');
 		
-		// Convert to RGB
-		$r = hexdec(substr($hex_color, 0, 2));
-		$g = hexdec(substr($hex_color, 2, 2));
-		$b = hexdec(substr($hex_color, 4, 2));
+		// Ensure we have a valid 6-character hex color
+		if (strlen($hex_color) !== 6) {
+			return '#000000'; // Default to black for invalid colors
+		}
+		
+		// Convert to RGB with proper integer casting
+		$r = (int) hexdec(substr($hex_color, 0, 2));
+		$g = (int) hexdec(substr($hex_color, 2, 2));
+		$b = (int) hexdec(substr($hex_color, 4, 2));
 		
 		// Calculate luminance
 		$luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
@@ -2167,16 +2172,25 @@ class WC_Advanced_BOGO {
 	 * Adjust color brightness
 	 */
 	private function adjust_color_brightness($hex_color, $percent) {
+		// Remove # if present and ensure valid hex color
 		$hex_color = ltrim($hex_color, '#');
 		
-		$r = hexdec(substr($hex_color, 0, 2));
-		$g = hexdec(substr($hex_color, 2, 2));
-		$b = hexdec(substr($hex_color, 4, 2));
+		// Ensure we have a valid 6-character hex color
+		if (strlen($hex_color) !== 6) {
+			return $hex_color; // Return original if invalid
+		}
 		
-		$r = max(0, min(255, $r + ($r * $percent / 100)));
-		$g = max(0, min(255, $g + ($g * $percent / 100)));
-		$b = max(0, min(255, $b + ($b * $percent / 100)));
+		// Convert to RGB with proper integer casting
+		$r = (int) hexdec(substr($hex_color, 0, 2));
+		$g = (int) hexdec(substr($hex_color, 2, 2));
+		$b = (int) hexdec(substr($hex_color, 4, 2));
 		
+		// Calculate new RGB values with proper integer casting
+		$r = (int) max(0, min(255, $r + ($r * $percent / 100)));
+		$g = (int) max(0, min(255, $g + ($g * $percent / 100)));
+		$b = (int) max(0, min(255, $b + ($b * $percent / 100)));
+		
+		// Convert back to hex with proper integer values
 		return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT) . 
 					 str_pad(dechex($g), 2, '0', STR_PAD_LEFT) . 
 					 str_pad(dechex($b), 2, '0', STR_PAD_LEFT);
