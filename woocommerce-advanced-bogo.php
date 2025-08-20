@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Advanced BOGO
  * Description: Adds advanced BOGO (Buy One Get One) functionality to WooCommerce.
  * Version: 1.0.1
- * Author: Your Name
+ * Author: StoreApps
  * Requires at least: 5.8
  * Requires PHP: 7.4
  */
@@ -640,8 +640,13 @@ class WC_Advanced_BOGO {
                     <div class="bogo-rules-container">
                         <h2>💰 BOGO Discount Rules</h2>
                         <p style="margin-bottom: 20px;">Create rules in plain language. Example: <em>Buy 2 units of T-shirt and get 2 Hat at 50% off</em></p>
-                        
-                        <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table" style="margin-left: 20px;">
+                        <div class="bogo-actions" style="margin: 10px 2px;">
+							<button type="button" id="add-bogo-rule" class="button add-bogo-rule">
+								+ Add New Rule
+							</button>
+							<input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px; background: #28a745; border-color: #28a745; color: white;">
+						</div>
+                        <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table" style="padding-left: 10px;">
                             <thead>
                                 <tr>
                                     <th style="width: 100%;">Rule</th>
@@ -653,7 +658,7 @@ class WC_Advanced_BOGO {
                                 <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
                                         <span style="margin-right: 8px;">🛒 Buy</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
+                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
                                         <span style="margin: 0 8px;">units of</span>
                                         <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
                                             <option value="">Search for a product...</option>
@@ -664,8 +669,8 @@ class WC_Advanced_BOGO {
                                                 <option value="<?php echo esc_attr( $rule['buy_product'] ); ?>" selected><?php echo esc_html( $buy_product->get_name() ); ?></option>
                                             <?php endif; endif; ?>
                                         </select>
-                                        <span style="margin: 0 8px;">and get</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
+                                        <span style="margin: 0 8px;">and give </span>
+                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
                                         <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
                                             <option value="">Search for a product...</option>
                                             <?php if ( !empty( $rule['get_product'] ) ) : 
@@ -683,7 +688,7 @@ class WC_Advanced_BOGO {
                                         <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" />
                                     </td>
                                     <td style="text-align: center; vertical-align: top; padding-top: 20px;">
-                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                             </svg>
@@ -694,12 +699,7 @@ class WC_Advanced_BOGO {
                             </tbody>
                         </table>
                     </div>
-                    <div class="bogo-actions" style="margin-top: 20px; margin-left: 20px;">
-                        <button type="button" id="add-bogo-rule" class="button add-bogo-rule">
-                            + Add New Rule
-                        </button>
-                        <input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px; background: #28a745; border-color: #28a745; color: white;">
-                    </div>
+                    
                 </form>
             <?php endif; ?>
 
@@ -778,10 +778,10 @@ class WC_Advanced_BOGO {
                                             <div>
                                                 <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Primary Color:</label>
                                                 <div style="position: relative; display: inline-block;">
-                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $primary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <!-- <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $primary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span> -->
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][primary]" 
                                                            value="<?php echo esc_attr( $primary_color ); ?>" 
-                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           style="width: 3rem; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="primary"
                                                            data-default="<?php echo esc_attr( $default_colors[$template_name]['primary'] ); ?>"
@@ -791,10 +791,10 @@ class WC_Advanced_BOGO {
                                             <div>
                                                 <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Secondary Color:</label>
                                                 <div style="position: relative; display: inline-block;">
-                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $secondary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <!-- <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $secondary_color ); ?>; vertical-align: middle; margin-right: 8px;"></span> -->
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][secondary]" 
                                                            value="<?php echo esc_attr( $secondary_color ); ?>" 
-                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           style="width: 3rem; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="secondary"
                                                            data-default="<?php echo esc_attr( $default_colors[$template_name]['secondary'] ); ?>"
@@ -804,10 +804,10 @@ class WC_Advanced_BOGO {
                                             <div>
                                                 <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Text Color:</label>
                                                 <div style="position: relative; display: inline-block;">
-                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <!-- <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span> -->
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][text]" 
                                                            value="<?php echo esc_attr( $text_color ); ?>" 
-                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           style="width: 3rem; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="text"
                                                            data-default="<?php echo esc_attr( $default_colors[$template_name]['text'] ); ?>"
@@ -817,10 +817,10 @@ class WC_Advanced_BOGO {
                                             <div>
                                                 <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Background Color:</label>
                                                 <div style="position: relative; display: inline-block;">
-                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $background_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <!-- <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $background_color ); ?>; vertical-align: middle; margin-right: 8px;"></span> -->
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][background]" 
                                                            value="<?php echo esc_attr( $background_color ); ?>" 
-                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           style="width: 3rem; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="background"
                                                            data-default="<?php echo esc_attr( $default_colors[$template_name]['background'] ); ?>"
@@ -830,10 +830,10 @@ class WC_Advanced_BOGO {
                                             <div>
                                                 <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Background:</label>
                                                 <div style="position: relative; display: inline-block;">
-                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $button_bg_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <!-- <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $button_bg_color ); ?>; vertical-align: middle; margin-right: 8px;"></span> -->
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_bg]" 
                                                            value="<?php echo esc_attr( $button_bg_color ); ?>" 
-                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           style="width: 3rem; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="button_bg"
                                                            data-default="<?php echo esc_attr( $default_colors[$template_name]['button_bg'] ); ?>"
@@ -843,10 +843,10 @@ class WC_Advanced_BOGO {
                                             <div>
                                                 <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Button Text:</label>
                                                 <div style="position: relative; display: inline-block;">
-                                                    <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $button_text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span>
+                                                    <!-- <span style="display: inline-block; width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ddd; background-color: <?php echo esc_attr( $button_text_color ); ?>; vertical-align: middle; margin-right: 8px;"></span> -->
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][button_text]" 
                                                            value="<?php echo esc_attr( $button_text_color ); ?>" 
-                                                           style="width: 100%; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
+                                                           style="width: 3rem; height: 35px; border: 1px solid #ddd; border-radius: 4px; padding: 5px; font-size: 12px;"
                                                            data-template="<?php echo esc_attr( $template_name ); ?>"
                                                            data-color-type="button_text"
                                                            data-default="<?php echo esc_attr( $default_colors[$template_name]['button_text'] ); ?>"
@@ -1059,32 +1059,32 @@ class WC_Advanced_BOGO {
                             colors[type] = $(this).val();
                         });
                         
-                        $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'save_bogo_template_colors',
-                                template: templateKey,
-                                colors: colors,
-                                nonce: '<?php echo wp_create_nonce("save_bogo_colors"); ?>'
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    console.log('BOGO: Colors saved successfully');
-                                    templateOption.removeClass('color-saving').addClass('color-saved');
-                                    setTimeout(function() {
-                                        templateOption.removeClass('color-saved');
-                                    }, 500);
-                                } else {
-                                    console.error('BOGO: Error saving colors:', response.data);
-                                    templateOption.removeClass('color-saving');
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('BOGO: AJAX error saving colors:', error);
-                                templateOption.removeClass('color-saving');
-                            }
-                        });
+                        // $.ajax({
+                        //     url: ajaxurl,
+                        //     type: 'POST',
+                        //     data: {
+                        //         action: 'save_bogo_template_colors',
+                        //         template: templateKey,
+                        //         colors: colors,
+                        //         nonce: '<?php echo wp_create_nonce("save_bogo_colors"); ?>'
+                        //     },
+                        //     success: function(response) {
+                        //         if (response.success) {
+                        //             console.log('BOGO: Colors saved successfully');
+                        //             templateOption.removeClass('color-saving').addClass('color-saved');
+                        //             setTimeout(function() {
+                        //                 templateOption.removeClass('color-saved');
+                        //             }, 500);
+                        //         } else {
+                        //             console.error('BOGO: Error saving colors:', response.data);
+                        //             templateOption.removeClass('color-saving');
+                        //         }
+                        //     },
+                        //     error: function(xhr, status, error) {
+                        //         console.error('BOGO: AJAX error saving colors:', error);
+                        //         templateOption.removeClass('color-saving');
+                        //     }
+                        // });
                     });
 
                     // Add template selection handler
@@ -1094,27 +1094,6 @@ class WC_Advanced_BOGO {
                         // Update visual selection
                         $('.template-option').css('border-color', '#ddd');
                         $(this).closest('.template-option').css('border-color', '#007cba');
-                        
-                        // Save template selection via AJAX
-                        $.ajax({
-                            url: ajaxurl,
-                            type: 'POST',
-                            data: {
-                                action: 'save_bogo_template_selection',
-                                template: selectedTemplate,
-                                nonce: '<?php echo wp_create_nonce("save_bogo_template"); ?>'
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    console.log('BOGO: Template selection saved successfully');
-                                } else {
-                                    console.error('BOGO: Error saving template selection:', response.data);
-                                }
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('BOGO: AJAX error saving template selection:', error);
-                            }
-                        });
                     });
 
                     // Add color change handlers for dynamic preview
@@ -1282,7 +1261,7 @@ class WC_Advanced_BOGO {
 		// Add template data attributes for dynamic updates
 		$template_data_attrs = 'data-template="' . $template . '" data-template-key="template' . $template . '"';
 		
-		return $this->load_template( $template, [
+		return $this->load_template( $template_key, [
 			'buy_qty' => $buy_qty,
 			'get_qty' => $get_qty,
 			'get_name' => $get_name,
@@ -1417,36 +1396,6 @@ class WC_Advanced_BOGO {
 
 
 
-
-    /*public function display_bogo_message() {
-        global $product;
-
-        $rules = get_option( self::OPTION_KEY, [] );
-        foreach ( $rules as $rule ) {
-            if ( ! empty( $rule['buy_product'] ) && intval( $rule['buy_product'] ) === $product->get_id() ) {
-                $buy_qty = intval( $rule['buy_qty'] );
-				$get_qty = intval( $rule['get_qty'] ) ?: 1;
-				$get_product = wc_get_product( intval( $rule['get_product'] ) );
-				$discount = intval( $rule['discount'] );
-
-				if ( $get_product ) {
-					$discount_text = ( $discount == 100 )
-						? 'for free'
-						: "at {$discount}% off";
-
-					echo '<div class="woocommerce-message">';
-					echo sprintf(
-						'Buy %d of this product and get %d of %s %s.',
-						$buy_qty,
-						$get_qty,
-						$get_product->get_name(),
-						$discount_text
-					);
-					echo '</div>';
-				}
-            }
-        }
-    }*/
 
     public function apply_bogo_discount( $cart ) {
 
@@ -1667,161 +1616,9 @@ class WC_Advanced_BOGO {
 		}
 	}
 
-	/**
-	 * Add BOGO hint to cart item name (works with blocks)
-	 */
-	public function add_cart_item_hint_to_name( $name, $cart_item, $cart_item_key ) {
-		// Only add hints for cart blocks, not classic cart
-		if ( ! $this->is_cart_blocks() ) {
-			return $name;
-		}
-		
-		$rules = get_option( self::OPTION_KEY, [] );
-		$now = date( 'Y-m-d' );
-		
-		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
-				continue;
-			}
+	
 
-			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
-			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
-
-			$buy_product_id = $rule['buy_product']; // may be 'all'
-			$get_product_id = intval( $rule['get_product'] );
-			$buy_qty = intval( $rule['buy_qty'] );
-			$get_qty = intval( $rule['get_qty'] ) ?: 1;
-			$discount = intval( $rule['discount'] );
-
-			// Check if this cart item matches the buy product
-			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
-				// Count current BUY items in cart
-				$buy_count = 0;
-				foreach ( WC()->cart->get_cart() as $item ) {
-					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
-						continue;
-					}
-
-					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
-						$buy_count += $item['quantity'];
-					}
-				}
-
-				// Check if customer is close to qualifying
-				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
-					$remaining_qty = $buy_qty - $buy_count;
-					$get_product = wc_get_product( $get_product_id );
-					
-					if ( $get_product ) {
-						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
-						
-						$hint = '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
-							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
-						</div>';
-						
-						$name .= $hint;
-						break;
-					}
-				}
-			}
-		}
-		
-		return $name;
-	}
-
-	/**
-	 * Add cart blocks hint render
-	 */
-	public function add_cart_blocks_hint_render( $block_content, $block ) {
-		// This is a placeholder for render hooks
-		return $block_content;
-	}
-
-	/**
-	 * Add cart blocks hint to block content
-	 */
-	public function add_cart_blocks_hint_to_block( $block_content, $block ) {
-		// Only process cart item blocks
-		if ( $block['blockName'] !== 'woocommerce/cart-item' ) {
-			return $block_content;
-		}
-		
-		// Extract product ID from block attributes or content
-		preg_match( '/data-product-id="(\d+)"/', $block_content, $matches );
-		$product_id = isset( $matches[1] ) ? intval( $matches[1] ) : 0;
-		
-		if ( ! $product_id ) {
-			return $block_content;
-		}
-		
-		// Get BOGO hint for this product
-		$hint = $this->get_bogo_hint_for_product( $product_id );
-		
-		if ( $hint ) {
-			// Insert hint after the product name
-			$block_content = preg_replace(
-				'/(<div[^>]*class="[^"]*cart-item-name[^"]*"[^>]*>.*?<\/div>)/s',
-				'$1' . $hint,
-				$block_content
-			);
-		}
-		
-		return $block_content;
-	}
-
-	/**
-	 * Get BOGO hint for a specific product
-	 */
-	private function get_bogo_hint_for_product( $product_id ) {
-		$rules = get_option( self::OPTION_KEY, [] );
-		$now = date( 'Y-m-d' );
-		
-		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
-				continue;
-			}
-
-			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
-			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
-
-			$buy_product_id = $rule['buy_product']; // may be 'all'
-			$get_product_id = intval( $rule['get_product'] );
-			$buy_qty = intval( $rule['buy_qty'] );
-			$get_qty = intval( $rule['get_qty'] ) ?: 1;
-			$discount = intval( $rule['discount'] );
-
-			// Check if this product matches the buy product
-			if ( $buy_product_id === 'all' || $product_id == $buy_product_id ) {
-				// Count current BUY items in cart
-				$buy_count = 0;
-				foreach ( WC()->cart->get_cart() as $item ) {
-					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
-						continue;
-					}
-
-					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
-						$buy_count += $item['quantity'];
-					}
-				}
-
-				// Check if customer is close to qualifying
-				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
-					$remaining_qty = $buy_qty - $buy_count;
-					$get_product = wc_get_product( $get_product_id );
-					
-					if ( $get_product ) {
-						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
-						
-						return '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
-							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
-						</div>';
-					}
-				}
-			}
-		}
-		
-		return '';
-	}
+	
 
 
 

@@ -82,100 +82,95 @@ jQuery(document).ready(function($) {
 
     // Function to add empty rule row
     function addEmptyRule() {
-        var $tbody = $('#bogo-rules-tbody');
-        var newIndex = $tbody.find('.bogo-rule-row').length;
-        
-        // Clone the first row
-        var $firstRow = $tbody.find('.bogo-rule-row').first();
-        var $newRow = $firstRow.clone();
-        
-        // Clear all values in the new row
-        $newRow.find('input[type="number"]').val('');
-        $newRow.find('input[type="date"]').val('');
-        
-        // Clear and reset select elements
-        $newRow.find('select').each(function() {
+    var $tbody = $('#bogo-rules-tbody');
+    var newIndex = $tbody.find('.bogo-rule-row').length;
+    
+    // Clone the first row
+    var $firstRow = $tbody.find('.bogo-rule-row').first();
+    var $newRow = $firstRow.clone();
+    
+    // Clear all values in the new row
+    $newRow.find('input[type="number"]').val('');
+    $newRow.find('input[type="date"]').val('');
+    
+    // Clear and reset select elements
+    $newRow.find('select').each(function() {
+        var $select = $(this);
+        var originalName = $select.attr('name');
+
+        // Only destroy if initialized
+        if ($select.data('select2')) {
+            $select.select2('destroy');
+        }
+
+        // Remove Select2 containers and dropdowns if present
+        $select.siblings('.select2-container').remove();
+        $select.siblings('.select2-dropdown').remove();
+        $select.siblings('.select2-results').remove();
+
+        $select.removeClass('select2-hidden-accessible');
+        $select.empty();
+        $select.append('<option value="">Search for a product...</option>');
+
+        $select.attr('name', originalName.replace(/\[\d+\]/, '[' + newIndex + ']'));
+    });
+
+    // Update the data-index attribute
+    $newRow.attr('data-index', newIndex);
+
+    // Update all name attributes in the new row
+    $newRow.find('input, select').each(function() {
+        var name = $(this).attr('name');
+        if (name) {
+            $(this).attr('name', name.replace(/\[\d+\]/, '[' + newIndex + ']'));
+        }
+    });
+
+    // Add the new row
+    $tbody.append($newRow);
+
+    // ** FIX: Ensure Select2 AJAX is initialized after row is added **
+    setTimeout(function() {
+        $newRow.find('.wc-product-search').each(function() {
             var $select = $(this);
-            var originalName = $select.attr('name');
-            
-            // Remove any existing Select2
-            if ($select.hasClass('select2-hidden-accessible')) {
-                $select.select2('destroy');
-            }
-            
-            // Remove any Select2 containers and dropdowns
-            $select.siblings('.select2-container').remove();
-            $select.siblings('.select2-dropdown').remove();
-            $select.siblings('.select2-results').remove();
-            
-            // Remove select2 classes
-            $select.removeClass('select2-hidden-accessible');
-            
-            // Clear the select
-            $select.empty();
-            $select.append('<option value="">Search for a product...</option>');
-            
-            // Update the name attribute
-            $select.attr('name', originalName.replace(/\[\d+\]/, '[' + newIndex + ']'));
-        });
-        
-        // Update the data-index attribute
-        $newRow.attr('data-index', newIndex);
-        
-        // Update all name attributes in the new row
-        $newRow.find('input, select').each(function() {
-            var name = $(this).attr('name');
-            if (name) {
-                $(this).attr('name', name.replace(/\[\d+\]/, '[' + newIndex + ']'));
-            }
-        });
-        
-        // Add the new row
-        $tbody.append($newRow);
-        
-        // Initialize product search for the new row after a delay
-        setTimeout(function() {
-            $newRow.find('.wc-product-search').each(function() {
-                var $select = $(this);
-                
-                $select.select2({
-                    ajax: {
-                        url: ajaxurl,
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return {
-                                action: 'woocommerce_json_search_products',
-                                term: params.term,
-                                security: bogo_admin.search_products_nonce
-                            };
-                        },
-                        processResults: function(data) {
-                            var terms = [];
-                            if (data) {
-                                $.each(data, function(id, text) {
-                                    terms.push({
-                                        id: id,
-                                        text: text
-                                    });
-                                });
-                            }
-                            return {
-                                results: terms
-                            };
-                        },
-                        cache: true
+            $select.select2({
+                ajax: {
+                    url: ajaxurl,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            action: 'woocommerce_json_search_products',
+                            term: params.term,
+                            security: bogo_admin.search_products_nonce
+                        };
                     },
-                    minimumInputLength: 2,
-                    placeholder: $select.data('placeholder') || 'Search for a product...',
-                    dropdownParent: $('body')
-                });
+                    processResults: function(data) {
+                        var terms = [];
+                        if (data) {
+                            $.each(data, function(id, text) {
+                                terms.push({
+                                    id: id,
+                                    text: text
+                                });
+                            });
+                        }
+                        return {
+                            results: terms
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                placeholder: $select.data('placeholder') || 'Search for a product...',
+                dropdownParent: $('body')
             });
-            
-            // Ensure proper styling for new row
-            ensureSelect2Styling();
-        }, 300);
-    }
+        });
+
+        // Ensure proper styling for new row
+        ensureSelect2Styling();
+    }, 300);
+}
 
     // Function to ensure proper Select2 styling
     function ensureSelect2Styling() {
