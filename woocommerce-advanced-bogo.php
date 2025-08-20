@@ -42,6 +42,9 @@ class WC_Advanced_BOGO {
 			
 			// Add BOGO hints inside cart line items (classic cart only)
 			add_action( 'woocommerce_after_cart_item_name', [ $this, 'display_cart_item_bogo_hint' ], 10, 2 );
+			
+			// Add BOGO hints inside checkout cart items
+			add_filter( 'woocommerce_checkout_cart_item_quantity', [ $this, 'display_checkout_item_bogo_hint' ], 10, 3 );
 		}
 	}
 
