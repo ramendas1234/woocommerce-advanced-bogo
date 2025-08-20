@@ -1796,13 +1796,42 @@ class WC_Advanced_BOGO {
 				</form>
 			</div>
 
-			<!-- Summary Cards -->
-			<div class="bogo-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+			<!-- Smart Insights Section -->
+			<?php if ( !empty( $bogo_data['insights'] ) ) : ?>
+			<div class="bogo-insights-section" style="background: #fff; padding: 20px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
+				<h3 style="margin-bottom: 15px;">🧠 Smart Insights & Recommendations</h3>
+				<div class="insights-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+					<?php foreach ( $bogo_data['insights'] as $insight ) : ?>
+					<div class="insight-card insight-<?php echo $insight['type']; ?>" style="padding: 15px; border-radius: 8px; border-left: 4px solid; <?php 
+						echo $insight['type'] === 'success' ? 'border-left-color: #10b981; background: #f0fdf4;' : 
+							 ($insight['type'] === 'warning' ? 'border-left-color: #f59e0b; background: #fffbeb;' : 
+							 'border-left-color: #3b82f6; background: #eff6ff;'); ?>">
+						<div style="display: flex; align-items: flex-start; gap: 10px;">
+							<span style="font-size: 20px;"><?php echo $insight['icon']; ?></span>
+							<div>
+								<h4 style="margin: 0 0 5px 0; color: #1f2937;"><?php echo esc_html( $insight['title'] ); ?></h4>
+								<p style="margin: 0 0 8px 0; color: #4b5563; font-size: 14px;"><?php echo esc_html( $insight['message'] ); ?></p>
+								<p style="margin: 0; color: #6b7280; font-size: 12px; font-style: italic;"><strong>💡 Recommendation:</strong> <?php echo esc_html( $insight['recommendation'] ); ?></p>
+							</div>
+						</div>
+					</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<!-- Enhanced Summary Cards -->
+			<div class="bogo-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
 				<div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
 							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total BOGO Orders</h3>
 							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_orders'] ); ?></p>
+							<?php if ( $bogo_data['order_growth'] != 0 ) : ?>
+							<small style="opacity: 0.8; font-size: 12px;">
+								<?php echo $bogo_data['order_growth'] > 0 ? '↗️' : '↘️'; ?> <?php echo abs( round( $bogo_data['order_growth'], 1 ) ); ?>% vs prev period
+							</small>
+							<?php endif; ?>
 						</div>
 						<div style="font-size: 32px; opacity: 0.8;">🛍️</div>
 					</div>
@@ -1813,6 +1842,11 @@ class WC_Advanced_BOGO {
 						<div>
 							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total Revenue</h3>
 							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['total_revenue'] ); ?></p>
+							<?php if ( $bogo_data['revenue_growth'] != 0 ) : ?>
+							<small style="opacity: 0.8; font-size: 12px;">
+								<?php echo $bogo_data['revenue_growth'] > 0 ? '↗️' : '↘️'; ?> <?php echo abs( round( $bogo_data['revenue_growth'], 1 ) ); ?>% vs prev period
+							</small>
+							<?php endif; ?>
 						</div>
 						<div style="font-size: 32px; opacity: 0.8;">💰</div>
 					</div>
@@ -1821,80 +1855,234 @@ class WC_Advanced_BOGO {
 				<div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
-							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total Discount Given</h3>
-							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['total_discount'] ); ?></p>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">BOGO Conversion Rate</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo round( $bogo_data['conversion_rate'], 1 ); ?>%</p>
+							<small style="opacity: 0.8; font-size: 12px;">of all orders use BOGO</small>
 						</div>
-						<div style="font-size: 32px; opacity: 0.8;">🎁</div>
+						<div style="font-size: 32px; opacity: 0.8;">🎯</div>
 					</div>
 				</div>
 
 				<div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
-							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Gift Items Given</h3>
-							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_gift_items'] ); ?></p>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Avg Order Value</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['avg_order_value'] ); ?></p>
+							<small style="opacity: 0.8; font-size: 12px;">per BOGO order</small>
 						</div>
-						<div style="font-size: 32px; opacity: 0.8;">🎉</div>
+						<div style="font-size: 32px; opacity: 0.8;">📊</div>
+					</div>
+				</div>
+
+				<div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #1f2937; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+					<div style="display: flex; align-items: center; justify-content: space-between;">
+						<div>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.8;">ROI</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo round( $bogo_data['roi'], 1 ); ?>%</p>
+							<small style="opacity: 0.7; font-size: 12px;">return on discount investment</small>
+						</div>
+						<div style="font-size: 32px; opacity: 0.6;">💎</div>
+					</div>
+				</div>
+
+				<div class="summary-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #1f2937; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+					<div style="display: flex; align-items: center; justify-content: space-between;">
+						<div>
+							<h3 style="margin: 0; font-size: 14px; opacity: 0.8;">Gift Items Given</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_gift_items'] ); ?></p>
+							<small style="opacity: 0.7; font-size: 12px;">free products distributed</small>
+						</div>
+						<div style="font-size: 32px; opacity: 0.6;">🎉</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Detailed Reports -->
-			<div class="bogo-detailed-reports" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-				<!-- Top BOGO Rules -->
-				<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-					<h3>🏆 Top Performing BOGO Rules</h3>
+			<!-- Advanced Analytics Tabs -->
+			<div class="bogo-analytics-tabs" style="margin-bottom: 20px;">
+				<nav class="nav-tab-wrapper" style="border-bottom: 1px solid #ccd0d4;">
+					<a href="#" class="nav-tab nav-tab-active" data-tab="performance">📊 Performance</a>
+					<a href="#" class="nav-tab" data-tab="customers">👥 Customers</a>
+					<a href="#" class="nav-tab" data-tab="products">📦 Products</a>
+					<a href="#" class="nav-tab" data-tab="timing">⏰ Timing</a>
+					<a href="#" class="nav-tab" data-tab="export">📤 Export</a>
+				</nav>
+			</div>
+
+			<!-- Performance Tab -->
+			<div id="tab-performance" class="analytics-tab-content">
+				<div class="bogo-detailed-reports" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+					<!-- Top BOGO Rules -->
+					<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+						<h3>🏆 Top Performing BOGO Rules</h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th>Rule</th>
+									<th>Orders</th>
+									<th>Revenue</th>
+									<th>ROI</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $bogo_data['top_rules'] as $rule_stat ) : ?>
+								<tr>
+									<td>
+										<strong><?php echo esc_html( $rule_stat['rule_description'] ); ?></strong>
+									</td>
+									<td><?php echo number_format( $rule_stat['order_count'] ); ?></td>
+									<td><?php echo wc_price( $rule_stat['revenue'] ); ?></td>
+									<td style="color: #10b981; font-weight: bold;">
+										<?php echo round( $rule_stat['discount'] > 0 ? (($rule_stat['revenue'] - $rule_stat['discount']) / $rule_stat['discount']) * 100 : 0, 1 ); ?>%
+									</td>
+								</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Recent BOGO Orders -->
+					<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+						<h3>🕒 Recent BOGO Orders</h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th>Order #</th>
+									<th>Date</th>
+									<th>Total</th>
+									<th>Discount</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $bogo_data['recent_orders'] as $order_data ) : ?>
+								<tr>
+									<td>
+										<a href="<?php echo admin_url( 'post.php?post=' . $order_data['id'] . '&action=edit' ); ?>" target="_blank">
+											#<?php echo $order_data['id']; ?>
+										</a>
+									</td>
+									<td><?php echo date( 'M j, Y', strtotime( $order_data['date'] ) ); ?></td>
+									<td><?php echo wc_price( $order_data['total'] ); ?></td>
+									<td><?php echo wc_price( $order_data['discount'] ); ?></td>
+								</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Customer Analytics Tab -->
+			<div id="tab-customers" class="analytics-tab-content" style="display: none;">
+				<div class="bogo-detailed-reports" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+					<!-- Top BOGO Customers -->
+					<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+						<h3>👑 Top BOGO Customers</h3>
+						<table class="widefat striped">
+							<thead>
+								<tr>
+									<th>Customer</th>
+									<th>Orders</th>
+									<th>Total Spent</th>
+									<th>Total Saved</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $bogo_data['customer_segments'] as $customer_id => $customer ) : ?>
+								<tr>
+									<td>
+										<strong><?php echo esc_html( $customer['first_name'] . ' ' . $customer['last_name'] ); ?></strong>
+										<br><small style="color: #666;">ID: <?php echo $customer_id; ?></small>
+									</td>
+									<td><?php echo number_format( $customer['orders'] ); ?></td>
+									<td><?php echo wc_price( $customer['total_spent'] ); ?></td>
+									<td style="color: #10b981; font-weight: bold;"><?php echo wc_price( $customer['total_saved'] ); ?></td>
+								</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Customer Segmentation Chart -->
+					<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+						<h3>📈 Customer Value Distribution</h3>
+						<canvas id="customerChart" width="400" height="200"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Product Performance Tab -->
+			<div id="tab-products" class="analytics-tab-content" style="display: none;">
+				<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
+					<h3>🏅 Top Performing Products</h3>
 					<table class="widefat striped">
 						<thead>
 							<tr>
-								<th>Rule</th>
-								<th>Orders</th>
-								<th>Revenue</th>
-								<th>Discount</th>
+								<th>Product</th>
+								<th>Times as Trigger</th>
+								<th>Times as Gift</th>
+								<th>Revenue Generated</th>
+								<th>Performance Score</th>
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach ( $bogo_data['top_rules'] as $rule_stat ) : ?>
+							<?php foreach ( $bogo_data['product_performance'] as $product_id => $product ) : ?>
+							<?php $score = ($product['trigger_count'] * 2) + $product['gift_count'] + ($product['revenue_generated'] / 100); ?>
 							<tr>
 								<td>
-									<strong><?php echo esc_html( $rule_stat['rule_description'] ); ?></strong>
+									<strong><?php echo esc_html( $product['name'] ); ?></strong>
+									<br><small style="color: #666;">ID: <?php echo $product_id; ?></small>
 								</td>
-								<td><?php echo number_format( $rule_stat['order_count'] ); ?></td>
-								<td><?php echo wc_price( $rule_stat['revenue'] ); ?></td>
-								<td><?php echo wc_price( $rule_stat['discount'] ); ?></td>
+								<td><?php echo number_format( $product['trigger_count'] ); ?></td>
+								<td><?php echo number_format( $product['gift_count'] ); ?></td>
+								<td><?php echo wc_price( $product['revenue_generated'] ); ?></td>
+								<td>
+									<div style="display: flex; align-items: center; gap: 5px;">
+										<div style="background: #e5e7eb; border-radius: 10px; height: 8px; width: 100px; overflow: hidden;">
+											<div style="background: #10b981; height: 100%; width: <?php echo min(100, $score / 10); ?>%;"></div>
+										</div>
+										<span style="font-size: 12px; color: #666;"><?php echo round($score, 1); ?></span>
+									</div>
+								</td>
 							</tr>
 							<?php endforeach; ?>
 						</tbody>
 					</table>
 				</div>
+			</div>
 
-				<!-- Recent BOGO Orders -->
+			<!-- Timing Analytics Tab -->
+			<div id="tab-timing" class="analytics-tab-content" style="display: none;">
+				<div class="bogo-detailed-reports" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+					<!-- Hourly Performance -->
+					<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+						<h3>🕐 Hourly BOGO Performance</h3>
+						<canvas id="hourlyChart" width="400" height="200"></canvas>
+					</div>
+
+					<!-- Daily Performance -->
+					<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+						<h3>📅 Weekly BOGO Pattern</h3>
+						<canvas id="dailyChart" width="400" height="200"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<!-- Export Tab -->
+			<div id="tab-export" class="analytics-tab-content" style="display: none;">
 				<div class="report-section" style="background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-					<h3>🕒 Recent BOGO Orders</h3>
-					<table class="widefat striped">
-						<thead>
-							<tr>
-								<th>Order #</th>
-								<th>Date</th>
-								<th>Total</th>
-								<th>Discount</th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php foreach ( $bogo_data['recent_orders'] as $order_data ) : ?>
-							<tr>
-								<td>
-									<a href="<?php echo admin_url( 'post.php?post=' . $order_data['id'] . '&action=edit' ); ?>" target="_blank">
-										#<?php echo $order_data['id']; ?>
-									</a>
-								</td>
-								<td><?php echo date( 'M j, Y', strtotime( $order_data['date'] ) ); ?></td>
-								<td><?php echo wc_price( $order_data['total'] ); ?></td>
-								<td><?php echo wc_price( $order_data['discount'] ); ?></td>
-							</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
+					<h3>📤 Export Analytics Data</h3>
+					<p>Download your BOGO analytics data in various formats for further analysis.</p>
+					<div style="display: flex; gap: 15px; margin-top: 20px;">
+						<button class="button-primary" onclick="exportBogoData('csv')" style="background: #10b981; border-color: #10b981;">
+							📊 Export as CSV
+						</button>
+						<button class="button-primary" onclick="exportBogoData('pdf')" style="background: #dc2626; border-color: #dc2626;">
+							📄 Export as PDF
+						</button>
+						<button class="button-secondary" onclick="exportBogoData('json')">
+							🔧 Export as JSON
+						</button>
+					</div>
 				</div>
 			</div>
 
@@ -1959,6 +2147,28 @@ class WC_Advanced_BOGO {
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 		document.addEventListener('DOMContentLoaded', function() {
+			// Tab switching functionality
+			document.querySelectorAll('.nav-tab').forEach(tab => {
+				tab.addEventListener('click', function(e) {
+					e.preventDefault();
+					
+					// Remove active class from all tabs
+					document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-tab-active'));
+					document.querySelectorAll('.analytics-tab-content').forEach(content => content.style.display = 'none');
+					
+					// Add active class to clicked tab
+					this.classList.add('nav-tab-active');
+					
+					// Show corresponding content
+					const tabName = this.dataset.tab;
+					const content = document.getElementById('tab-' + tabName);
+					if (content) {
+						content.style.display = 'block';
+					}
+				});
+			});
+
+			// Monthly Performance Chart
 			const ctx = document.getElementById('bogoChart').getContext('2d');
 			const chartData = <?php echo json_encode( $bogo_data['chart_data'] ); ?>;
 			
@@ -1971,18 +2181,24 @@ class WC_Advanced_BOGO {
 						data: chartData.orders,
 						borderColor: '#3b82f6',
 						backgroundColor: 'rgba(59, 130, 246, 0.1)',
-						tension: 0.4
+						tension: 0.4,
+						fill: true
 					}, {
 						label: 'Revenue (<?php echo get_woocommerce_currency_symbol(); ?>)',
 						data: chartData.revenue,
 						borderColor: '#10b981',
 						backgroundColor: 'rgba(16, 185, 129, 0.1)',
 						tension: 0.4,
-						yAxisID: 'y1'
+						yAxisID: 'y1',
+						fill: true
 					}]
 				},
 				options: {
 					responsive: true,
+					interaction: {
+						intersect: false,
+						mode: 'index'
+					},
 					scales: {
 						y: {
 							beginAtZero: true,
@@ -2008,11 +2224,172 @@ class WC_Advanced_BOGO {
 						title: {
 							display: true,
 							text: 'BOGO Performance Over Time'
+						},
+						tooltip: {
+							backgroundColor: 'rgba(0, 0, 0, 0.8)',
+							titleColor: 'white',
+							bodyColor: 'white'
 						}
 					}
 				}
 			});
+
+			// Hourly Performance Chart
+			const hourlyData = <?php echo json_encode( $bogo_data['hourly_data'] ); ?>;
+			if (document.getElementById('hourlyChart') && Object.keys(hourlyData).length > 0) {
+				const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+				const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0') + ':00');
+				const hourlyOrders = hours.map(hour => {
+					const h = hour.split(':')[0];
+					return hourlyData[h] ? hourlyData[h].orders : 0;
+				});
+				
+				new Chart(hourlyCtx, {
+					type: 'bar',
+					data: {
+						labels: hours,
+						datasets: [{
+							label: 'BOGO Orders by Hour',
+							data: hourlyOrders,
+							backgroundColor: 'rgba(59, 130, 246, 0.6)',
+							borderColor: '#3b82f6',
+							borderWidth: 1
+						}]
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'BOGO Orders by Hour of Day'
+							}
+						},
+						scales: {
+							y: {
+								beginAtZero: true,
+								title: {
+									display: true,
+									text: 'Number of Orders'
+								}
+							},
+							x: {
+								title: {
+									display: true,
+									text: 'Hour of Day'
+								}
+							}
+						}
+					}
+				});
+			}
+
+			// Daily Performance Chart
+			const dailyData = <?php echo json_encode( $bogo_data['daily_data'] ); ?>;
+			if (document.getElementById('dailyChart') && Object.keys(dailyData).length > 0) {
+				const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+				const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+				const dailyOrders = days.map((day, index) => {
+					return dailyData[index] ? dailyData[index].orders : 0;
+				});
+				
+				new Chart(dailyCtx, {
+					type: 'doughnut',
+					data: {
+						labels: days,
+						datasets: [{
+							data: dailyOrders,
+							backgroundColor: [
+								'#ef4444', '#f97316', '#eab308', '#22c55e',
+								'#06b6d4', '#3b82f6', '#8b5cf6'
+							],
+							borderWidth: 2,
+							borderColor: '#ffffff'
+						}]
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'BOGO Orders by Day of Week'
+							},
+							legend: {
+								position: 'bottom'
+							}
+						}
+					}
+				});
+			}
+
+			// Customer Value Chart
+			const customerData = <?php echo json_encode( array_values( $bogo_data['customer_segments'] ) ); ?>;
+			if (document.getElementById('customerChart') && customerData.length > 0) {
+				const customerCtx = document.getElementById('customerChart').getContext('2d');
+				const customerLabels = customerData.map(c => c.first_name + ' ' + c.last_name);
+				const customerSpent = customerData.map(c => c.total_spent);
+				
+				new Chart(customerCtx, {
+					type: 'bar',
+					data: {
+						labels: customerLabels,
+						datasets: [{
+							label: 'Total Spent',
+							data: customerSpent,
+							backgroundColor: 'rgba(16, 185, 129, 0.6)',
+							borderColor: '#10b981',
+							borderWidth: 1
+						}]
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							title: {
+								display: true,
+								text: 'Top Customer Spending'
+							}
+						},
+						scales: {
+							y: {
+								beginAtZero: true,
+								title: {
+									display: true,
+									text: 'Amount Spent'
+								}
+							}
+						}
+					}
+				});
+			}
 		});
+
+		// Export functionality
+		function exportBogoData(format) {
+			const data = {
+				action: 'export_bogo_data',
+				format: format,
+				date_from: '<?php echo esc_js( $date_from ); ?>',
+				date_to: '<?php echo esc_js( $date_to ); ?>',
+				nonce: '<?php echo wp_create_nonce( 'bogo_export_nonce' ); ?>'
+			};
+
+			// Create a form and submit it
+			const form = document.createElement('form');
+			form.method = 'POST';
+			form.action = ajaxurl;
+			form.style.display = 'none';
+
+			Object.keys(data).forEach(key => {
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = key;
+				input.value = data[key];
+				form.appendChild(input);
+			});
+
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
+		}
 		</script>
 
 		<style>
@@ -2047,6 +2424,25 @@ class WC_Advanced_BOGO {
 			'meta_compare' => 'EXISTS'
 		] );
 
+		// Get previous period data for comparison
+		$previous_period_start = date( 'Y-m-d', strtotime( $date_from . ' -' . (strtotime($date_to) - strtotime($date_from)) . ' seconds' ) );
+		$previous_period_end = date( 'Y-m-d', strtotime( $date_from . ' -1 day' ) );
+		
+		$previous_orders = wc_get_orders( [
+			'limit' => -1,
+			'status' => ['completed', 'processing', 'pending', 'on-hold'],
+			'date_created' => $previous_period_start . '...' . $previous_period_end,
+			'meta_key' => '_wc_advanced_bogo_items',
+			'meta_compare' => 'EXISTS'
+		] );
+
+		// Get total orders (non-BOGO) for conversion rate calculation
+		$total_store_orders = wc_get_orders( [
+			'limit' => -1,
+			'status' => ['completed', 'processing', 'pending', 'on-hold'],
+			'date_created' => $date_from . '...' . $date_to,
+		] );
+
 		$total_orders = count( $orders );
 		$total_revenue = 0;
 		$total_discount = 0;
@@ -2055,22 +2451,87 @@ class WC_Advanced_BOGO {
 		$recent_orders = [];
 		$all_orders = [];
 		$monthly_data = [];
+		$customer_segments = [];
+		$product_performance = [];
+		$hourly_data = [];
+		$daily_data = [];
 
 		foreach ( $orders as $order ) {
 			$order_total = $order->get_total();
 			$bogo_discount = $order->get_meta( '_wc_advanced_bogo_discount_total' ) ?: 0;
 			$bogo_items = $order->get_meta( '_wc_advanced_bogo_items' ) ?: [];
 			$rules_applied = $order->get_meta( '_wc_advanced_bogo_rules_applied' ) ?: [];
+			$order_date = $order->get_date_created();
+			$customer_id = $order->get_customer_id();
 
 			$total_revenue += $order_total;
 			$total_discount += $bogo_discount;
 
-			// Count gift items
+			// Count gift items and analyze product performance
 			foreach ( $bogo_items as $item ) {
 				if ( $item['type'] === 'gift' ) {
 					$total_gift_items += $item['quantity'];
+					
+					// Track product performance
+					$product_id = $item['product_id'];
+					if ( !isset( $product_performance[ $product_id ] ) ) {
+						$product = wc_get_product( $product_id );
+						$product_performance[ $product_id ] = [
+							'name' => $product ? $product->get_name() : 'Unknown Product',
+							'gift_count' => 0,
+							'trigger_count' => 0,
+							'revenue_generated' => 0
+						];
+					}
+					$product_performance[ $product_id ]['gift_count'] += $item['quantity'];
+				} else {
+					// Track trigger products
+					$product_id = $item['product_id'];
+					if ( !isset( $product_performance[ $product_id ] ) ) {
+						$product = wc_get_product( $product_id );
+						$product_performance[ $product_id ] = [
+							'name' => $product ? $product->get_name() : 'Unknown Product',
+							'gift_count' => 0,
+							'trigger_count' => 0,
+							'revenue_generated' => 0
+						];
+					}
+					$product_performance[ $product_id ]['trigger_count'] += $item['quantity'];
+					$product_performance[ $product_id ]['revenue_generated'] += $order_total;
 				}
 			}
+
+			// Customer segmentation
+			if ( $customer_id > 0 ) {
+				if ( !isset( $customer_segments[ $customer_id ] ) ) {
+					$customer_segments[ $customer_id ] = [
+						'orders' => 0,
+						'total_spent' => 0,
+						'total_saved' => 0,
+						'first_name' => $order->get_billing_first_name(),
+						'last_name' => $order->get_billing_last_name()
+					];
+				}
+				$customer_segments[ $customer_id ]['orders']++;
+				$customer_segments[ $customer_id ]['total_spent'] += $order_total;
+				$customer_segments[ $customer_id ]['total_saved'] += $bogo_discount;
+			}
+
+			// Hourly and daily analysis
+			$hour = $order_date->format( 'H' );
+			$day = $order_date->format( 'w' ); // 0 = Sunday, 6 = Saturday
+			
+			if ( !isset( $hourly_data[ $hour ] ) ) {
+				$hourly_data[ $hour ] = ['orders' => 0, 'revenue' => 0];
+			}
+			$hourly_data[ $hour ]['orders']++;
+			$hourly_data[ $hour ]['revenue'] += $order_total;
+			
+			if ( !isset( $daily_data[ $day ] ) ) {
+				$daily_data[ $day ] = ['orders' => 0, 'revenue' => 0];
+			}
+			$daily_data[ $day ]['orders']++;
+			$daily_data[ $day ]['revenue'] += $order_total;
 
 			// Track rule performance
 			foreach ( $rules_applied as $rule ) {
@@ -2149,20 +2610,179 @@ class WC_Advanced_BOGO {
 			$chart_revenue[] = round( $data['revenue'], 2 );
 		}
 
+		// Calculate advanced metrics
+		$previous_total_orders = count( $previous_orders );
+		$previous_total_revenue = array_sum( array_map( function($o) { return $o->get_total(); }, $previous_orders ) );
+		$conversion_rate = count( $total_store_orders ) > 0 ? ( $total_orders / count( $total_store_orders ) ) * 100 : 0;
+		$avg_order_value = $total_orders > 0 ? $total_revenue / $total_orders : 0;
+		$avg_discount_per_order = $total_orders > 0 ? $total_discount / $total_orders : 0;
+		$roi = $total_discount > 0 ? ( ( $total_revenue - $total_discount ) / $total_discount ) * 100 : 0;
+
+		// Calculate growth rates
+		$order_growth = $previous_total_orders > 0 ? ( ( $total_orders - $previous_total_orders ) / $previous_total_orders ) * 100 : 0;
+		$revenue_growth = $previous_total_revenue > 0 ? ( ( $total_revenue - $previous_total_revenue ) / $previous_total_revenue ) * 100 : 0;
+
+		// Sort customer segments by total spent
+		uasort( $customer_segments, function( $a, $b ) {
+			return $b['total_spent'] - $a['total_spent'];
+		} );
+
+		// Sort product performance by revenue generated
+		uasort( $product_performance, function( $a, $b ) {
+			return $b['revenue_generated'] - $a['revenue_generated'];
+		} );
+
+		// Generate insights and recommendations
+		$insights = $this->generate_smart_insights( [
+			'total_orders' => $total_orders,
+			'total_revenue' => $total_revenue,
+			'conversion_rate' => $conversion_rate,
+			'avg_order_value' => $avg_order_value,
+			'order_growth' => $order_growth,
+			'revenue_growth' => $revenue_growth,
+			'hourly_data' => $hourly_data,
+			'daily_data' => $daily_data,
+			'top_products' => array_slice( $product_performance, 0, 5, true ),
+			'top_customers' => array_slice( $customer_segments, 0, 5, true )
+		] );
+
 		return [
 			'total_orders' => $total_orders,
 			'total_revenue' => $total_revenue,
 			'total_discount' => $total_discount,
 			'total_gift_items' => $total_gift_items,
+			'conversion_rate' => $conversion_rate,
+			'avg_order_value' => $avg_order_value,
+			'avg_discount_per_order' => $avg_discount_per_order,
+			'roi' => $roi,
+			'order_growth' => $order_growth,
+			'revenue_growth' => $revenue_growth,
+			'previous_orders' => $previous_total_orders,
+			'previous_revenue' => $previous_total_revenue,
 			'top_rules' => array_slice( $rule_stats, 0, 5 ),
 			'recent_orders' => $recent_orders,
 			'all_orders' => $all_orders,
+			'customer_segments' => array_slice( $customer_segments, 0, 10, true ),
+			'product_performance' => array_slice( $product_performance, 0, 10, true ),
+			'hourly_data' => $hourly_data,
+			'daily_data' => $daily_data,
+			'insights' => $insights,
 			'chart_data' => [
 				'labels' => $chart_labels,
 				'orders' => $chart_orders,
 				'revenue' => $chart_revenue
 			]
 		];
+	}
+
+	/**
+	 * Generate smart insights and recommendations
+	 */
+	public function generate_smart_insights( $data ) {
+		$insights = [];
+		
+		// Performance insights
+		if ( $data['order_growth'] > 20 ) {
+			$insights[] = [
+				'type' => 'success',
+				'icon' => '📈',
+				'title' => 'Excellent Growth!',
+				'message' => sprintf( 'BOGO orders increased by %.1f%% compared to the previous period. Your campaigns are performing exceptionally well!', $data['order_growth'] ),
+				'recommendation' => 'Consider expanding successful BOGO rules to similar products or increasing promotion frequency.'
+			];
+		} elseif ( $data['order_growth'] < -10 ) {
+			$insights[] = [
+				'type' => 'warning',
+				'icon' => '📉',
+				'title' => 'Declining Performance',
+				'message' => sprintf( 'BOGO orders decreased by %.1f%%. This needs attention.', abs( $data['order_growth'] ) ),
+				'recommendation' => 'Review your current BOGO rules, consider refreshing offers, or check if products are still in stock.'
+			];
+		}
+
+		// Conversion rate insights
+		if ( $data['conversion_rate'] > 15 ) {
+			$insights[] = [
+				'type' => 'success',
+				'icon' => '🎯',
+				'title' => 'High Conversion Rate',
+				'message' => sprintf( '%.1f%% of your orders include BOGO offers - excellent customer engagement!', $data['conversion_rate'] ),
+				'recommendation' => 'Your BOGO strategy is working well. Consider A/B testing different discount percentages to optimize further.'
+			];
+		} elseif ( $data['conversion_rate'] < 5 ) {
+			$insights[] = [
+				'type' => 'info',
+				'icon' => '💡',
+				'title' => 'Low BOGO Adoption',
+				'message' => sprintf( 'Only %.1f%% of orders use BOGO offers. There\'s room for improvement.', $data['conversion_rate'] ),
+				'recommendation' => 'Improve BOGO visibility on product pages, consider email marketing, or make offers more attractive.'
+			];
+		}
+
+		// Peak time insights
+		if ( !empty( $data['hourly_data'] ) ) {
+			$peak_hour = array_keys( $data['hourly_data'], max( $data['hourly_data'] ) )[0];
+			$peak_hour_formatted = date( 'g A', strtotime( $peak_hour . ':00' ) );
+			$insights[] = [
+				'type' => 'info',
+				'icon' => '⏰',
+				'title' => 'Peak BOGO Time',
+				'message' => sprintf( 'Most BOGO orders happen at %s. Schedule promotions accordingly!', $peak_hour_formatted ),
+				'recommendation' => 'Send promotional emails or run social media campaigns 1-2 hours before peak time.'
+			];
+		}
+
+		// Best day insights
+		if ( !empty( $data['daily_data'] ) ) {
+			$days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			$best_day_index = array_keys( $data['daily_data'], max( $data['daily_data'] ) )[0];
+			$best_day = $days[ $best_day_index ];
+			$insights[] = [
+				'type' => 'info',
+				'icon' => '📅',
+				'title' => 'Best BOGO Day',
+				'message' => sprintf( '%s is your best day for BOGO sales!', $best_day ),
+				'recommendation' => sprintf( 'Launch new BOGO campaigns on %ss and increase marketing efforts on this day.', $best_day )
+			];
+		}
+
+		// Customer insights
+		if ( !empty( $data['top_customers'] ) ) {
+			$top_customer = reset( $data['top_customers'] );
+			if ( $top_customer['orders'] >= 3 ) {
+				$insights[] = [
+					'type' => 'success',
+					'icon' => '👑',
+					'title' => 'BOGO Loyal Customers',
+					'message' => sprintf( 'Your top BOGO customer has made %d orders! Customer loyalty is strong.', $top_customer['orders'] ),
+					'recommendation' => 'Create VIP BOGO offers for repeat customers or implement a loyalty program.'
+				];
+			}
+		}
+
+		// ROI insights
+		if ( $data['avg_order_value'] > 0 ) {
+			$discount_ratio = ( $data['total_discount'] / $data['total_revenue'] ) * 100;
+			if ( $discount_ratio > 30 ) {
+				$insights[] = [
+					'type' => 'warning',
+					'icon' => '⚠️',
+					'title' => 'High Discount Ratio',
+					'message' => sprintf( 'Discounts represent %.1f%% of total revenue. Consider optimizing.', $discount_ratio ),
+					'recommendation' => 'Review discount percentages or implement tiered BOGO offers to maintain profitability.'
+				];
+			} elseif ( $discount_ratio < 10 ) {
+				$insights[] = [
+					'type' => 'info',
+					'icon' => '💪',
+					'title' => 'Conservative Discounting',
+					'message' => sprintf( 'Discounts are only %.1f%% of revenue. You might be able to offer more attractive deals.', $discount_ratio ),
+					'recommendation' => 'Consider increasing discount percentages to boost customer acquisition and order volume.'
+				];
+			}
+		}
+
+		return $insights;
 	}
 }
 
