@@ -1629,10 +1629,60 @@ class WC_Advanced_BOGO {
 
 
 
+	/**
+	 * Display BOGO hint inside checkout cart items
+	 */
+	public function display_checkout_item_bogo_hint( $quantity_html, $cart_item, $cart_item_key ) {
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now = date( 'Y-m-d' );
+		$hint_html = '';
+		
+		foreach ( $rules as $index => $rule ) {
+			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
+				continue;
+			}
 
+			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
+			if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
 
+			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$get_product_id = intval( $rule['get_product'] );
+			$buy_qty = intval( $rule['buy_qty'] );
+			$get_qty = intval( $rule['get_qty'] ) ?: 1;
+			$discount = intval( $rule['discount'] );
 
+			// Check if this cart item matches the buy product
+			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count current BUY items in cart
+				$buy_count = 0;
+				foreach ( WC()->cart->get_cart() as $item ) {
+					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
+						continue;
+					}
 
+					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
+						$buy_count += $item['quantity'];
+					}
+				}
+
+				// Check if customer is close to qualifying
+				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
+					$remaining_qty = $buy_qty - $buy_count;
+					$get_product = wc_get_product( $get_product_id );
+					
+					if ( $get_product ) {
+						$discount_text = ( $discount == 100 ) ? 'for free!' : "at {$discount}% off!";
+						
+						$hint_html .= '<div style="margin-top: 8px; padding: 8px; background: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px; font-size: 12px; color: #1e40af; font-weight: 600;">
+							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
+						</div>';
+					}
+				}
+			}
+		}
+		
+		return $quantity_html . $hint_html;
+	}
 }
 
 new WC_Advanced_BOGO();
