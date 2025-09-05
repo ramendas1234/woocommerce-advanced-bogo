@@ -1,0 +1,19 @@
+{
+    "name": "storeapps/smart-coupons",
+    "description": "<strong>WooCommerce Smart Coupons</strong> lets customers buy gift certificates, store credits or coupons easily. They can use purchased credits themselves or gift to someone else.",
+    "type": "wordpress-plugin",
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "phpunit/phpunit": "^9.6"
+    },
+    "license": "GNU General Public License v3.0",
+    "authors": [
+        {
+            "name": "StoreApps"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "yoast/phpunit-polyfills": "^4.0"
+    }
+}

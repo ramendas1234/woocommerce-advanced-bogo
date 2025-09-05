@@ -1,0 +1,12 @@
+run.sh
+*.DS_Store
+.vscode
+/blocks/node_modules
+/blocks/package-lock.json
+
+# for unit test cases
+/vendor/
+/tests/wordpress/
+/tests/wordpress-tests-lib/
+.phpunit.result.cache
+.env
