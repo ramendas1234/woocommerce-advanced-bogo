@@ -262,21 +262,65 @@
     border-spacing: 0;
 }
 
+/* Default row styling - even rows (0, 2, 4...) */
 .bogo-rules-sentence-table .bogo-rule-row {
-    background: #ffffff;
+    background: #ffffff !important;
     border-bottom: 1px solid #e1e1e1;
 }
 
+/* Alternate row styling - odd rows (1, 3, 5...) */
 .bogo-rules-sentence-table .bogo-rule-row.alternate {
-    background: #f9f9f9;
+    background: #f9f9f9 !important;
 }
 
+/* Hover effects */
 .bogo-rules-sentence-table .bogo-rule-row:hover {
     background: #f0f6fc !important;
 }
 
 .bogo-rules-sentence-table .bogo-rule-row.alternate:hover {
     background: #f0f6fc !important;
+}
+
+/* Ensure table cells inherit the row background */
+.bogo-rules-sentence-table .bogo-rule-row td {
+    background: inherit;
+}
+
+/* Make sure striped table styling doesn't interfere */
+.bogo-rules-sentence-table.widefat {
+    background: transparent;
+}
+
+.bogo-rules-sentence-table.widefat tr {
+    background: transparent !important;
+}
+
+.bogo-rules-sentence-table.widefat td {
+    background: transparent !important;
+}
+
+/* Additional specificity to ensure alternating colors work */
+table.bogo-rules-sentence-table tr.bogo-rule-row {
+    background: #ffffff !important;
+}
+
+table.bogo-rules-sentence-table tr.bogo-rule-row.alternate {
+    background: #f9f9f9 !important;
+}
+
+table.bogo-rules-sentence-table tr.bogo-rule-row:hover {
+    background: #f0f6fc !important;
+}
+
+table.bogo-rules-sentence-table tr.bogo-rule-row.alternate:hover {
+    background: #f0f6fc !important;
+}
+
+/* Ensure no WordPress default table styling interferes */
+.wp-list-table .bogo-rule-row,
+.widefat .bogo-rule-row {
+    background: inherit !important;
 }
 
 /* Individual Save Button Styling */

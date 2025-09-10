@@ -639,7 +639,7 @@ class WC_Advanced_BOGO {
                             </thead>
                             <tbody id="bogo-rules-tbody">
                                 <?php foreach ( $rules as $index => $rule ) : 
-                                    $row_class = ($index % 2 === 0) ? 'alternate' : '';
+                                    $row_class = ($index % 2 === 1) ? 'alternate' : '';
                                 ?>
                                 <tr class="bogo-rule-row <?php echo $row_class; ?>" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">

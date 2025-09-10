@@ -329,6 +329,8 @@ function initializeJQueryFeatures() {
             if (index % 2 === 1) {
                 $(this).addClass('alternate');
             }
+            // Update data-index attribute as well
+            $(this).attr('data-index', index);
         });
     }
 }
@@ -348,7 +350,8 @@ function initializeRowHighlighting() {
     // Add hover effects for better UX
     document.addEventListener('mouseover', function(e) {
         if (e.target.closest('.bogo-rule-row')) {
-            e.target.closest('.bogo-rule-row').style.backgroundColor = '#f0f6fc';
+            const row = e.target.closest('.bogo-rule-row');
+            row.style.backgroundColor = '#f0f6fc';
         }
     });
 
@@ -356,7 +359,8 @@ function initializeRowHighlighting() {
         if (e.target.closest('.bogo-rule-row')) {
             const row = e.target.closest('.bogo-rule-row');
             const isAlternate = row.classList.contains('alternate');
-            row.style.backgroundColor = isAlternate ? '#f9f9f9' : '#ffffff';
+            // Remove inline style to let CSS take over
+            row.style.backgroundColor = '';
         }
     });
 }
