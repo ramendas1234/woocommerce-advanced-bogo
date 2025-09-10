@@ -520,12 +520,23 @@ class WC_Advanced_BOGO {
             if ( is_array( $_POST['bogo_rules'] ) ) {
                 foreach ( $_POST['bogo_rules'] as $rule ) {
                     if ( !empty( $rule['buy_product'] ) && !empty( $rule['get_product'] ) && !empty( $rule['buy_qty'] ) ) {
+                        // CRITICAL SECURITY VALIDATION: Cap discount at 100%
+                        $discount_value = intval( $rule['discount'] );
+                        if ( $discount_value > 100 ) {
+                            echo '<div class="error"><p><strong>Security Error:</strong> Discount for one of the rules exceeded 100% and was automatically capped at 100% to prevent business losses.</p></div>';
+                            $discount_value = 100;
+                        }
+                        if ( $discount_value < 0 ) {
+                            echo '<div class="error"><p><strong>Error:</strong> Negative discount detected and was set to 0%.</p></div>';
+                            $discount_value = 0;
+                        }
+                        
                         $filtered_rules[] = [
                             'buy_product' => sanitize_text_field( $rule['buy_product'] ),
                             'buy_qty'     => intval( $rule['buy_qty'] ),
                             'get_product' => intval( $rule['get_product'] ),
                             'get_qty'     => intval( $rule['get_qty'] ) ?: 1,
-                            'discount'    => intval( $rule['discount'] ),
+                            'discount'    => $discount_value, // Use validated discount
                             'start_date'  => sanitize_text_field( $rule['start_date'] ?? '' ),
                             'end_date'    => sanitize_text_field( $rule['end_date'] ?? '' ),
                         ];
@@ -624,6 +635,9 @@ class WC_Advanced_BOGO {
                     <div class="bogo-rules-container">
                         <h2>💰 BOGO Discount Rules</h2>
                         <p style="margin-bottom: 20px;">Create rules in plain language. Example: <em>Buy 2 units of T-shirt and get 2 Hat at 50% off</em></p>
+                        <div class="security-warning" style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-weight: 600;">
+                            ⚠️ <strong>Security Notice:</strong> Discount values are automatically capped at 100% to prevent negative pricing and business losses. Values above 100% will be reduced to 100%.
+                        </div>
                         <div class="bogo-actions" style="margin: 10px 2px;">
 							<button type="button" id="add-bogo-rule" class="button add-bogo-rule">
 								+ Add New Rule
@@ -1356,12 +1370,24 @@ class WC_Advanced_BOGO {
 						$cart->set_quantity( $cart_item_key, $get_qty );
 					}
 
-					// Apply discount safely
+					// Apply discount safely with maximum 100% cap
 					$product = wc_get_product( $get_product_id );
 					if ( $product && is_object( $cart_item['data'] ) ) {
 						$price = $product->get_price();
-						$new_price = $price * ( 100 - $discount ) / 100;
+						
+						// CRITICAL SECURITY FIX: Cap discount at 100% to prevent negative prices
+						$safe_discount = min( 100, max( 0, intval( $discount ) ) );
+						$new_price = $price * ( 100 - $safe_discount ) / 100;
+						
+						// Additional safety: ensure price never goes below 0
+						$new_price = max( 0, $new_price );
+						
 						$cart_item['data']->set_price( $new_price );
+						
+						// Log for debugging if discount was capped
+						if ( $discount > 100 ) {
+							error_log( "BOGO Security: Discount capped from {$discount}% to 100% for product ID {$get_product_id}" );
+						}
 					}
 
 					$gift_found = true;
@@ -2054,6 +2080,15 @@ class WC_Advanced_BOGO {
 		// Validate rule data
 		if ( empty( $rule_data['buy_product'] ) || empty( $rule_data['get_product'] ) || empty( $rule_data['buy_qty'] ) ) {
 			wp_send_json_error( array( 'message' => 'Please fill in all required fields: Buy Product, Get Product, and Buy Quantity.' ) );
+		}
+
+		// CRITICAL SECURITY VALIDATION: Ensure discount never exceeds 100%
+		$discount_value = intval( $rule_data['discount'] );
+		if ( $discount_value > 100 ) {
+			wp_send_json_error( array( 'message' => 'Security Error: Discount cannot exceed 100%. This prevents business losses from negative pricing.' ) );
+		}
+		if ( $discount_value < 0 ) {
+			wp_send_json_error( array( 'message' => 'Discount cannot be negative. Please enter a value between 0 and 100.' ) );
 		}
 
 		// Sanitize rule data

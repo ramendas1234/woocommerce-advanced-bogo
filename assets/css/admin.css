@@ -541,3 +541,52 @@ input[type="color"]:hover {
         width: 100%;
     }
 }
+
+/* ===================================
+   DISCOUNT VALIDATION STYLING
+   =================================== */
+
+/* Discount field validation styling */
+input[name*="[discount]"] {
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+input[name*="[discount]"].error {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
+
+input[name*="[discount]"].success {
+    border-color: #00a32a !important;
+    background-color: #f0fff4 !important;
+}
+
+.discount-error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    display: block;
+    animation: fadeInError 0.3s ease-in-out;
+}
+
+@keyframes fadeInError {
+    0% { opacity: 0; transform: translateY(-5px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Security warning styling */
+.security-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-weight: 600;
+}
+
+.security-warning::before {
+    content: "⚠️ ";
+    font-weight: bold;
+}

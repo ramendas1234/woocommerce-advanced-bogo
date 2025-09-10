@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize vanilla JavaScript features
     initializeIndividualSave();
     initializeRowHighlighting();
+    initializeDiscountValidation();
 });
 
 // jQuery-dependent features (existing functionality)
@@ -474,4 +475,80 @@ function showNotification(message, type) {
             }
         }, 300);
     }, 4000);
+}
+
+// CRITICAL SECURITY FEATURE: Discount validation to prevent business losses
+function initializeDiscountValidation() {
+    // Add event listeners to all discount input fields
+    document.addEventListener('input', function(e) {
+        if (e.target.name && e.target.name.includes('[discount]')) {
+            validateDiscountField(e.target);
+        }
+    });
+
+    // Add event listeners to existing discount fields
+    const discountFields = document.querySelectorAll('input[name*="[discount]"]');
+    discountFields.forEach(field => {
+        field.addEventListener('input', function() {
+            validateDiscountField(this);
+        });
+        
+        field.addEventListener('blur', function() {
+            validateDiscountField(this);
+        });
+        
+        // Validate on page load
+        validateDiscountField(field);
+    });
+}
+
+function validateDiscountField(field) {
+    const value = parseInt(field.value);
+    
+    // Remove any existing validation styling
+    field.style.borderColor = '';
+    field.style.backgroundColor = '';
+    
+    // Remove existing error messages
+    const existingError = field.parentNode.querySelector('.discount-error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    if (isNaN(value)) {
+        return; // Allow empty or non-numeric during typing
+    }
+    
+    if (value > 100) {
+        // Cap the value at 100
+        field.value = 100;
+        field.style.borderColor = '#dc3545';
+        field.style.backgroundColor = '#fff5f5';
+        
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'discount-error-message';
+        errorMsg.style.cssText = 'color: #dc3545; font-size: 12px; margin-top: 4px; font-weight: 600;';
+        errorMsg.textContent = '⚠️ SECURITY: Discount capped at 100% to prevent business losses!';
+        field.parentNode.appendChild(errorMsg);
+        
+        // Show notification
+        showNotification('Security Protection: Discount automatically capped at 100% to prevent negative pricing and business losses.', 'error');
+    } else if (value < 0) {
+        // Set to 0 if negative
+        field.value = 0;
+        field.style.borderColor = '#dc3545';
+        field.style.backgroundColor = '#fff5f5';
+        
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'discount-error-message';
+        errorMsg.style.cssText = 'color: #dc3545; font-size: 12px; margin-top: 4px; font-weight: 600;';
+        errorMsg.textContent = '⚠️ Discount cannot be negative. Set to 0%.';
+        field.parentNode.appendChild(errorMsg);
+    } else {
+        // Valid value - show success styling
+        field.style.borderColor = '#00a32a';
+        field.style.backgroundColor = '#f0fff4';
+    }
 }
