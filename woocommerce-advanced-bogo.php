@@ -25,6 +25,7 @@ class WC_Advanced_BOGO {
         add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
         add_action( 'wp_ajax_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
         add_action( 'wp_ajax_nopriv_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
+        add_action( 'wp_ajax_save_individual_bogo_rule', array( $this, 'handle_save_individual_bogo_rule' ) );
 
     }
 
@@ -475,7 +476,8 @@ class WC_Advanced_BOGO {
 			wp_localize_script( 'wc-advanced-bogo-admin', 'bogo_admin', array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'nonce' => wp_create_nonce( 'search-products' ),
-				'search_products_nonce' => wp_create_nonce( 'search-products' )
+				'search_products_nonce' => wp_create_nonce( 'search-products' ),
+				'save_individual_rule_nonce' => wp_create_nonce( 'save_individual_bogo_rule' )
 			) );
 			
 			// Add inline script to ensure ajaxurl is available globally
@@ -631,13 +633,15 @@ class WC_Advanced_BOGO {
                         <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table" style="padding-left: 10px;">
                             <thead>
                                 <tr>
-                                    <th style="width: 100%;">Rule</th>
-                                    <th style="min-width: 60px;"></th>
+                                    <th style="width: calc(100% - 120px);">Rule</th>
+                                    <th style="width: 120px; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="bogo-rules-tbody">
-                                <?php foreach ( $rules as $index => $rule ) : ?>
-                                <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
+                                <?php foreach ( $rules as $index => $rule ) : 
+                                    $row_class = ($index % 2 === 0) ? 'alternate' : '';
+                                ?>
+                                <tr class="bogo-rule-row <?php echo $row_class; ?>" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
                                         <span style="margin-right: 8px;">🛒 Buy</span>
                                         <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
@@ -669,12 +673,24 @@ class WC_Advanced_BOGO {
                                         <span style="margin: 0 8px; font-size: 14px; color: #666;">📅 End:</span>
                                         <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" />
                                     </td>
-                                    <td style="text-align: center; vertical-align: top; padding-top: 20px;">
-                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                            </svg>
-                                        </button>
+                                    <td style="text-align: center; vertical-align: top; padding-top: 20px; width: 120px;">
+                                        <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                            <button type="button" class="button save-individual-rule" title="Save this rule" data-rule-index="<?php echo $index; ?>" style="color: #00a32a; border-color: #00a32a; background: transparent; height: 35px; width: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px; position: relative;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                                                </svg>
+                                                <span class="save-loading" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="animation: spin 1s linear infinite;">
+                                                        <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+                                                    </svg>
+                                                </span>
+                                            </button>
+                                            <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; height: 35px; width: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -2018,6 +2034,77 @@ class WC_Advanced_BOGO {
 				'revenue' => $chart_revenue
 			]
 		];
+	}
+
+	/**
+	 * AJAX handler for saving individual BOGO rule
+	 */
+	public function handle_save_individual_bogo_rule() {
+		// Verify nonce for security
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'save_individual_bogo_rule' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed. Please refresh the page and try again.' ) );
+		}
+
+		// Check user permissions
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have permission to perform this action.' ) );
+		}
+
+		$rule_index = intval( $_POST['rule_index'] );
+		$rule_data = $_POST['rule_data'];
+
+		// Validate rule data
+		if ( empty( $rule_data['buy_product'] ) || empty( $rule_data['get_product'] ) || empty( $rule_data['buy_qty'] ) ) {
+			wp_send_json_error( array( 'message' => 'Please fill in all required fields: Buy Product, Get Product, and Buy Quantity.' ) );
+		}
+
+		// Sanitize rule data
+		$sanitized_rule = array(
+			'buy_product' => sanitize_text_field( $rule_data['buy_product'] ),
+			'buy_qty'     => intval( $rule_data['buy_qty'] ),
+			'get_product' => intval( $rule_data['get_product'] ),
+			'get_qty'     => intval( $rule_data['get_qty'] ) ?: 1,
+			'discount'    => intval( $rule_data['discount'] ),
+			'start_date'  => sanitize_text_field( $rule_data['start_date'] ?? '' ),
+			'end_date'    => sanitize_text_field( $rule_data['end_date'] ?? '' ),
+		);
+
+		// Get existing rules
+		$rules = get_option( self::OPTION_KEY, array() );
+
+		// Update or add the rule
+		if ( $rule_index >= 0 && $rule_index < count( $rules ) ) {
+			// Update existing rule
+			$rules[$rule_index] = $sanitized_rule;
+			$action = 'updated';
+		} else {
+			// Add new rule
+			$rules[] = $sanitized_rule;
+			$action = 'added';
+			$rule_index = count( $rules ) - 1;
+		}
+
+		// Save updated rules
+		update_option( self::OPTION_KEY, $rules );
+
+		// Get product names for response
+		$buy_product_name = 'All Products';
+		if ( $sanitized_rule['buy_product'] !== 'all' ) {
+			$buy_product = wc_get_product( $sanitized_rule['buy_product'] );
+			$buy_product_name = $buy_product ? $buy_product->get_name() : 'Unknown Product';
+		}
+
+		$get_product = wc_get_product( $sanitized_rule['get_product'] );
+		$get_product_name = $get_product ? $get_product->get_name() : 'Unknown Product';
+
+		wp_send_json_success( array(
+			'message' => sprintf( 'Rule %s successfully!', $action ),
+			'rule_index' => $rule_index,
+			'rule_data' => $sanitized_rule,
+			'buy_product_name' => $buy_product_name,
+			'get_product_name' => $get_product_name,
+			'action' => $action
+		) );
 	}
 
 	/**

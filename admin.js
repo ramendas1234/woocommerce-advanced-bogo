@@ -1,5 +1,29 @@
-jQuery(document).ready(function($) {
+// WooCommerce Advanced BOGO - Admin JavaScript
+// Using vanilla JavaScript instead of jQuery for individual save functionality
+
+document.addEventListener('DOMContentLoaded', function() {
     console.log('BOGO Admin JS loaded');
+
+    // Initialize jQuery-dependent features when jQuery is available
+    if (typeof jQuery !== 'undefined') {
+        initializeJQueryFeatures();
+    } else {
+        // Retry after a short delay if jQuery isn't loaded yet
+        setTimeout(function() {
+            if (typeof jQuery !== 'undefined') {
+                initializeJQueryFeatures();
+            }
+        }, 500);
+    }
+
+    // Initialize vanilla JavaScript features
+    initializeIndividualSave();
+    initializeRowHighlighting();
+});
+
+// jQuery-dependent features (existing functionality)
+function initializeJQueryFeatures() {
+    const $ = jQuery;
 
     // Initialize product search for existing rows
     initializeProductSearch();
@@ -22,6 +46,7 @@ jQuery(document).ready(function($) {
         
         $row.fadeOut(300, function() {
             $(this).remove();
+            updateRowAlternation();
         });
     });
 
@@ -82,95 +107,101 @@ jQuery(document).ready(function($) {
 
     // Function to add empty rule row
     function addEmptyRule() {
-    var $tbody = $('#bogo-rules-tbody');
-    var newIndex = $tbody.find('.bogo-rule-row').length;
-    
-    // Clone the first row
-    var $firstRow = $tbody.find('.bogo-rule-row').first();
-    var $newRow = $firstRow.clone();
-    
-    // Clear all values in the new row
-    $newRow.find('input[type="number"]').val('');
-    $newRow.find('input[type="date"]').val('');
-    
-    // Clear and reset select elements
-    $newRow.find('select').each(function() {
-        var $select = $(this);
-        var originalName = $select.attr('name');
-
-        // Only destroy if initialized
-        if ($select.data('select2')) {
-            $select.select2('destroy');
-        }
-
-        // Remove Select2 containers and dropdowns if present
-        $select.siblings('.select2-container').remove();
-        $select.siblings('.select2-dropdown').remove();
-        $select.siblings('.select2-results').remove();
-
-        $select.removeClass('select2-hidden-accessible');
-        $select.empty();
-        $select.append('<option value="">Search for a product...</option>');
-
-        $select.attr('name', originalName.replace(/\[\d+\]/, '[' + newIndex + ']'));
-    });
-
-    // Update the data-index attribute
-    $newRow.attr('data-index', newIndex);
-
-    // Update all name attributes in the new row
-    $newRow.find('input, select').each(function() {
-        var name = $(this).attr('name');
-        if (name) {
-            $(this).attr('name', name.replace(/\[\d+\]/, '[' + newIndex + ']'));
-        }
-    });
-
-    // Add the new row
-    $tbody.append($newRow);
-
-    // ** FIX: Ensure Select2 AJAX is initialized after row is added **
-    setTimeout(function() {
-        $newRow.find('.wc-product-search').each(function() {
+        var $tbody = $('#bogo-rules-tbody');
+        var newIndex = $tbody.find('.bogo-rule-row').length;
+        
+        // Clone the first row
+        var $firstRow = $tbody.find('.bogo-rule-row').first();
+        var $newRow = $firstRow.clone();
+        
+        // Clear all values in the new row
+        $newRow.find('input[type="number"]').val('');
+        $newRow.find('input[type="date"]').val('');
+        
+        // Clear and reset select elements
+        $newRow.find('select').each(function() {
             var $select = $(this);
-            $select.select2({
-                ajax: {
-                    url: ajaxurl,
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            action: 'woocommerce_json_search_products',
-                            term: params.term,
-                            security: bogo_admin.search_products_nonce
-                        };
-                    },
-                    processResults: function(data) {
-                        var terms = [];
-                        if (data) {
-                            $.each(data, function(id, text) {
-                                terms.push({
-                                    id: id,
-                                    text: text
-                                });
-                            });
-                        }
-                        return {
-                            results: terms
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 2,
-                placeholder: $select.data('placeholder') || 'Search for a product...',
-                dropdownParent: $('body')
-            });
+            var originalName = $select.attr('name');
+
+            // Only destroy if initialized
+            if ($select.data('select2')) {
+                $select.select2('destroy');
+            }
+
+            // Remove Select2 containers and dropdowns if present
+            $select.siblings('.select2-container').remove();
+            $select.siblings('.select2-dropdown').remove();
+            $select.siblings('.select2-results').remove();
+
+            $select.removeClass('select2-hidden-accessible');
+            $select.empty();
+            $select.append('<option value="">Search for a product...</option>');
+
+            $select.attr('name', originalName.replace(/\[\d+\]/, '[' + newIndex + ']'));
         });
 
-        // Ensure proper styling for new row
-        ensureSelect2Styling();
-    }, 300);
-}
+        // Update the data-index attribute
+        $newRow.attr('data-index', newIndex);
+
+        // Update all name attributes in the new row
+        $newRow.find('input, select').each(function() {
+            var name = $(this).attr('name');
+            if (name) {
+                $(this).attr('name', name.replace(/\[\d+\]/, '[' + newIndex + ']'));
+            }
+        });
+
+        // Update the save button data attribute
+        $newRow.find('.save-individual-rule').attr('data-rule-index', newIndex);
+
+        // Add the new row
+        $tbody.append($newRow);
+
+        // Update row alternation
+        updateRowAlternation();
+
+        // ** FIX: Ensure Select2 AJAX is initialized after row is added **
+        setTimeout(function() {
+            $newRow.find('.wc-product-search').each(function() {
+                var $select = $(this);
+                $select.select2({
+                    ajax: {
+                        url: ajaxurl,
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                action: 'woocommerce_json_search_products',
+                                term: params.term,
+                                security: bogo_admin.search_products_nonce
+                            };
+                        },
+                        processResults: function(data) {
+                            var terms = [];
+                            if (data) {
+                                $.each(data, function(id, text) {
+                                    terms.push({
+                                        id: id,
+                                        text: text
+                                    });
+                                });
+                            }
+                            return {
+                                results: terms
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 2,
+                    placeholder: $select.data('placeholder') || 'Search for a product...',
+                    dropdownParent: $('body')
+                });
+            });
+
+            // Ensure proper styling for new row
+            ensureSelect2Styling();
+        }, 300);
+    }
 
     // Function to ensure proper Select2 styling
     function ensureSelect2Styling() {
@@ -290,4 +321,160 @@ jQuery(document).ready(function($) {
         // Return contrasting color
         return luminance > 0.5 ? '#000000' : '#FFFFFF';
     }
-});
+
+    // Function to update row alternation after adding/removing rows
+    function updateRowAlternation() {
+        $('#bogo-rules-tbody .bogo-rule-row').each(function(index) {
+            $(this).removeClass('alternate');
+            if (index % 2 === 1) {
+                $(this).addClass('alternate');
+            }
+        });
+    }
+}
+
+// Vanilla JavaScript features for individual save functionality
+function initializeIndividualSave() {
+    // Add event listeners for individual save buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.save-individual-rule')) {
+            e.preventDefault();
+            handleIndividualSave(e.target.closest('.save-individual-rule'));
+        }
+    });
+}
+
+function initializeRowHighlighting() {
+    // Add hover effects for better UX
+    document.addEventListener('mouseover', function(e) {
+        if (e.target.closest('.bogo-rule-row')) {
+            e.target.closest('.bogo-rule-row').style.backgroundColor = '#f0f6fc';
+        }
+    });
+
+    document.addEventListener('mouseout', function(e) {
+        if (e.target.closest('.bogo-rule-row')) {
+            const row = e.target.closest('.bogo-rule-row');
+            const isAlternate = row.classList.contains('alternate');
+            row.style.backgroundColor = isAlternate ? '#f9f9f9' : '#ffffff';
+        }
+    });
+}
+
+function handleIndividualSave(button) {
+    const ruleIndex = button.getAttribute('data-rule-index');
+    const row = button.closest('.bogo-rule-row');
+    
+    // Collect rule data from the row
+    const ruleData = {
+        buy_product: row.querySelector(`select[name*="[buy_product]"]`).value,
+        buy_qty: row.querySelector(`input[name*="[buy_qty]"]`).value,
+        get_product: row.querySelector(`select[name*="[get_product]"]`).value,
+        get_qty: row.querySelector(`input[name*="[get_qty]"]`).value,
+        discount: row.querySelector(`input[name*="[discount]"]`).value,
+        start_date: row.querySelector(`input[name*="[start_date]"]`).value,
+        end_date: row.querySelector(`input[name*="[end_date]"]`).value
+    };
+
+    // Validate required fields
+    if (!ruleData.buy_product || !ruleData.get_product || !ruleData.buy_qty) {
+        showNotification('Please fill in all required fields: Buy Product, Get Product, and Buy Quantity.', 'error');
+        return;
+    }
+
+    // Show loading state
+    button.classList.add('saving');
+    button.disabled = true;
+    button.querySelector('.save-loading').style.display = 'block';
+
+    // Prepare FormData for AJAX request
+    const formData = new FormData();
+    formData.append('action', 'save_individual_bogo_rule');
+    formData.append('rule_index', ruleIndex);
+    formData.append('nonce', bogo_admin.save_individual_rule_nonce);
+    
+    // Append rule data
+    Object.keys(ruleData).forEach(key => {
+        formData.append(`rule_data[${key}]`, ruleData[key]);
+    });
+
+    // Make AJAX request
+    fetch(bogo_admin.ajaxurl, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide loading state
+        button.classList.remove('saving');
+        button.disabled = false;
+        button.querySelector('.save-loading').style.display = 'none';
+
+        if (data.success) {
+            // Show success state
+            button.classList.add('success');
+            showNotification(data.data.message, 'success');
+            
+            // Reset success state after 3 seconds
+            setTimeout(() => {
+                button.classList.remove('success');
+            }, 3000);
+        } else {
+            // Show error state
+            button.classList.add('error');
+            showNotification(data.data.message || 'An error occurred while saving the rule.', 'error');
+            
+            // Reset error state after 3 seconds
+            setTimeout(() => {
+                button.classList.remove('error');
+            }, 3000);
+        }
+    })
+    .catch(error => {
+        console.error('AJAX Error:', error);
+        
+        // Hide loading state
+        button.classList.remove('saving');
+        button.disabled = false;
+        button.querySelector('.save-loading').style.display = 'none';
+        
+        // Show error state
+        button.classList.add('error');
+        showNotification('Network error. Please check your connection and try again.', 'error');
+        
+        // Reset error state after 3 seconds
+        setTimeout(() => {
+            button.classList.remove('error');
+        }, 3000);
+    });
+}
+
+function showNotification(message, type) {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.rule-save-notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create new notification
+    const notification = document.createElement('div');
+    notification.className = `rule-save-notification ${type}`;
+    notification.textContent = message;
+
+    // Add to DOM
+    document.body.appendChild(notification);
+
+    // Show notification
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Hide and remove notification after 4 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 4000);
+}
