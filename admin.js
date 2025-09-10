@@ -325,12 +325,12 @@ function initializeJQueryFeatures() {
     // Function to update row alternation after adding/removing rows
     function updateRowAlternation() {
         $('#bogo-rules-tbody .bogo-rule-row').each(function(index) {
+            // Remove any alternating classes (we use CSS nth-child now)
             $(this).removeClass('alternate');
-            if (index % 2 === 1) {
-                $(this).addClass('alternate');
-            }
-            // Update data-index attribute as well
+            // Update data-index attribute
             $(this).attr('data-index', index);
+            // Update save button data attribute
+            $(this).find('.save-individual-rule').attr('data-rule-index', index);
         });
     }
 }
@@ -347,19 +347,12 @@ function initializeIndividualSave() {
 }
 
 function initializeRowHighlighting() {
-    // Add hover effects for better UX
-    document.addEventListener('mouseover', function(e) {
-        if (e.target.closest('.bogo-rule-row')) {
-            const row = e.target.closest('.bogo-rule-row');
-            row.style.backgroundColor = '#f0f6fc';
-        }
-    });
-
+    // CSS nth-child handles alternating colors automatically
+    // We just need to ensure no inline styles interfere
     document.addEventListener('mouseout', function(e) {
         if (e.target.closest('.bogo-rule-row')) {
             const row = e.target.closest('.bogo-rule-row');
-            const isAlternate = row.classList.contains('alternate');
-            // Remove inline style to let CSS take over
+            // Remove any inline styles to let CSS nth-child take over
             row.style.backgroundColor = '';
         }
     });

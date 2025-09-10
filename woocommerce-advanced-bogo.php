@@ -638,10 +638,8 @@ class WC_Advanced_BOGO {
                                 </tr>
                             </thead>
                             <tbody id="bogo-rules-tbody">
-                                <?php foreach ( $rules as $index => $rule ) : 
-                                    $row_class = ($index % 2 === 1) ? 'alternate' : '';
-                                ?>
-                                <tr class="bogo-rule-row <?php echo $row_class; ?>" data-index="<?php echo $index; ?>">
+                                <?php foreach ( $rules as $index => $rule ) : ?>
+                                <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
                                         <span style="margin-right: 8px;">🛒 Buy</span>
                                         <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
