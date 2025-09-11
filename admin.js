@@ -28,25 +28,27 @@ function initializeJQueryFeatures() {
     // Initialize product search for existing rows
     initializeProductSearch();
 
-    // Handle adding new BOGO rules
-    $('#add-bogo-rule').on('click', function() {
+    // Handle adding new BOGO rules (updated for new structure)
+    $(document).on('click', '.add-row[href="repeater-bogo-rules"]', function(e) {
+        e.preventDefault();
         addEmptyRule();
     });
 
-    // Handle removing BOGO rules
-    $(document).on('click', '.remove-bogo-rule', function() {
-        var $row = $(this).closest('.bogo-rule-row');
-        var $tbody = $('#bogo-rules-tbody');
+    // Handle removing BOGO rules (updated for new structure)
+    $(document).on('click', '.wc-bogo-icon.-minus.remove-row', function(e) {
+        e.preventDefault();
+        var $row = $(this).closest('tr.row-input');
+        var $tbody = $row.closest('tbody');
         
-        // If this is the last row, don't remove it
-        if ($tbody.find('.bogo-rule-row').length <= 1) {
+        // If this is the last data row, don't remove it (keeping header row)
+        if ($tbody.find('tr.row-input').length <= 1) {
             alert('You must have at least one rule.');
             return;
         }
         
         $row.fadeOut(300, function() {
             $(this).remove();
-            updateRowAlternation();
+            updateRowIndices();
         });
     });
 
@@ -105,13 +107,13 @@ function initializeJQueryFeatures() {
         ensureSelect2Styling();
     }
 
-    // Function to add empty rule row
+    // Function to add empty rule row (updated for new structure)
     function addEmptyRule() {
-        var $tbody = $('#bogo-rules-tbody');
-        var newIndex = $tbody.find('.bogo-rule-row').length;
+        var $tbody = $('.wc-bogo-table tbody');
+        var newIndex = $tbody.find('tr.row-input').length;
         
-        // Clone the first row
-        var $firstRow = $tbody.find('.bogo-rule-row').first();
+        // Clone the first data row (skip the header row)
+        var $firstRow = $tbody.find('tr.row-input').first();
         var $newRow = $firstRow.clone();
         
         // Clear all values in the new row
@@ -136,12 +138,19 @@ function initializeJQueryFeatures() {
             $select.removeClass('select2-hidden-accessible');
             $select.empty();
             $select.append('<option value="">Search for a product...</option>');
+            
+            // Add "All Products" option for buy_product selects
+            if ($select.hasClass('-buy_product')) {
+                $select.append('<option value="all">— All Products —</option>');
+            }
 
             $select.attr('name', originalName.replace(/\[\d+\]/, '[' + newIndex + ']'));
         });
 
-        // Update the data-index attribute
-        $newRow.attr('data-index', newIndex);
+        // Update the data-row-id attribute
+        $newRow.attr('data-row-id', newIndex);
+        $newRow.removeClass('-row-0 -row-1 -row-2 -row-3 -row-4 -row-5 -row-6 -row-7 -row-8 -row-9');
+        $newRow.addClass('-row-' + newIndex);
 
         // Update all name attributes in the new row
         $newRow.find('input, select').each(function() {
@@ -157,8 +166,8 @@ function initializeJQueryFeatures() {
         // Add the new row
         $tbody.append($newRow);
 
-        // Update row alternation
-        updateRowAlternation();
+        // Update row indices
+        updateRowIndices();
 
         // ** FIX: Ensure Select2 AJAX is initialized after row is added **
         setTimeout(function() {
@@ -205,11 +214,32 @@ function initializeJQueryFeatures() {
 
     // Function to ensure proper Select2 styling
     function ensureSelect2Styling() {
-        $('.bogo-rule-row .select2-container').css({
+        $('.wc-bogo-table .select2-container').css({
             'min-width': '200px !important',
             'max-width': '300px !important',
             'width': 'auto !important',
             'display': 'inline-block !important'
+        });
+    }
+
+    // Function to update row indices (updated for new structure)
+    function updateRowIndices() {
+        $('.wc-bogo-table tbody tr.row-input').each(function(index) {
+            var $row = $(this);
+            $row.attr('data-row-id', index);
+            $row.removeClass('-row-0 -row-1 -row-2 -row-3 -row-4 -row-5 -row-6 -row-7 -row-8 -row-9');
+            $row.addClass('-row-' + index);
+            
+            // Update all name attributes in the row
+            $row.find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/\[\d+\]/, '[' + index + ']'));
+                }
+            });
+            
+            // Update the save button data attribute
+            $row.find('.save-individual-rule').attr('data-rule-index', index);
         });
     }
 
@@ -322,17 +352,6 @@ function initializeJQueryFeatures() {
         return luminance > 0.5 ? '#000000' : '#FFFFFF';
     }
 
-    // Function to update row alternation after adding/removing rows
-    function updateRowAlternation() {
-        $('#bogo-rules-tbody .bogo-rule-row').each(function(index) {
-            // Remove any alternating classes (we use CSS nth-child now)
-            $(this).removeClass('alternate');
-            // Update data-index attribute
-            $(this).attr('data-index', index);
-            // Update save button data attribute
-            $(this).find('.save-individual-rule').attr('data-rule-index', index);
-        });
-    }
 }
 
 // Vanilla JavaScript features for individual save functionality
@@ -347,12 +366,12 @@ function initializeIndividualSave() {
 }
 
 function initializeRowHighlighting() {
-    // CSS nth-child handles alternating colors automatically
+    // CSS handles table row styling automatically
     // We just need to ensure no inline styles interfere
     document.addEventListener('mouseout', function(e) {
-        if (e.target.closest('.bogo-rule-row')) {
-            const row = e.target.closest('.bogo-rule-row');
-            // Remove any inline styles to let CSS nth-child take over
+        if (e.target.closest('tr.row-input')) {
+            const row = e.target.closest('tr.row-input');
+            // Remove any inline styles to let CSS take over
             row.style.backgroundColor = '';
         }
     });
@@ -360,7 +379,7 @@ function initializeRowHighlighting() {
 
 function handleIndividualSave(button) {
     const ruleIndex = button.getAttribute('data-rule-index');
-    const row = button.closest('.bogo-rule-row');
+    const row = button.closest('tr.row-input');
     
     // Collect rule data from the row
     const ruleData = {

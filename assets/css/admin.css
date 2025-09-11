@@ -4,6 +4,357 @@
  */
 
 /* ===================================
+   EXTERNAL PLUGIN INSPIRED FIELD STYLES
+   =================================== */
+
+/* wc-bogo-field containers */
+.wc-bogo-field,
+.wc-bogo-field .wc-bogo-label,
+.wc-bogo-field .wc-bogo-input {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.wc-bogo-field {
+    margin: 15px 0;
+    clear: both;
+}
+
+.wc-bogo-field p.description {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-style: italic;
+    color: #646970;
+}
+
+.wc-bogo-field .wc-bogo-label {
+    vertical-align: top;
+    margin: 0 0 10px;
+}
+
+.wc-bogo-field .wc-bogo-label label {
+    display: block;
+    font-weight: bold;
+    margin: 0 0 3px;
+    padding: 0;
+    color: #1d2327;
+}
+
+.wc-bogo-field .wc-bogo-label:empty {
+    margin-bottom: 0;
+}
+
+.wc-bogo-field .wc-bogo-input {
+    vertical-align: top;
+}
+
+.wc-bogo-field .wc-bogo-input > p.description {
+    margin-top: 5px;
+}
+
+/* wc-bogo-fields container */
+.wc-bogo-fields {
+    position: relative;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.wc-bogo-fields:after {
+    display: block;
+    clear: both;
+    content: "";
+}
+
+.wc-bogo-fields.-border {
+    border: #ccd0d4 solid 1px;
+    background: #fff;
+}
+
+.wc-bogo-fields > .wc-bogo-field {
+    position: relative;
+    margin: 0;
+    padding: 15px 12px;
+    border-top: #eeeeee solid 1px;
+}
+
+.wc-bogo-fields > .wc-bogo-field:first-child {
+    border-top: none;
+    margin-top: 0;
+}
+
+/* Left layout style */
+.wc-bogo-fields.-left > .wc-bogo-field {
+    padding: 15px 0;
+}
+
+.wc-bogo-fields.-left > .wc-bogo-field:after {
+    display: block;
+    clear: both;
+    content: "";
+}
+
+.wc-bogo-fields.-left > .wc-bogo-field:before {
+    content: "";
+    display: block;
+    position: absolute;
+    z-index: 0;
+    background: #f9f9f9;
+    border-color: #e1e1e1;
+    border-style: solid;
+    border-width: 0 1px 0 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 25%;
+}
+
+.wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-label {
+    float: left;
+    width: 25%;
+    margin: 0;
+    padding: 0 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-input {
+    float: left;
+    width: 75%;
+    margin: 0;
+    padding: 0 12px;
+}
+
+/* wc-bogo-table styles */
+.wc-bogo-table {
+    border: 0 none;
+    background: #fff;
+    border-spacing: 0;
+    border-radius: 0;
+    table-layout: fixed;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    clear: both;
+    box-sizing: content-box;
+}
+
+.wc-bogo-table > tbody > tr > th, 
+.wc-bogo-table > tbody > tr > td,
+.wc-bogo-table > thead > tr > th,
+.wc-bogo-table > thead > tr > td {
+    border: 0 none;
+    padding: 8px 4px;
+    vertical-align: top;
+    background: #fff;
+    text-align: left;
+    font-weight: normal;
+    font-size: 13px;
+}
+
+.wc-bogo-table > tbody > tr > th > label {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+}
+
+.wc-bogo-table > tbody > tr > th, 
+.wc-bogo-table > thead > tr > th {
+    font-weight: bold;
+    background: #f9f9f9;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.wc-bogo-table > tbody > tr {
+    z-index: 1;
+}
+
+.wc-bogo-table td.remove {
+    width: 40px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* wc-bogo-repeater styles */
+.wc-bogo-repeater {
+    margin-bottom: 15px;
+}
+
+.wc-bogo-repeater .wc-bogo-repeater-btns {
+    margin: 10px 0 0 4px;
+    padding-right: 40px;
+    width: calc(100% - 40px);
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+/* wc-bogo-icon styles */
+.wc-bogo-icon {
+    display: inline-block;
+    height: 28px;
+    width: 28px;
+    border: transparent solid 1px;
+    border-radius: 100%;
+    font-size: 20px;
+    line-height: 21px;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+.wc-bogo-icon:before {
+    font-family: dashicons;
+    display: inline-block;
+    line-height: 1;
+    font-weight: 400;
+    font-style: normal;
+    speak: none;
+    text-decoration: inherit;
+    text-transform: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.wc-bogo-icon.-minus:before {
+    content: "\f460";
+}
+
+a.wc-bogo-icon {
+    color: #555d66;
+    border-color: #b5bcc2;
+    background-color: #fff;
+    position: relative;
+    transition: none;
+    cursor: pointer;
+}
+
+a.wc-bogo-icon:hover {
+    background: #f3f5f6;
+    border-color: #0071a1;
+    color: #0071a1;
+}
+
+a.wc-bogo-icon.-minus:hover {
+    background: #f7efef;
+    border-color: #a10000;
+    color: #dc3232;
+}
+
+/* Input field styles */
+.wc-bogo-field input[type=text],
+.wc-bogo-field input[type=password],
+.wc-bogo-field input[type=date],
+.wc-bogo-field input[type=datetime],
+.wc-bogo-field input[type=datetime-local],
+.wc-bogo-field input[type=email],
+.wc-bogo-field input[type=month],
+.wc-bogo-field input[type=number],
+.wc-bogo-field input[type=search],
+.wc-bogo-field input[type=tel],
+.wc-bogo-field input[type=time],
+.wc-bogo-field input[type=url],
+.wc-bogo-field input[type=week],
+.wc-bogo-field textarea,
+.wc-bogo-field select {
+    width: 100%;
+    padding: 4px 8px;
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.4;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+}
+
+.wc-bogo-field input[type=number] {
+    width: auto;
+    min-width: 80px;
+}
+
+/* Table-specific styling for BOGO rules */
+.wc-bogo-table input[type=number] {
+    width: 80px;
+    min-width: 60px;
+}
+
+.wc-bogo-table input[type=date] {
+    width: 140px;
+    min-width: 120px;
+}
+
+.wc-bogo-table select.wc-product-search {
+    min-width: 180px;
+    width: 200px;
+}
+
+/* Row hover effects */
+.wc-bogo-table tbody tr.row-input:hover {
+    background-color: #f0f6fc !important;
+}
+
+.wc-bogo-table tbody tr.row-input:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.wc-bogo-table tbody tr.row-input:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Better spacing for table cells */
+.wc-bogo-table td {
+    padding: 12px 8px;
+    vertical-align: middle;
+}
+
+.wc-bogo-table th {
+    padding: 10px 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #646970;
+}
+
+/* Action buttons in table */
+.wc-bogo-table td.remove {
+    white-space: nowrap;
+}
+
+.wc-bogo-table .save-individual-rule {
+    font-size: 11px;
+    padding: 2px;
+    min-width: auto;
+    width: 24px;
+    height: 24px;
+}
+
+/* Responsive design for field layout */
+@media screen and (max-width: 640px) {
+    .wc-bogo-fields.-left > .wc-bogo-field:before {
+        display: none;
+    }
+    .wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-label {
+        width: 100%;
+        margin-bottom: 10px;
+        float: none;
+    }
+    .wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-input {
+        width: 100%;
+        float: none;
+    }
+}
+
+/* ===================================
    SELECT2 DROPDOWN STYLES - ENHANCED
    =================================== */
 
