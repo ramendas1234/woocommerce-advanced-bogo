@@ -37,7 +37,9 @@ $defaults = [
 
 if ( $rule ) {
     foreach ( $defaults as $key => $default_value ) {
-        $defaults[$key] = isset( $rule->$key ) ? $rule->$key : $default_value;
+        $value = isset( $rule->$key ) ? $rule->$key : $default_value;
+        // Ensure no null values are passed to string functions
+        $defaults[$key] = ( $value !== null ) ? $value : $default_value;
     }
 }
 ?>

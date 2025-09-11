@@ -84,39 +84,46 @@ if ( isset( $_GET['disabled'] ) ) {
                 </thead>
                 
                 <tbody id="the-list">
-                    <?php foreach ( $rules as $rule ) : ?>
-                        <tr id="post-<?php echo $rule->id; ?>" class="iedit author-self level-0 post-<?php echo $rule->id; ?> type-rule status-<?php echo $rule->enabled ? 'enabled' : 'disabled'; ?>">
+                    <?php foreach ( $rules as $rule ) : 
+                        // Ensure rule object has required properties
+                        if ( ! $rule || ! isset( $rule->id ) ) continue;
+                        
+                        $rule_id = intval( $rule->id );
+                        $rule_title = ! empty( $rule->title ) ? $rule->title : __( 'Untitled Rule', 'wc-advanced-bogo' );
+                        $rule_enabled = ! empty( $rule->enabled );
+                    ?>
+                        <tr id="post-<?php echo esc_attr( $rule_id ); ?>" class="iedit author-self level-0 post-<?php echo esc_attr( $rule_id ); ?> type-rule status-<?php echo $rule_enabled ? 'enabled' : 'disabled'; ?>">
                             <th scope="row" class="check-column">
-                                <input id="cb-select-<?php echo $rule->id; ?>" type="checkbox" name="rule_ids[]" value="<?php echo $rule->id; ?>">
+                                <input id="cb-select-<?php echo esc_attr( $rule_id ); ?>" type="checkbox" name="rule_ids[]" value="<?php echo esc_attr( $rule_id ); ?>">
                             </th>
                             
                             <td class="title column-title has-row-actions column-primary">
                                 <strong>
-                                    <a class="row-title" href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo-edit&rule_id=' . $rule->id ); ?>">
-                                        <?php echo esc_html( $rule->title ); ?>
+                                    <a class="row-title" href="<?php echo esc_url( admin_url( 'admin.php?page=wc-advanced-bogo-edit&rule_id=' . $rule_id ) ); ?>">
+                                        <?php echo esc_html( $rule_title ); ?>
                                     </a>
-                                    <?php if ( ! $rule->enabled ) : ?>
+                                    <?php if ( ! $rule_enabled ) : ?>
                                         <span class="post-state"> — <?php _e( 'Disabled', 'wc-advanced-bogo' ); ?></span>
                                     <?php endif; ?>
                                 </strong>
                                 
                                 <div class="row-actions">
                                     <span class="edit">
-                                        <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo-edit&rule_id=' . $rule->id ); ?>">
+                                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-advanced-bogo-edit&rule_id=' . $rule_id ) ); ?>">
                                             <?php _e( 'Edit', 'wc-advanced-bogo' ); ?>
                                         </a> |
                                     </span>
                                     
                                     <span class="toggle">
-                                        <a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=wc-advanced-bogo&action=toggle&rule_id=' . $rule->id ), 'bogo_action_' . $rule->id ); ?>">
-                                            <?php echo $rule->enabled ? __( 'Disable', 'wc-advanced-bogo' ) : __( 'Enable', 'wc-advanced-bogo' ); ?>
+                                        <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wc-advanced-bogo&action=toggle&rule_id=' . $rule_id ), 'bogo_action_' . $rule_id ) ); ?>">
+                                            <?php echo $rule_enabled ? __( 'Disable', 'wc-advanced-bogo' ) : __( 'Enable', 'wc-advanced-bogo' ); ?>
                                         </a> |
                                     </span>
                                     
                                     <span class="trash">
-                                        <a href="<?php echo wp_nonce_url( admin_url( 'admin.php?page=wc-advanced-bogo&action=delete&rule_id=' . $rule->id ), 'bogo_action_' . $rule->id ); ?>" 
+                                        <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wc-advanced-bogo&action=delete&rule_id=' . $rule_id ), 'bogo_action_' . $rule_id ) ); ?>" 
                                            class="submitdelete" 
-                                           onclick="return confirm('<?php _e( 'Are you sure you want to delete this rule?', 'wc-advanced-bogo' ); ?>')">
+                                           onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to delete this rule?', 'wc-advanced-bogo' ); ?>')">
                                             <?php _e( 'Delete', 'wc-advanced-bogo' ); ?>
                                         </a>
                                     </span>
@@ -126,40 +133,49 @@ if ( isset( $_GET['disabled'] ) ) {
                             <td class="column-rule">
                                 <?php
                                 $buy_product_name = 'All Products';
-                                if ( $rule->buy_product && $rule->buy_product !== 'all' ) {
-                                    $product = wc_get_product( $rule->buy_product );
-                                    $buy_product_name = $product ? $product->get_name() : 'Product #' . $rule->buy_product;
+                                $buy_product = ! empty( $rule->buy_product ) ? $rule->buy_product : '';
+                                if ( $buy_product && $buy_product !== 'all' ) {
+                                    $product = wc_get_product( $buy_product );
+                                    $buy_product_name = $product ? $product->get_name() : 'Product #' . $buy_product;
                                 }
                                 
                                 $get_product_name = 'Product';
-                                if ( $rule->get_product ) {
-                                    $product = wc_get_product( $rule->get_product );
-                                    $get_product_name = $product ? $product->get_name() : 'Product #' . $rule->get_product;
+                                $get_product = ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0;
+                                if ( $get_product ) {
+                                    $product = wc_get_product( $get_product );
+                                    $get_product_name = $product ? $product->get_name() : 'Product #' . $get_product;
                                 }
+                                
+                                $buy_qty = ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1;
+                                $get_qty = ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1;
+                                $discount = ! empty( $rule->discount ) ? intval( $rule->discount ) : 0;
                                 
                                 printf(
                                     __( 'Buy %d × %s<br>Get %d × %s at %d%% off', 'wc-advanced-bogo' ),
-                                    $rule->buy_qty,
+                                    $buy_qty,
                                     esc_html( $buy_product_name ),
-                                    $rule->get_qty,
+                                    $get_qty,
                                     esc_html( $get_product_name ),
-                                    $rule->discount
+                                    $discount
                                 );
                                 
-                                if ( $rule->start_date || $rule->end_date ) {
+                                $start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+                                $end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+                                
+                                if ( $start_date || $end_date ) {
                                     echo '<br><small>';
-                                    if ( $rule->start_date && $rule->end_date ) {
+                                    if ( $start_date && $end_date ) {
                                         printf( __( 'Active: %s to %s', 'wc-advanced-bogo' ), 
-                                            date_i18n( get_option( 'date_format' ), strtotime( $rule->start_date ) ),
-                                            date_i18n( get_option( 'date_format' ), strtotime( $rule->end_date ) )
+                                            date_i18n( get_option( 'date_format' ), strtotime( $start_date ) ),
+                                            date_i18n( get_option( 'date_format' ), strtotime( $end_date ) )
                                         );
-                                    } elseif ( $rule->start_date ) {
+                                    } elseif ( $start_date ) {
                                         printf( __( 'Active from: %s', 'wc-advanced-bogo' ), 
-                                            date_i18n( get_option( 'date_format' ), strtotime( $rule->start_date ) )
+                                            date_i18n( get_option( 'date_format' ), strtotime( $start_date ) )
                                         );
-                                    } elseif ( $rule->end_date ) {
+                                    } elseif ( $end_date ) {
                                         printf( __( 'Active until: %s', 'wc-advanced-bogo' ), 
-                                            date_i18n( get_option( 'date_format' ), strtotime( $rule->end_date ) )
+                                            date_i18n( get_option( 'date_format' ), strtotime( $end_date ) )
                                         );
                                     }
                                     echo '</small>';
@@ -168,7 +184,7 @@ if ( isset( $_GET['disabled'] ) ) {
                             </td>
                             
                             <td class="column-status">
-                                <?php if ( $rule->enabled ) : ?>
+                                <?php if ( $rule_enabled ) : ?>
                                     <span class="status-enabled">
                                         <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
                                         <?php _e( 'Enabled', 'wc-advanced-bogo' ); ?>
@@ -182,14 +198,18 @@ if ( isset( $_GET['disabled'] ) ) {
                             </td>
                             
                             <td class="column-date">
-                                <abbr title="<?php echo esc_attr( $rule->date_created ); ?>">
-                                    <?php echo date_i18n( get_option( 'date_format' ), strtotime( $rule->date_created ) ); ?>
+                                <?php 
+                                $date_created = ! empty( $rule->date_created ) ? $rule->date_created : current_time( 'mysql' );
+                                $date_modified = ! empty( $rule->date_modified ) ? $rule->date_modified : $date_created;
+                                ?>
+                                <abbr title="<?php echo esc_attr( $date_created ); ?>">
+                                    <?php echo date_i18n( get_option( 'date_format' ), strtotime( $date_created ) ); ?>
                                 </abbr>
                                 <br>
-                                <?php if ( $rule->date_modified !== $rule->date_created ) : ?>
+                                <?php if ( $date_modified !== $date_created ) : ?>
                                     <small>
                                         <?php printf( __( 'Modified: %s', 'wc-advanced-bogo' ), 
-                                            date_i18n( get_option( 'date_format' ), strtotime( $rule->date_modified ) ) 
+                                            date_i18n( get_option( 'date_format' ), strtotime( $date_modified ) ) 
                                         ); ?>
                                     </small>
                                 <?php endif; ?>

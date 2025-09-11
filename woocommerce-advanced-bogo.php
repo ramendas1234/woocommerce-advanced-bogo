@@ -33,6 +33,9 @@ class WC_Advanced_BOGO {
         
         // Migration from options to database
         add_action( 'admin_init', array( $this, 'maybe_migrate_data' ) );
+        
+        // Ensure database setup on init
+        add_action( 'init', array( $this, 'ensure_database_setup' ) );
     }
 
 	/**
@@ -68,20 +71,24 @@ class WC_Advanced_BOGO {
 		$active_rules = array();
 		
 		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
+			// Ensure rule has required properties
+			if ( ! $rule || empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
 				continue;
 			}
 
-			if ( !empty( $rule->start_date ) && $rule->start_date > $now ) continue;
-			if ( !empty( $rule->end_date ) && $rule->end_date < $now ) continue;
+			$start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+			$end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+			
+			if ( $start_date && $start_date > $now ) continue;
+			if ( $end_date && $end_date < $now ) continue;
 
 			$active_rules[] = array(
-				'index' => $rule->id,
-				'buy_product' => $rule->buy_product,
-				'buy_qty' => intval( $rule->buy_qty ),
-				'get_product' => intval( $rule->get_product ),
-				'get_qty' => intval( $rule->get_qty ) ?: 1,
-				'discount' => intval( $rule->discount )
+				'index' => ! empty( $rule->id ) ? intval( $rule->id ) : 0,
+				'buy_product' => ! empty( $rule->buy_product ) ? $rule->buy_product : '',
+				'buy_qty' => ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1,
+				'get_product' => ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0,
+				'get_qty' => ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1,
+				'discount' => ! empty( $rule->discount ) ? intval( $rule->discount ) : 0
 			);
 		}
 		
@@ -199,6 +206,17 @@ class WC_Advanced_BOGO {
 	}
 
     /**
+     * Ensure database setup
+     */
+    public function ensure_database_setup() {
+        // Check if database version is current
+        $db_version = get_option( 'wc_advanced_bogo_db_version', '' );
+        if ( $db_version !== '1.0' ) {
+            $this->create_database_table();
+        }
+    }
+
+    /**
      * Create database table for BOGO rules
      */
     public function create_database_table() {
@@ -244,6 +262,9 @@ class WC_Advanced_BOGO {
             return;
         }
         
+        // Ensure database table exists first
+        $this->create_database_table();
+        
         // Get old rules from options
         $old_rules = get_option( self::OPTION_KEY, [] );
         
@@ -254,21 +275,29 @@ class WC_Advanced_BOGO {
         
         // Migrate each rule to database
         foreach ( $old_rules as $rule ) {
-            $this->save_rule( [
+            $rule_data = [
                 'title' => $this->generate_rule_title( $rule ),
                 'enabled' => 1,
-                'buy_product' => $rule['buy_product'] ?? '',
-                'buy_qty' => intval( $rule['buy_qty'] ?? 1 ),
-                'get_product' => intval( $rule['get_product'] ?? 0 ),
-                'get_qty' => intval( $rule['get_qty'] ?? 1 ),
-                'discount' => intval( $rule['discount'] ?? 0 ),
-                'start_date' => !empty( $rule['start_date'] ) ? $rule['start_date'] : null,
-                'end_date' => !empty( $rule['end_date'] ) ? $rule['end_date'] : null,
-            ] );
+                'buy_product' => ! empty( $rule['buy_product'] ) ? $rule['buy_product'] : '',
+                'buy_qty' => ! empty( $rule['buy_qty'] ) ? intval( $rule['buy_qty'] ) : 1,
+                'get_product' => ! empty( $rule['get_product'] ) ? intval( $rule['get_product'] ) : 0,
+                'get_qty' => ! empty( $rule['get_qty'] ) ? intval( $rule['get_qty'] ) : 1,
+                'discount' => ! empty( $rule['discount'] ) ? intval( $rule['discount'] ) : 0,
+                'start_date' => ! empty( $rule['start_date'] ) ? $rule['start_date'] : null,
+                'end_date' => ! empty( $rule['end_date'] ) ? $rule['end_date'] : null,
+            ];
+            
+            $this->save_rule( $rule_data );
         }
         
         // Mark migration as complete
         update_option( 'wc_advanced_bogo_migrated', true );
+        
+        // If no rules exist after migration, create a sample rule for testing
+        $existing_rules = $this->get_rules();
+        if ( empty( $existing_rules ) ) {
+            $this->create_sample_rule();
+        }
     }
 
     /**
@@ -276,25 +305,48 @@ class WC_Advanced_BOGO {
      */
     private function generate_rule_title( $rule ) {
         $buy_product_name = 'All Products';
-        if ( !empty( $rule['buy_product'] ) && $rule['buy_product'] !== 'all' ) {
-            $product = wc_get_product( $rule['buy_product'] );
-            $buy_product_name = $product ? $product->get_name() : 'Product #' . $rule['buy_product'];
+        $buy_product = ! empty( $rule['buy_product'] ) ? $rule['buy_product'] : '';
+        if ( $buy_product && $buy_product !== 'all' ) {
+            $product = wc_get_product( $buy_product );
+            $buy_product_name = $product ? $product->get_name() : 'Product #' . $buy_product;
         }
         
         $get_product_name = 'Product';
-        if ( !empty( $rule['get_product'] ) ) {
-            $product = wc_get_product( $rule['get_product'] );
-            $get_product_name = $product ? $product->get_name() : 'Product #' . $rule['get_product'];
+        $get_product = ! empty( $rule['get_product'] ) ? intval( $rule['get_product'] ) : 0;
+        if ( $get_product ) {
+            $product = wc_get_product( $get_product );
+            $get_product_name = $product ? $product->get_name() : 'Product #' . $get_product;
         }
+        
+        $buy_qty = ! empty( $rule['buy_qty'] ) ? intval( $rule['buy_qty'] ) : 1;
+        $get_qty = ! empty( $rule['get_qty'] ) ? intval( $rule['get_qty'] ) : 1;
+        $discount = ! empty( $rule['discount'] ) ? intval( $rule['discount'] ) : 0;
         
         return sprintf(
             'Buy %d %s, Get %d %s at %d%% off',
-            $rule['buy_qty'] ?? 1,
+            $buy_qty,
             $buy_product_name,
-            $rule['get_qty'] ?? 1,
+            $get_qty,
             $get_product_name,
-            $rule['discount'] ?? 0
+            $discount
         );
+    }
+
+    /**
+     * Create a sample rule for testing
+     */
+    private function create_sample_rule() {
+        $this->save_rule( [
+            'title' => 'Buy 2 Any Product, Get 1 Any Product at 50% off',
+            'enabled' => 1,
+            'buy_product' => 'all',
+            'buy_qty' => 2,
+            'get_product' => 0, // Will be set to a real product when testing
+            'get_qty' => 1,
+            'discount' => 50,
+            'start_date' => null,
+            'end_date' => null,
+        ] );
     }
 
     public function add_admin_menu() {
@@ -335,6 +387,11 @@ class WC_Advanced_BOGO {
         
         $table_name = $wpdb->prefix . self::TABLE_NAME;
         
+        // Check if table exists, if not create it
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
+            $this->create_database_table();
+        }
+        
         $defaults = [
             'enabled' => null,
             'orderby' => 'date_created',
@@ -364,7 +421,10 @@ class WC_Advanced_BOGO {
         
         $sql = "SELECT * FROM $table_name $where_clause $order_clause $limit_clause";
         
-        return $wpdb->get_results( $sql );
+        $results = $wpdb->get_results( $sql );
+        
+        // Return empty array if query failed
+        return is_array( $results ) ? $results : [];
     }
     
     /**
@@ -375,7 +435,19 @@ class WC_Advanced_BOGO {
         
         $table_name = $wpdb->prefix . self::TABLE_NAME;
         
-        return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", $id ) );
+        // Check if table exists, if not create it
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
+            $this->create_database_table();
+            return null;
+        }
+        
+        if ( empty( $id ) ) {
+            return null;
+        }
+        
+        $result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table_name WHERE id = %d", intval( $id ) ) );
+        
+        return $result ? $result : null;
     }
     
     /**
@@ -385,6 +457,11 @@ class WC_Advanced_BOGO {
         global $wpdb;
         
         $table_name = $wpdb->prefix . self::TABLE_NAME;
+        
+        // Check if table exists, if not create it
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
+            $this->create_database_table();
+        }
         
         $defaults = [
             'title' => '',
@@ -400,16 +477,18 @@ class WC_Advanced_BOGO {
         
         $data = wp_parse_args( $data, $defaults );
         
-        // Sanitize data
-        $data['title'] = sanitize_text_field( $data['title'] );
-        $data['enabled'] = intval( $data['enabled'] );
-        $data['buy_product'] = sanitize_text_field( $data['buy_product'] );
-        $data['buy_qty'] = intval( $data['buy_qty'] );
-        $data['get_product'] = intval( $data['get_product'] );
-        $data['get_qty'] = intval( $data['get_qty'] );
-        $data['discount'] = intval( $data['discount'] );
-        $data['start_date'] = !empty( $data['start_date'] ) ? sanitize_text_field( $data['start_date'] ) : null;
-        $data['end_date'] = !empty( $data['end_date'] ) ? sanitize_text_field( $data['end_date'] ) : null;
+        // Sanitize data with null checks
+        $data['title'] = ! empty( $data['title'] ) ? sanitize_text_field( $data['title'] ) : '';
+        $data['enabled'] = ! empty( $data['enabled'] ) ? intval( $data['enabled'] ) : 0;
+        $data['buy_product'] = ! empty( $data['buy_product'] ) ? sanitize_text_field( $data['buy_product'] ) : '';
+        $data['buy_qty'] = ! empty( $data['buy_qty'] ) ? intval( $data['buy_qty'] ) : 1;
+        $data['get_product'] = ! empty( $data['get_product'] ) ? intval( $data['get_product'] ) : 0;
+        $data['get_qty'] = ! empty( $data['get_qty'] ) ? intval( $data['get_qty'] ) : 1;
+        $data['discount'] = isset( $data['discount'] ) ? intval( $data['discount'] ) : 0;
+        $data['start_date'] = ! empty( $data['start_date'] ) ? sanitize_text_field( $data['start_date'] ) : null;
+        $data['end_date'] = ! empty( $data['end_date'] ) ? sanitize_text_field( $data['end_date'] ) : null;
+        
+        $id = intval( $id );
         
         if ( $id > 0 ) {
             // Update existing rule
@@ -430,7 +509,11 @@ class WC_Advanced_BOGO {
         
         $table_name = $wpdb->prefix . self::TABLE_NAME;
         
-        return $wpdb->delete( $table_name, [ 'id' => $id ] );
+        if ( empty( $id ) ) {
+            return false;
+        }
+        
+        return $wpdb->delete( $table_name, [ 'id' => intval( $id ) ] );
     }
 
     /**
@@ -595,14 +678,25 @@ class WC_Advanced_BOGO {
 		$now = date( 'Y-m-d' );
 		
 		foreach ( $rules as $index => $rule ) {
-			if ( ! empty( $rule->buy_product ) && ( $rule->buy_product === 'all' || intval( $rule->buy_product ) === $product->get_id() ) ) {
-				$buy_qty     = intval( $rule->buy_qty );
-				$get_qty     = intval( $rule->get_qty ) ?: 1;
-				$get_product = wc_get_product( intval( $rule->get_product ) );
-				$discount    = intval( $rule->discount );
+			// Ensure rule has required properties
+			if ( ! $rule || empty( $rule->buy_product ) || empty( $rule->get_product ) ) {
+				continue;
+			}
+			
+			$buy_product = ! empty( $rule->buy_product ) ? $rule->buy_product : '';
+			$get_product_id = ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0;
+			
+			if ( $buy_product && ( $buy_product === 'all' || intval( $buy_product ) === $product->get_id() ) ) {
+				$buy_qty     = ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1;
+				$get_qty     = ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1;
+				$get_product = wc_get_product( $get_product_id );
+				$discount    = ! empty( $rule->discount ) ? intval( $rule->discount ) : 0;
 
-				if ( !empty( $rule->start_date ) && $rule->start_date > $now ) continue;
-            	if ( !empty( $rule->end_date ) && $rule->end_date < $now ) continue;
+				$start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+				$end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+				
+				if ( $start_date && $start_date > $now ) continue;
+            	if ( $end_date && $end_date < $now ) continue;
 
 				if ( $get_product ) {
 					$discount_text = ( $discount == 100 )
@@ -612,7 +706,7 @@ class WC_Advanced_BOGO {
 					$get_image = $get_product->get_image( 'thumbnail' );
 					$get_name  = $get_product->get_name();
 					$current_product_id = $product->get_id();
-					$buy_product_id = $rule->buy_product === 'all' ? $current_product_id : intval( $rule->buy_product );
+					$buy_product_id = $buy_product === 'all' ? $current_product_id : intval( $buy_product );
 
 					// Get the selected template (default to template1)
 					$selected_template = isset( $template_settings['selected_template'] ) ? $template_settings['selected_template'] : 1;
@@ -828,18 +922,22 @@ class WC_Advanced_BOGO {
 	    $now = date( 'Y-m-d' );
 
 		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
+			// Ensure rule has required properties
+			if ( ! $rule || empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
 				continue;
 			}
 
-			if ( !empty( $rule->start_date ) && $rule->start_date > $now ) continue;
-            if ( !empty( $rule->end_date ) && $rule->end_date < $now ) continue;
+			$start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+			$end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+			
+			if ( $start_date && $start_date > $now ) continue;
+            if ( $end_date && $end_date < $now ) continue;
 
-			$buy_product_id = $rule->buy_product; // may be 'all'
-			$get_product_id = intval( $rule->get_product );
-			$buy_qty        = intval( $rule->buy_qty );
-			$get_qty        = intval( $rule->get_qty ) ?: 1;
-			$discount       = intval( $rule->discount );
+			$buy_product_id = ! empty( $rule->buy_product ) ? $rule->buy_product : ''; // may be 'all'
+			$get_product_id = ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0;
+			$buy_qty        = ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1;
+			$get_qty        = ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1;
+			$discount       = ! empty( $rule->discount ) ? intval( $rule->discount ) : 0;
 
 			// Count eligible BUY items (excluding gift lines)
 			$buy_count = 0;
@@ -986,18 +1084,22 @@ class WC_Advanced_BOGO {
 		$now = date( 'Y-m-d' );
 		
 		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
+			// Ensure rule has required properties
+			if ( ! $rule || empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
 				continue;
 			}
 
-			if ( !empty( $rule->start_date ) && $rule->start_date > $now ) continue;
-			if ( !empty( $rule->end_date ) && $rule->end_date < $now ) continue;
+			$start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+			$end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+			
+			if ( $start_date && $start_date > $now ) continue;
+			if ( $end_date && $end_date < $now ) continue;
 
-			$buy_product_id = $rule->buy_product; // may be 'all'
-			$get_product_id = intval( $rule->get_product );
-			$buy_qty = intval( $rule->buy_qty );
-			$get_qty = intval( $rule->get_qty ) ?: 1;
-			$discount = intval( $rule->discount );
+			$buy_product_id = ! empty( $rule->buy_product ) ? $rule->buy_product : '';
+			$get_product_id = ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0;
+			$buy_qty = ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1;
+			$get_qty = ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1;
+			$discount = ! empty( $rule->discount ) ? intval( $rule->discount ) : 0;
 
 			// Check if this cart item matches the buy product
 			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
@@ -1039,18 +1141,22 @@ class WC_Advanced_BOGO {
 		$hint_html = '';
 		
 		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
+			// Ensure rule has required properties
+			if ( ! $rule || empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
 				continue;
 			}
 
-			if ( !empty( $rule->start_date ) && $rule->start_date > $now ) continue;
-			if ( !empty( $rule->end_date ) && $rule->end_date < $now ) continue;
+			$start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+			$end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+			
+			if ( $start_date && $start_date > $now ) continue;
+			if ( $end_date && $end_date < $now ) continue;
 
-			$buy_product_id = $rule->buy_product; // may be 'all'
-			$get_product_id = intval( $rule->get_product );
-			$buy_qty = intval( $rule->buy_qty );
-			$get_qty = intval( $rule->get_qty ) ?: 1;
-			$discount = intval( $rule->discount );
+			$buy_product_id = ! empty( $rule->buy_product ) ? $rule->buy_product : '';
+			$get_product_id = ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0;
+			$buy_qty = ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1;
+			$get_qty = ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1;
+			$discount = ! empty( $rule->discount ) ? intval( $rule->discount ) : 0;
 
 			// Check if this cart item matches the buy product
 			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
@@ -1098,18 +1204,22 @@ class WC_Advanced_BOGO {
 		$hint_data = array();
 		
 		foreach ( $rules as $index => $rule ) {
-			if ( empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
+			// Ensure rule has required properties
+			if ( ! $rule || empty( $rule->get_product ) || empty( $rule->buy_qty ) ) {
 				continue;
 			}
 
-			if ( !empty( $rule->start_date ) && $rule->start_date > $now ) continue;
-			if ( !empty( $rule->end_date ) && $rule->end_date < $now ) continue;
+			$start_date = ! empty( $rule->start_date ) ? $rule->start_date : '';
+			$end_date = ! empty( $rule->end_date ) ? $rule->end_date : '';
+			
+			if ( $start_date && $start_date > $now ) continue;
+			if ( $end_date && $end_date < $now ) continue;
 
-			$buy_product_id = $rule->buy_product; // may be 'all'
-			$get_product_id = intval( $rule->get_product );
-			$buy_qty = intval( $rule->buy_qty );
-			$get_qty = intval( $rule->get_qty ) ?: 1;
-			$discount = intval( $rule->discount );
+			$buy_product_id = ! empty( $rule->buy_product ) ? $rule->buy_product : '';
+			$get_product_id = ! empty( $rule->get_product ) ? intval( $rule->get_product ) : 0;
+			$buy_qty = ! empty( $rule->buy_qty ) ? intval( $rule->buy_qty ) : 1;
+			$get_qty = ! empty( $rule->get_qty ) ? intval( $rule->get_qty ) : 1;
+			$discount = ! empty( $rule->discount ) ? intval( $rule->discount ) : 0;
 
 			// Check if this product matches the buy product
 			if ( $buy_product_id === 'all' || $product_id == $buy_product_id ) {
