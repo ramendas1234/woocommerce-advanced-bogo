@@ -31,11 +31,11 @@ class WC_Advanced_BOGO {
         // Database installation
         register_activation_hook( __FILE__, array( $this, 'create_database_table' ) );
         
-        // Migration from options to database
-        add_action( 'admin_init', array( $this, 'maybe_migrate_data' ) );
+        // Migration from options to database (temporarily disabled for safety)
+        // add_action( 'admin_init', array( $this, 'maybe_migrate_data' ) );
         
-        // Ensure database setup on init
-        add_action( 'init', array( $this, 'ensure_database_setup' ) );
+        // Ensure database setup on init (temporarily disabled for safety)
+        // add_action( 'init', array( $this, 'ensure_database_setup' ) );
     }
 
 	/**
@@ -59,6 +59,9 @@ class WC_Advanced_BOGO {
 			// Track BOGO discounts in orders
 			add_action( 'woocommerce_checkout_create_order_line_item', [ $this, 'save_bogo_order_item_meta' ], 10, 4 );
 			add_action( 'woocommerce_checkout_order_processed', [ $this, 'save_bogo_order_meta' ], 10, 3 );
+			
+			// Reset migration for testing (remove in production)
+			add_action( 'init', [ $this, 'reset_migration_for_testing' ] );
 		}
 	}
 
@@ -214,6 +217,11 @@ class WC_Advanced_BOGO {
         if ( $db_version !== '1.0' ) {
             $this->create_database_table();
         }
+        
+        // Force migration if not completed
+        if ( ! get_option( 'wc_advanced_bogo_migrated' ) ) {
+            $this->maybe_migrate_data();
+        }
     }
 
     /**
@@ -290,14 +298,17 @@ class WC_Advanced_BOGO {
             $this->save_rule( $rule_data );
         }
         
-        // Mark migration as complete
+        // Mark migration as complete (but keep old options as backup for now)
         update_option( 'wc_advanced_bogo_migrated', true );
         
-        // If no rules exist after migration, create a sample rule for testing
-        $existing_rules = $this->get_rules();
-        if ( empty( $existing_rules ) ) {
-            $this->create_sample_rule();
-        }
+        // Don't delete old options immediately - keep them as fallback
+        // delete_option( self::OPTION_KEY ); // Commented out for safety
+        
+        // Only create sample rule if explicitly requested (for development)
+        // $existing_rules = $this->get_rules();
+        // if ( empty( $existing_rules ) && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+        //     $this->create_sample_rule();
+        // }
     }
 
     /**
@@ -336,17 +347,38 @@ class WC_Advanced_BOGO {
      * Create a sample rule for testing
      */
     private function create_sample_rule() {
+        // Get first product for testing
+        $products = wc_get_products( [ 'limit' => 1, 'status' => 'publish' ] );
+        $get_product_id = ! empty( $products ) ? $products[0]->get_id() : 0;
+        
         $this->save_rule( [
-            'title' => 'Buy 2 Any Product, Get 1 Any Product at 50% off',
+            'title' => 'Buy 2 Any Product, Get 1 Product at 50% off',
             'enabled' => 1,
             'buy_product' => 'all',
             'buy_qty' => 2,
-            'get_product' => 0, // Will be set to a real product when testing
+            'get_product' => $get_product_id,
             'get_qty' => 1,
             'discount' => 50,
             'start_date' => null,
             'end_date' => null,
         ] );
+    }
+
+    /**
+     * Reset migration for testing (can be called via URL parameter)
+     */
+    public function reset_migration_for_testing() {
+        if ( isset( $_GET['reset_bogo_migration'] ) && current_user_can( 'manage_options' ) ) {
+            delete_option( 'wc_advanced_bogo_migrated' );
+            delete_option( 'wc_advanced_bogo_db_version' );
+            
+            global $wpdb;
+            $table_name = $wpdb->prefix . self::TABLE_NAME;
+            $wpdb->query( "DROP TABLE IF EXISTS $table_name" );
+            
+            wp_redirect( admin_url( 'admin.php?page=wc-advanced-bogo' ) );
+            exit;
+        }
     }
 
     public function add_admin_menu() {
@@ -385,11 +417,13 @@ class WC_Advanced_BOGO {
     public function get_rules( $args = [] ) {
         global $wpdb;
         
+        // COMPATIBILITY MODE: Use old options if database table doesn't exist or has issues
         $table_name = $wpdb->prefix . self::TABLE_NAME;
+        $table_exists = ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) == $table_name );
         
-        // Check if table exists, if not create it
-        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
-            $this->create_database_table();
+        if ( ! $table_exists ) {
+            // Fallback to old options system
+            return $this->get_rules_from_options( $args );
         }
         
         $defaults = [
@@ -423,8 +457,119 @@ class WC_Advanced_BOGO {
         
         $results = $wpdb->get_results( $sql );
         
+        // CRITICAL: Always fallback to old options if database is empty
+        // This ensures frontend functionality continues to work during transition
+        if ( empty( $results ) ) {
+            $old_rules = get_option( self::OPTION_KEY, [] );
+            if ( ! empty( $old_rules ) ) {
+                // Convert old array format to object format for compatibility
+                $converted_rules = [];
+                foreach ( $old_rules as $index => $rule ) {
+                    // Skip invalid rules
+                    if ( empty( $rule['buy_product'] ) || empty( $rule['get_product'] ) ) {
+                        continue;
+                    }
+                    
+                    $obj = new stdClass();
+                    $obj->id = $index + 1;
+                    $obj->title = $this->generate_rule_title( $rule );
+                    $obj->enabled = 1;
+                    $obj->buy_product = $rule['buy_product'] ?? '';
+                    $obj->buy_qty = intval( $rule['buy_qty'] ?? 1 );
+                    $obj->get_product = intval( $rule['get_product'] ?? 0 );
+                    $obj->get_qty = intval( $rule['get_qty'] ?? 1 );
+                    $obj->discount = intval( $rule['discount'] ?? 0 );
+                    $obj->start_date = $rule['start_date'] ?? null;
+                    $obj->end_date = $rule['end_date'] ?? null;
+                    $obj->date_created = current_time( 'mysql' );
+                    $obj->date_modified = current_time( 'mysql' );
+                    
+                    $converted_rules[] = $obj;
+                }
+                return $converted_rules;
+            }
+        }
+        
         // Return empty array if query failed
         return is_array( $results ) ? $results : [];
+    }
+
+    /**
+     * Get rules from old options system (compatibility fallback)
+     */
+    private function get_rules_from_options( $args = [] ) {
+        $old_rules = get_option( self::OPTION_KEY, [] );
+        
+        if ( empty( $old_rules ) ) {
+            return [];
+        }
+        
+        $converted_rules = [];
+        foreach ( $old_rules as $index => $rule ) {
+            // Skip invalid rules
+            if ( empty( $rule['buy_product'] ) || empty( $rule['get_product'] ) ) {
+                continue;
+            }
+            
+            // Apply enabled filter if specified
+            if ( isset( $args['enabled'] ) && $args['enabled'] !== null ) {
+                // In old system, all rules were considered enabled
+                if ( $args['enabled'] == 0 ) {
+                    continue;
+                }
+            }
+            
+            $obj = new stdClass();
+            $obj->id = $index + 1;
+            $obj->title = $this->generate_rule_title( $rule );
+            $obj->enabled = 1;
+            $obj->buy_product = $rule['buy_product'] ?? '';
+            $obj->buy_qty = intval( $rule['buy_qty'] ?? 1 );
+            $obj->get_product = intval( $rule['get_product'] ?? 0 );
+            $obj->get_qty = intval( $rule['get_qty'] ?? 1 );
+            $obj->discount = intval( $rule['discount'] ?? 0 );
+            $obj->start_date = $rule['start_date'] ?? null;
+            $obj->end_date = $rule['end_date'] ?? null;
+            $obj->date_created = current_time( 'mysql' );
+            $obj->date_modified = current_time( 'mysql' );
+            
+            $converted_rules[] = $obj;
+        }
+        
+        return $converted_rules;
+    }
+
+    /**
+     * Save rule to options system (emergency fallback)
+     */
+    private function save_rule_to_options( $data, $id = 0 ) {
+        $old_rules = get_option( self::OPTION_KEY, [] );
+        
+        $rule_data = [
+            'buy_product' => $data['buy_product'] ?? '',
+            'buy_qty' => $data['buy_qty'] ?? 1,
+            'get_product' => $data['get_product'] ?? 0,
+            'get_qty' => $data['get_qty'] ?? 1,
+            'discount' => $data['discount'] ?? 0,
+            'start_date' => $data['start_date'] ?? '',
+            'end_date' => $data['end_date'] ?? '',
+        ];
+        
+        if ( $id > 0 ) {
+            $index = $id - 1;
+            if ( isset( $old_rules[$index] ) ) {
+                $old_rules[$index] = $rule_data;
+            } else {
+                $old_rules[] = $rule_data;
+                $id = count( $old_rules );
+            }
+        } else {
+            $old_rules[] = $rule_data;
+            $id = count( $old_rules );
+        }
+        
+        update_option( self::OPTION_KEY, $old_rules );
+        return $id;
     }
     
     /**
@@ -434,10 +579,31 @@ class WC_Advanced_BOGO {
         global $wpdb;
         
         $table_name = $wpdb->prefix . self::TABLE_NAME;
+        $table_exists = ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) == $table_name );
         
-        // Check if table exists, if not create it
-        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
-            $this->create_database_table();
+        if ( ! $table_exists ) {
+            // Fallback to old options system
+            $old_rules = get_option( self::OPTION_KEY, [] );
+            $index = intval( $id ) - 1; // Convert ID back to index
+            
+            if ( isset( $old_rules[$index] ) ) {
+                $rule = $old_rules[$index];
+                $obj = new stdClass();
+                $obj->id = $id;
+                $obj->title = $this->generate_rule_title( $rule );
+                $obj->enabled = 1;
+                $obj->buy_product = $rule['buy_product'] ?? '';
+                $obj->buy_qty = intval( $rule['buy_qty'] ?? 1 );
+                $obj->get_product = intval( $rule['get_product'] ?? 0 );
+                $obj->get_qty = intval( $rule['get_qty'] ?? 1 );
+                $obj->discount = intval( $rule['discount'] ?? 0 );
+                $obj->start_date = $rule['start_date'] ?? null;
+                $obj->end_date = $rule['end_date'] ?? null;
+                $obj->date_created = current_time( 'mysql' );
+                $obj->date_modified = current_time( 'mysql' );
+                
+                return $obj;
+            }
             return null;
         }
         
@@ -457,10 +623,17 @@ class WC_Advanced_BOGO {
         global $wpdb;
         
         $table_name = $wpdb->prefix . self::TABLE_NAME;
+        $table_exists = ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) == $table_name );
         
-        // Check if table exists, if not create it
-        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) != $table_name ) {
+        if ( ! $table_exists ) {
+            // Try to create table
             $this->create_database_table();
+            $table_exists = ( $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) == $table_name );
+            
+            // If table creation failed, fallback to options (for emergency compatibility)
+            if ( ! $table_exists ) {
+                return $this->save_rule_to_options( $data, $id );
+            }
         }
         
         $defaults = [
@@ -667,7 +840,18 @@ class WC_Advanced_BOGO {
 	public function display_bogo_message() {
 		global $product;
 
+		// Ensure we have a valid product
+		if ( ! $product || ! is_object( $product ) ) {
+			return;
+		}
+
 		$rules = $this->get_rules( [ 'enabled' => 1 ] );
+		
+		// If no rules, don't display anything
+		if ( empty( $rules ) ) {
+			return;
+		}
+		
 		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
 		
 		// Ensure template_settings is an array (handle old string data)
@@ -712,7 +896,8 @@ class WC_Advanced_BOGO {
 					$selected_template = isset( $template_settings['selected_template'] ) ? $template_settings['selected_template'] : 1;
 					
 					// Generate template based on selection
-					echo '<div class="bogo-template-wrapper" data-product-id="' . $product->get_id() . '" data-rule-index="' . $rule->id . '">';
+					$rule_id = ! empty( $rule->id ) ? intval( $rule->id ) : $index;
+					echo '<div class="bogo-template-wrapper" data-product-id="' . $product->get_id() . '" data-rule-index="' . $rule_id . '">';
 					echo $this->get_bogo_template( 
 						$selected_template, 
 						$buy_qty, 
@@ -723,7 +908,7 @@ class WC_Advanced_BOGO {
 						$buy_product_id, 
 						$get_product->get_id(), 
 						$discount, 
-						$rule->id 
+						$rule_id 
 					);
 					echo '</div>';
 				}
@@ -919,6 +1104,12 @@ class WC_Advanced_BOGO {
 	    }
 
 	    $rules = $this->get_rules( [ 'enabled' => 1 ] );
+	    
+	    // If no rules, don't apply any discounts
+	    if ( empty( $rules ) ) {
+	        return;
+	    }
+	    
 	    $now = date( 'Y-m-d' );
 
 		foreach ( $rules as $index => $rule ) {
@@ -956,7 +1147,8 @@ class WC_Advanced_BOGO {
 			}
 
 			// Define unique gift hash key to allow multiple gift lines for same get_product
-			$gift_key = 'wc_advanced_bogo_gift_' . $rule->id;
+			$rule_id = ! empty( $rule->id ) ? intval( $rule->id ) : $index;
+			$gift_key = 'wc_advanced_bogo_gift_' . $rule_id;
 
 			// Check if gift already exists for this rule
 			$gift_found = false;
@@ -1081,6 +1273,12 @@ class WC_Advanced_BOGO {
 	 */
 	public function display_cart_item_bogo_hint( $cart_item, $cart_item_key ) {
 		$rules = $this->get_rules( [ 'enabled' => 1 ] );
+		
+		// If no rules, don't display anything
+		if ( empty( $rules ) ) {
+			return;
+		}
+		
 		$now = date( 'Y-m-d' );
 		
 		foreach ( $rules as $index => $rule ) {
@@ -1137,6 +1335,12 @@ class WC_Advanced_BOGO {
 	 */
 	public function display_checkout_item_bogo_hint( $quantity_html, $cart_item, $cart_item_key ) {
 		$rules = $this->get_rules( [ 'enabled' => 1 ] );
+		
+		// If no rules, return original quantity HTML
+		if ( empty( $rules ) ) {
+			return $quantity_html;
+		}
+		
 		$now = date( 'Y-m-d' );
 		$hint_html = '';
 		
@@ -1199,6 +1403,18 @@ class WC_Advanced_BOGO {
 		
 		$product_id = intval( $_POST['product_id'] );
 		$rules = $this->get_rules( [ 'enabled' => 1 ] );
+		
+		// If no rules, return empty response
+		if ( empty( $rules ) ) {
+			wp_send_json_success( array( 
+				'hint' => '',
+				'remaining_qty' => 0,
+				'get_qty' => 0,
+				'get_product_name' => '',
+				'discount_text' => ''
+			) );
+		}
+		
 		$now = date( 'Y-m-d' );
 		$hint = '';
 		$hint_data = array();
@@ -1247,12 +1463,13 @@ class WC_Advanced_BOGO {
 							🎁 Add <strong>' . $remaining_qty . ' more</strong> and get <strong>' . $get_qty . 'x ' . esc_html( $get_product->get_name() ) . '</strong> ' . esc_html( $discount_text ) . '
 						</div>';
 						
+						$rule_id = ! empty( $rule->id ) ? intval( $rule->id ) : $index;
 						$hint_data = array(
 							'remaining_qty' => $remaining_qty,
 							'get_qty' => $get_qty,
 							'get_product_name' => $get_product->get_name(),
 							'discount_text' => $discount_text,
-							'rule_index' => $rule->id,
+							'rule_index' => $rule_id,
 							'html' => $hint
 						);
 						break;
