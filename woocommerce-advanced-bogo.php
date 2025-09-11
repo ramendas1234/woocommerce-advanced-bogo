@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Advanced BOGO
  * Description: Adds advanced BOGO (Buy One Get One) functionality to WooCommerce.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: StoreApps
  * Requires at least: 5.8
  * Requires PHP: 7.4
