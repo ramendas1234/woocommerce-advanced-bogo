@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg">
+<metadata>Copyright (C) 2020 by original authors @ fontello.com</metadata>
+<defs>
+<font id="fontawesomebogo" horiz-adv-x="1000" >
+<font-face font-family="fontawesomebogo" font-weight="400" font-stretch="normal" units-per-em="1000" ascent="850" descent="-150" />
+<missing-glyph horiz-adv-x="1000" />
+<glyph glyph-name="level-up" unicode="&#xf148;" d="M568 514q-10-21-32-21h-107v-482q0-8-5-13t-13-5h-393q-12 0-16 10-5 11 2 19l89 108q5 6 14 6h179v357h-107q-23 0-33 21-9 20 5 38l179 214q10 12 27 12t28-12l178-214q15-18 5-38z" horiz-adv-x="571.4" />
+
+<glyph glyph-name="level-down" unicode="&#xf149;" d="M18 707h393q7 0 12-5t6-13v-482h107q22 0 32-20t-5-39l-178-214q-11-13-28-13t-27 13l-179 214q-14 17-5 39 10 20 33 20h107v357h-179q-8 0-14 6l-89 108q-7 7-2 19 5 10 16 10z" horiz-adv-x="571.4" />
+</font>
+</defs>
+</svg>

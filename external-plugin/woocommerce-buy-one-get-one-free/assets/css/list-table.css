@@ -1,0 +1,50 @@
+.post-type-shop_bogof_rule .wp-list-table .column-name {
+	width: inherit;
+}
+
+.post-type-shop_bogof_rule .wp-list-table .column-min_quantity,
+.post-type-shop_bogof_rule .wp-list-table .column-free_quantity,
+.post-type-shop_bogof_rule .wp-list-table .column-cart_limit {
+	width: 110px;
+}
+
+.post-type-shop_bogof_rule .wp-list-table .column-type,
+.post-type-shop_bogof_rule .wp-list-table th#type,
+.post-type-shop_bogof_rule .wp-list-table .column-applies_to,
+.post-type-shop_bogof_rule .wp-list-table th#applies_to,
+.post-type-shop_bogof_rule .wp-list-table .column-quantity_rule,
+.post-type-shop_bogof_rule .wp-list-table th#quantity_rule {
+	width: 20%;
+}
+
+.post-type-shop_bogof_rule .wp-list-table .column-exclude_rules {
+	width: 130px;
+}
+
+.post-type-shop_bogof_rule .wp-list-table td.column-exclude_rules {
+	text-align: center;
+}
+
+.post-type-shop_bogof_rule .wp-list-table td.column-exclude_rules span.status-enabled {
+	margin: 0 auto;
+}
+
+.post-type-shop_bogof_rule .wp-list-table .column-enabled {
+	width: 80px;
+}
+
+.post-type-shop_bogof_rule .wp-list-table .wc-bogof-rule-toggle-enabled {
+	padding-top: 1px;
+	display: block;
+	outline: 0;
+	box-shadow: none;
+}
+
+.wc-bogof-rule-toggle-enabled .woocommerce-input-toggle {
+	box-sizing: content-box !important;
+}
+
+a.wc-bogof-rule-toggle-enabled:focus {
+	box-shadow: none;
+	outline: none;
+}

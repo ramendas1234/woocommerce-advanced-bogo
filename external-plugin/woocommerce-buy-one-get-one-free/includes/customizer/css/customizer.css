@@ -1,0 +1,658 @@
+:root {
+	--wc-bogof-customizer-color-1: #3582c4;
+	--wc-bogof-customizer-color-2: #2271b1;
+	--wc-bogof-customizer-color-3: #fff;
+	--wc-bogof-customizer-color-4: #dcdcde;
+	--wc-bogof-customizer-color-5: #0000001a;
+	--wc-bogof-customizer-color-6: #a7aaad;
+}
+
+#customize-theme-controls [id^="sub-accordion-section-wc_bogof_mods_gifts"] {
+	padding: 12px !important;
+}
+
+li.customize-control.wc-bogof-customize-control {
+	margin-bottom: 16px;
+}
+
+li.customize-control.wc-bogof-customize-control > .wc-bogof-control-wrap {
+	padding-left: 12px;
+	padding-right: 12px;
+}
+
+li.customize-control.wc-bogof-customize-control.wc-bogof-spacing > .wc-bogof-control-wrap {
+	padding-bottom: 16px;
+	padding-top: 14px;
+}
+
+li.customize-control.wc-bogof-customize-control.wc-bogof-top-spacing > .wc-bogof-control-wrap {
+	padding-top: 16px;
+}
+
+li.customize-control.wc-bogof-customize-control.wc-bogof-bottom-spacing > .wc-bogof-control-wrap {
+	padding-bottom: 16px;
+}
+
+li.customize-control.wc-bogof-customize-control.wc-bogof-divider > .wc-bogof-control-wrap {
+	padding-bottom: 24px;
+	border-bottom: 1px solid var(--wc-bogof-customizer-color-4);
+}
+
+li.customize-control.wc-bogof-customize-control .customize-control-title {
+	line-height: 1;
+	margin: 0 0 12px 0;
+}
+
+/**
+ * Customize control color.
+ */
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color {
+	position: relative;
+	margin-bottom: 16px;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .customize-control-title {
+	margin: 0 0 0 12px;
+	font-size: 13px;
+	line-height: 30px;
+	font-weight: 500;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .customize-control-content {
+	display: flex;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container.wp-picker-active {
+	display: block;
+	width: 100%;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container button.wp-color-result {
+	position: absolute;
+	top: 0;
+	right: 12px;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container button.wp-color-result {
+	border-radius: 50%;
+	border-color: #777;
+	box-shadow: none;
+	padding: 0 0 0 30px;
+	height: 30px;
+	max-width: 30px;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container button.wp-color-result:focus {
+	box-shadow: none;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container button.wp-color-result .wp-color-result-text {
+	display: none;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container.wp-picker-active .wp-picker-open + .wp-picker-input-wrap {
+	display: flex;
+	position: relative;
+	justify-content: end;
+	width: calc(100% - 44px);
+	padding: 10px 10px 0 10px;
+	margin: 14px 12px 0 12px;
+	background-color: var(--wc-bogof-customizer-color-3);
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container.wp-picker-active .wp-picker-open + .wp-picker-input-wrap::before {
+	content: "";
+	position: absolute;
+	right: 11px;
+	top: -10px;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 10px 10px 10px;
+	border-color: transparent transparent var(--wc-bogof-customizer-color-3) transparent;
+	z-index: 10;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container.wp-picker-active .wp-picker-holder {
+	margin: 0 12px;
+	display: flex;
+	justify-content: end;
+	background-color: var(--wc-bogof-customizer-color-3);
+	border-radius: 4px;
+	padding-bottom: 10px;
+}
+
+li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container.wp-picker-active .iris-picker {
+	margin: 0;
+	border: none;
+}
+
+li#customize-control-wc_bogof_mods_button_color {
+	margin-top: 14px;
+}
+
+li#customize-control-wc_bogof_mods_button_bg_color_h {
+	padding-bottom: 24px;
+	border-bottom: 1px solid var(--wc-bogof-customizer-color-4);
+}
+
+/**
+ * .wc-bogof-slider-control
+ */
+.wc-bogof-slider-control .wc-bogof-slider-area {
+	display: flex;
+	align-items: center;
+	flex-flow: row nowrap;
+}
+
+.wc-bogof-slider-control .wc-bogof-slider-area .wc-bogof-slider {
+	position: relative;
+	height: 6px;
+	background-color: var(--wc-bogof-customizer-color-5);
+	cursor: pointer;
+	width: calc(100% - 90px);
+}
+
+.wc-bogof-slider-control .wc-bogof-slider-area .wc-bogof-slider .ui-slider-handle {
+	height: 16px;
+	width: 16px;
+	background-color: var(--wc-bogof-customizer-color-1);
+	display: inline-block;
+	position: absolute;
+	top: 50%;
+	-webkit-transform: translateY(-50%) translateX(-4px);
+	transform: translateY(-50%) translateX(-4px);
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.wc-bogof-slider-control .wc-bogof-slider-area .wc-bogof-slider-input-wrapper {
+	width: 90px;
+}
+
+.wc-bogof-slider-control .wc-bogof-slider-area .wc-bogof-slider-input-wrapper input[type="number"] {
+	margin-left: 16px;
+	max-width: calc(100% - 16px);
+}
+
+.wc-bogof-control-wrap .wc-bogof-slider-control .wc-bogof-control-label.-has-tools {
+	margin-bottom: 8px;
+}
+
+/**
+ * Label with tools
+ */
+
+.wc-bogof-control-wrap .wc-bogof-control-label.-has-tools {
+	display: flex;
+	align-items: center;
+	flex-flow: row nowrap;
+	margin-bottom: 12px;
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label.-has-tools > .customize-control-title {
+	margin-bottom: 0;
+	line-height: 23px;
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label.-has-tools .wc-bogof-label-tools {
+	display: flex;
+	margin-left: auto;
+	align-items: center;
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label.-has-tools .wc-bogof-label-tools .wc-bogof-tools-unit {
+	font-size: 11px;
+	text-transform: uppercase;
+	line-height: 11px;
+	margin-bottom: 3px;
+	padding: 0 6px;
+	font-weight: 600;
+	border-right: 1px solid var(--wc-bogof-customizer-color-4);
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label button.wc-bogof-reset-control {
+	background: transparent;
+	box-shadow: none;
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	color: var(--wc-bogof-customizer-color-2);
+	padding: 4px;
+	line-height: 22px;
+	font-size: 12px;
+	align-items: center;
+	appearance: none;
+	-webkit-appearance: none;
+	border: 0;
+	display: inline-flex;
+	font-family: inherit;
+	font-weight: 400;
+	text-decoration: none;
+
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label button.wc-bogof-reset-control:disabled {
+	color: var(--wc-bogof-customizer-color-6);
+	opacity: 1;
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label button.wc-bogof-reset-control > .dashicons {
+	font-size: 12px;
+	width: 12px;
+	height: 12px;
+}
+
+/**
+ * Responsive Tools
+ */
+.wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools {
+	margin-left: 8px;
+	display: flex;
+	align-items: center;
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools .components-button {
+	background: transparent;
+	box-shadow: none;
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+	margin: 0 0 0 8px;
+	color: #777;
+	padding: 0;
+	line-height: 22px;
+	font-size: 16px;
+	align-items: center;
+	appearance: none;
+	-webkit-appearance: none;
+	border: 0;
+	display: inline-flex;
+	font-family: inherit;
+	font-weight: 400;
+	text-decoration: none;
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools .components-button:hover {
+	color: var(--wc-bogof-customizer-color-2);
+}
+
+.wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools .components-button > .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+.preview-desktop .wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools .components-button[data-device="desktop"],
+.preview-tablet .wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools .components-button[data-device="tablet"],
+.preview-mobile .wc-bogof-control-wrap .wc-bogof-control-label .wc-bogof-responsive-tools .components-button[data-device="mobile"] {
+	color: #1d2327;
+}
+
+.preview-desktop .wc-bogof-responsive-control .-show-if-tablet,
+.preview-desktop .wc-bogof-responsive-control .-show-if-mobile,
+.preview-tablet .wc-bogof-responsive-control .-show-if-desktop,
+.preview-tablet .wc-bogof-responsive-control .-show-if-mobile,
+.preview-mobile .wc-bogof-responsive-control .-show-if-desktop,
+.preview-mobile .wc-bogof-responsive-control .-show-if-tablet {
+	display: none !important;
+}
+
+/**
+ * .wc-bogof-accordion
+ */
+
+li.customize-control.customize-control-wc-bogof-accordion {
+	margin: 0;
+	padding: 0;
+}
+
+li.customize-control.customize-control-wc-bogof-accordion.expanded {
+	margin-bottom: 15px;
+}
+
+li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title {
+	cursor: pointer;
+	padding: 10px 30px 11px 12px;
+	font-size: 12px;
+	text-transform: uppercase !important;
+	font-weight: 600;
+	line-height: 1.55;
+	margin: 0 -12px;
+	background-color: var(--wc-bogof-customizer-color-3);
+	border-top: 1px solid var(--wc-bogof-customizer-color-4);
+	border-bottom: 1px solid var(--wc-bogof-customizer-color-4);
+	border-left: 4px solid var(--wc-bogof-customizer-color-3);
+	position: relative;
+}
+
+li.customize-control.customize-control-wc-bogof-accordion:not(.expanded):not(.-last) > .wc-bogof-accordion-title {
+	border-bottom: 0;
+}
+
+li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title:hover,
+li.customize-control.customize-control-wc-bogof-accordion.expanded .wc-bogof-accordion-title {
+	background-color: #f6f7f7;
+	border-left-color: var(--wc-bogof-customizer-color-2);
+}
+
+li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title::after {
+	display: block;
+	font: normal 20px/1 dashicons;
+	text-decoration: none;
+	content: "\f347";
+	color: var(--wc-bogof-customizer-color-6);
+	position: absolute;
+	right: 10px;
+	top: calc(50% - 10px);
+}
+
+li.customize-control.customize-control-wc-bogof-accordion.expanded .wc-bogof-accordion-title::after {
+	content: "\f343";
+}
+
+li.customize-control.customize-control-wc-bogof-accordion.expanded .wc-bogof-accordion-title::after,
+li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title:hover:after {
+	color:var(--wc-bogof-customizer-color-2);
+}
+
+/**
+ * WC_BOGOF_Customize_Control_Font_Manager
+ */
+li.customize-control-wc-bogof-font-manager .customize-control-notifications-container {
+	margin: 0 !important;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-item .wc-bogof-font-manager-header {
+	display: flex;
+	align-items: center;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-item .wc-bogof-font-manager-header .wc-bogof-font-manager-label {
+	flex-grow: 1;
+	padding-left: 0;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-item .wc-bogof-font-manager-header button.wc-bogof-font-manager-toogle {
+	background: var(--wc-bogof-customizer-color-3);
+	border: 1px solid #777;
+	padding: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 30px;
+	height: 30px;
+	min-width: 30px;
+	margin: 0 5px;
+	border-radius: 100%;
+	flex-shrink: 0;
+	font-family: dashicons;
+	font-size: 18px;
+	line-height: 1;
+	text-transform: none;
+	text-rendering: auto;
+	font-style: normal;
+	cursor: pointer !important;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-item .wc-bogof-font-manager-header button.wc-bogof-font-manager-toogle:focus:not(:disabled) {
+	box-shadow: none;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-item .wc-bogof-font-manager-header button.wc-bogof-font-manager-toogle::before {
+	content: "\f464";
+}
+
+li.customize-control-wc-bogof-font-manager.expanded .wc-bogof-font-manager-item .wc-bogof-font-manager-header button.wc-bogof-font-manager-toogle::before {
+	content: "\f158"
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown {
+	background: var(--wc-bogof-customizer-color-3);
+	padding: 15px;
+	margin-top: 14px;
+	position: relative;
+	display: none;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown::before {
+	content: "";
+	position: absolute;
+	right: 11px;
+	top: -10px;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 0 10px 10px 10px;
+	border-color: transparent transparent var(--wc-bogof-customizer-color-3) transparent;
+	z-index: 10;
+}
+
+li.customize-control-wc-bogof-font-manager.expanded .wc-bogof-font-manager-controls-dropdown {
+	display: block;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown > .wc-bogof-font-manager-controls-container {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control {
+	flex-basis: calc(50% - 5px);
+	margin-bottom: 15px;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control:nth-child(2n) {
+	margin-left: 5px;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control:nth-child(2n+1) {
+	margin-right: 5px;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control.-font-size {
+	flex-basis: 100%;
+	margin: 0;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control label.customize-control-title {
+	font-size: 12px;
+	text-transform: uppercase;
+	font-weight: 500;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control select,
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control input {
+	font-size: 13px;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control .wc-bogof-slider-control .wc-bogof-slider-control-label {
+	margin-bottom: 2px;
+}
+
+li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control .wc-bogof-slider-control label.customize-control-title {
+	margin: 0;
+	font-size: 13px;
+	text-transform: none;
+}
+
+/**
+ * wc-bogof-radio-image
+ */
+li.customize-control-wc-bogof-radio-image input {
+	display: none;
+}
+
+li.customize-control-wc-bogof-radio-image .wc-bogof-img-choices {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 12px;
+}
+
+li.customize-control-wc-bogof-radio-image label {
+	display: inline-block;
+	flex-basis: calc(50% - 24px);
+	margin-right: 12px;
+	text-align: center;
+	cursor: pointer;
+}
+
+li.customize-control-wc-bogof-radio-image label > svg {
+	width: 100%;
+	height: auto;
+}
+
+li.customize-control-wc-bogof-radio-image input:checked + label > svg {
+	background-color: var(--wc-bogof-customizer-color-1);
+}
+
+/**
+ * wc-bogof-toggle
+ */
+li.customize-control-wc-bogof-toggle .wc-bogof-toggle-wrapper {
+	display: flex;
+}
+
+li.customize-control-wc-bogof-toggle a.wc-bogof-toggle-value {
+	display: block;
+	box-shadow: none;
+	outline: none;
+	flex-basis: 40px;
+}
+
+li.customize-control-wc-bogof-toggle a.wc-bogof-toggle-value:focus {
+	box-shadow: none;
+	outline: none;
+}
+
+li.customize-control-wc-bogof-toggle label.customize-control-title {
+	flex-basis: calc(100% - 40px);
+}
+
+li.customize-control-wc-bogof-toggle .wc-bogof-input-toggle {
+	box-sizing: content-box !important;
+	height: 16px;
+	width: 32px;
+	border: 2px solid var(--wc-bogof-customizer-color-1);
+	background-color: var(--wc-bogof-customizer-color-1);
+	display: inline-block;
+	text-indent: -9999px;
+	border-radius: 10em;
+	position: relative;
+	margin-top: -1px;
+	vertical-align: text-top;
+}
+
+li.customize-control-wc-bogof-toggle .wc-bogof-input-toggle.-disabled {
+	background-color: var(--wc-bogof-customizer-color-6);
+	border-color: var(--wc-bogof-customizer-color-6);
+}
+
+li.customize-control-wc-bogof-toggle .wc-bogof-input-toggle::before {
+	content: "";
+	display: block;
+	width: 16px;
+	height: 16px;
+	background: var(--wc-bogof-customizer-color-3);
+	position: absolute;
+	top: 0;
+	right: 0;
+	border-radius: 100%;
+}
+
+li.customize-control-wc-bogof-toggle .wc-bogof-input-toggle.-disabled::before {
+	right: auto;
+	left: 0;
+}
+
+/**
+ * wc-bogof-box-sides-control
+ */
+.wc-bogof-box-sides-control .wc-bogof-box-sides-controls-wrapper {
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+.wc-bogof-box-sides-control .wc-bogof-box-sides-controls-wrapper .wc-bogof-box-side-input {
+	margin-right: 4px;
+	flex-grow: 1;
+}
+
+.wc-bogof-box-sides-control .wc-bogof-box-sides-controls-wrapper .wc-bogof-box-side-input > input {
+	-moz-appearance: textfield;
+	appearance: textfield;
+	text-align: center;
+}
+.wc-bogof-box-sides-control .wc-bogof-box-sides-controls-wrapper .wc-bogof-box-side-input .wc-bogof-box-side-label {
+	display: block;
+	text-align: center;
+	text-transform: uppercase;
+	font-size: 10px;
+	font-weight: 400;
+	margin-top: 2px;
+	white-space: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/**
+ * wc-bogof-btn-group
+ */
+li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices {
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices > input {
+	display: none;
+}
+
+li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices > label {
+	flex: 1 1 0;
+	display: flex;
+	align-items: center;
+	border: 1px solid var(--wc-bogof-customizer-color-6);
+	border-left: none;
+	justify-content: center;
+	padding: 8px 0;
+	cursor: pointer;
+}
+
+li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices > label:first-of-type {
+	border-left: 1px solid var(--wc-bogof-customizer-color-6);
+	border-radius: 3px 0 0 3px;
+}
+
+li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices > label:last-of-type {
+	border-radius: 0 3px 3px 0;
+}
+
+li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices input:checked + label {
+	background-color: var(--wc-bogof-customizer-color-1);
+	color: var(--wc-bogof-customizer-color-3);
+	border-color: var(--wc-bogof-customizer-color-1);
+}
+
+body.wc-bogo-fse-customizer li.notice[data-code="site_editor_block_theme_notice"]{
+	display: none !important;
+}
+
+body.wc-bogo-fse-customizer #sub-accordion-panel-wc_bogof_mods button.customize-panel-back {
+	display: none;
+}
+body.wc-bogo-fse-customizer #customize-controls .panel-meta.customize-info .accordion-section-title {
+	margin-left: 0 !important;
+}
+
+/**
+ * Astra support.
+ */
+.customize-control.wc-bogof-customize-control .ast-control-tooltip {
+	top: 14px;
+	right: 12px;
+}
+
+.customize-control.wc-bogof-customize-control.customize-control-wc-bogof-toggle .ast-control-tooltip {
+	right: 55px;
+}

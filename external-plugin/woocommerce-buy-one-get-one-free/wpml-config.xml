@@ -1,0 +1,32 @@
+<wpml-config>
+	<custom-types>
+ 		<custom-type translate="1">shop_bogof_rule</custom-type>
+	</custom-types>
+    <custom-fields>
+		<custom-field action="copy">_enabled</custom-field>
+		<custom-field action="copy">_type</custom-field>
+		<custom-field action="copy">_action</custom-field>
+		<custom-field action="copy">_individual</custom-field>
+		<custom-field action="copy">_start_date</custom-field>
+		<custom-field action="copy">_end_date</custom-field>
+		<custom-field action="copy">_exclude_coupon_validation</custom-field>
+		<custom-field action="copy">_exclude_other_rules</custom-field>
+		<custom-field action="copy">_quantity_rules</custom-field>
+		<custom-field action="copy">_conditions</custom-field>
+		<custom-field action="ignore">_applies_to</custom-field>
+		<custom-field action="ignore">_free_product_id</custom-field>
+		<custom-field action="ignore">_gift_products</custom-field>
+    </custom-fields>
+	 <admin-texts>
+        <key name="wc_bogof_cyg_notice"/>
+        <key name="wc_bogof_cyg_notice_button_text"/>
+		<key name="wc_bogof_cyg_title"/>
+		<key name="wc_bogof_mods">
+			<key name="notice_text"/>
+			<key name="notice_button_text"/>
+			<key name="header_title"/>
+		</key>
+    </admin-texts>
+</wpml-config>
+
+

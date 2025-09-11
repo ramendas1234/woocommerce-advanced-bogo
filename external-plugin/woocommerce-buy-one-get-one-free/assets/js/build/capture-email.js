@@ -1,0 +1,1 @@
+jQuery((function(e){if("undefined"==typeof wc_bogof_capture_email_params)return!1;const{emailSelectors:t}=wc_bogof_capture_email_params;let o="";e(document).on("blur change",t.join(", "),(function(){o!==e(this).val()&&(o=e(this).val(),e(document.body).trigger("update_checkout"))}))}));

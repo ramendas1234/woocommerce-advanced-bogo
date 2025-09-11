@@ -1,0 +1,1874 @@
+# Copyright (C) 2021 Oscar Gare
+# This file is distributed under the same license as the WooCommerce Buy One Get One Free plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Buy One Get One Free 2.1.9\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-buy-"
+"one-get-one-free\n"
+"POT-Creation-Date: 2024-07-10T14:25:46+00:00\n"
+"PO-Revision-Date: 2024-07-10 16:30+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"X-Domain: wc-buy-one-get-one-free\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Plugin Name of the plugin
+msgid "WooCommerce Buy One Get One Free"
+msgstr "WooCommerce Buy One Get One Free"
+
+#. Plugin URI of the plugin
+msgid "https://woocommerce.com/products/buy-one-get-one-free/"
+msgstr "https://woocommerce.com/products/buy-one-get-one-free/"
+
+#. Description of the plugin
+msgid "Create Buy One, Get One Free deals in your WooCommerce store."
+msgstr ""
+"Cree ofertas de Compre uno, obtenga uno gratis en su tienda WooCommerce."
+
+#. Author of the plugin
+msgid "Oscar Gare"
+msgstr "Oscar Gare"
+
+#. Author URI of the plugin
+msgid "https://oscargare.com/"
+msgstr "https://oscargare.com/"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:78
+msgid ""
+"The \"Buy One Get One Free\" promotions are a great way to reward your "
+"customers and boost sales. They will appear here once created."
+msgstr ""
+"Las promociones Buy One Get One son una excelente manera de ofrecer "
+"recompensas a sus clientes. Aparecerán aquí una vez creados."
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:79
+msgid "Create your first promotion"
+msgstr "Crea tu primera promoción"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:92
+#: includes/admin/class-wc-bogof-admin-settings.php:116
+#: includes/customizer/config.php:26 includes/customizer/config.php:36
+msgid "Title"
+msgstr "Título"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:93
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:43
+msgid "Promotion type"
+msgstr "Tipo de promoción"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:94
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:193
+msgid "Offer details"
+msgstr "Detalles de la oferta"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:97
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:33
+msgid "Active"
+msgstr "Activo"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:98
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:96
+msgid "Priority"
+msgstr "Prioridad"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:154
+msgid "Duplicate this item"
+msgstr "Duplicar este elemento"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:154
+msgid "Duplicate"
+msgstr "Duplicar"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:199
+msgid "Promotion duplicated."
+msgstr "Promoción duplicada."
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:225
+#: includes/admin/class-wc-bogof-admin.php:207
+#: includes/class-wc-buy-one-get-one-free.php:138
+msgctxt "post status"
+msgid "Disabled"
+msgstr "Desactivado"
+
+#. Translators: 1: quantity to buy to get a promotion, 2 number of items that the customer gets, 3 percentage discount.
+#: includes/admin/class-wc-bogof-admin-list-table.php:249
+msgid "Buy %1$s gets %2$s (%3$s off)"
+msgstr "Compra %1$s obtiene %2$s (%3$s de descuento)"
+
+#. Translators: number.
+#: includes/admin/class-wc-bogof-admin-list-table.php:265
+msgid "+%s more"
+msgstr "+%s más"
+
+#: includes/admin/class-wc-bogof-admin-list-table.php:293
+#: includes/conditions/class-wc-bogof-condition-all-products.php:21
+msgid "All Products"
+msgstr "Todos los productos"
+
+#. Translators: %s Payment gateway name.
+#: includes/admin/class-wc-bogof-admin-list-table.php:325
+msgid "The \"%s\" rule is currently enabled"
+msgstr "La regla \"%s\" está actualmente activada"
+
+#. Translators: %s Payment gateway name.
+#: includes/admin/class-wc-bogof-admin-list-table.php:325
+#: includes/conditions/class-wc-bogof-condition-customer-is-logged.php:36
+#: includes/conditions/class-wc-bogof-condition-on-sale.php:31
+#: includes/conditions/class-wc-bogof-condition-product-in-cart.php:76
+msgid "Yes"
+msgstr "Si"
+
+#. Translators: %s Payment gateway name.
+#: includes/admin/class-wc-bogof-admin-list-table.php:328
+msgid "The \"%s\" rule is currently disabled"
+msgstr "La regla \"%s\" está actualmente desactivada"
+
+#. Translators: %s Payment gateway name.
+#: includes/admin/class-wc-bogof-admin-list-table.php:328
+#: includes/conditions/class-wc-bogof-condition-customer-is-logged.php:37
+#: includes/conditions/class-wc-bogof-condition-on-sale.php:32
+#: includes/conditions/class-wc-bogof-condition-product-in-cart.php:77
+msgid "No"
+msgstr "No"
+
+#: includes/admin/class-wc-bogof-admin-meta-boxes.php:30
+#: includes/admin/views/html-useful-links.php:17
+msgid "Promotion settings"
+msgstr "Ajustes de la promoción"
+
+#. translators: HTML tags.
+#: includes/admin/class-wc-bogof-admin-meta-boxes.php:37
+msgid "Rules %1$s(optional)%2$s"
+msgstr "Reglas %1$s(opcional)%2$s"
+
+#: includes/admin/class-wc-bogof-admin-meta-boxes.php:41
+msgid "Legacy options"
+msgstr "Opciones heredadas"
+
+#: includes/admin/class-wc-bogof-admin-meta-boxes.php:561
+msgid "Usage count"
+msgstr "Recuento de usos"
+
+#: includes/admin/class-wc-bogof-admin-navigation.php:42
+#: includes/class-wc-buy-one-get-one-free.php:92
+msgctxt "Admin menu name"
+msgid "Buy One Get One"
+msgstr "Buy One Get One"
+
+#: includes/admin/class-wc-bogof-admin-navigation.php:49
+#: includes/class-wc-buy-one-get-one-free.php:90
+msgid "BOGO Promotions"
+msgstr "Promociones BOGO"
+
+#: includes/admin/class-wc-bogof-admin-navigation.php:55
+#: includes/admin/class-wc-bogof-admin-settings.php:33
+#: includes/admin/class-wc-bogof-admin-settings.php:34
+#: includes/admin/class-wc-bogof-admin.php:174
+#: includes/admin/class-wc-bogof-install.php:268
+#: includes/admin/class-wc-bogof-install.php:320
+#: includes/admin/views/html-settings-page.php:12
+msgid "Settings"
+msgstr "Ajustes"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:99
+msgid "Choose a gift(s)"
+msgstr "Elige tu regalo"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:103
+msgid "Display eligible free gift(s) on"
+msgstr "Mostrar los regalos elegibles en"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:104
+msgid "Where do you want to show the free eligible products?"
+msgstr "¿Dónde desea mostrar los productos elegibles gratuitos?"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:108
+msgid "After the cart"
+msgstr "Después del carrito"
+
+#. Translators: %s Page contents.
+#: includes/admin/class-wc-bogof-admin-settings.php:110
+msgid "A page that contains the %s shortcode"
+msgstr "Una página que contiene el shortcode %s"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:111
+msgid "Popup window"
+msgstr "Ventana emergente"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:117
+msgid "The title of the \"choose your gift\" area."
+msgstr "El título del área \"elige tu regalo\"."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:121
+#: includes/admin/class-wc-bogof-admin-settings.php:148
+#: includes/legacy/class-wc-bogof-legacy-choose-gift.php:575
+#: includes/legacy/class-wc-bogof-legacy-choose-gift.php:721
+msgid "Choose your gift"
+msgstr "Elige tu regalo"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:124
+msgid "Choose your gift page"
+msgstr "Página Elige tu regalo"
+
+#. Translators: %s Page contents.
+#: includes/admin/class-wc-bogof-admin-settings.php:126
+msgid "Page contents: %s"
+msgstr "Contenido de la página: %s"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:132
+msgid ""
+"This page needs to be set so that WooCommerce knows where to send users to "
+"choose the free products."
+msgstr ""
+"Esta página debe configurarse para que WooCommerce sepa dónde enviar a los "
+"usuarios para que elijan los productos gratuitos."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:135
+#: includes/customizer/config.php:306
+msgid "Notice"
+msgstr "Aviso"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:136
+#: includes/customizer/config.php:309
+msgid ""
+"This text will inform the customer that he can choose a gift. Use [qty] for "
+"the number of items."
+msgstr ""
+"Este texto informará al cliente de que puede elegir un regalo. Utiliza [qty] "
+"Para el número de artículos."
+
+#. Translators: %s [qty] placeholder.
+#: includes/admin/class-wc-bogof-admin-settings.php:141
+msgid "You can now add %s product(s) for free to the cart."
+msgstr "Ahora puede agregar %s producto(s) gratis al carrito."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:144
+#: includes/customizer/config.php:320
+msgid "Button text"
+msgstr "Texto del botón"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:185
+msgid "Advanced"
+msgstr "Avanzado"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:189
+msgid "On sale products"
+msgstr "Productos en oferta"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:190
+msgid "Calculate the discount using the \"regular price\"."
+msgstr "Calcular el descuento usando el \"precio regular\"."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:196
+#: includes/admin/views/hml-system-status-report.php:34
+#: includes/admin/views/hml-system-status-report.php:35
+msgid "Disable coupons"
+msgstr "Deshabilitar cupones"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:197
+msgid "Disable coupons usage if there is a free BOGO item in the cart."
+msgstr ""
+"Desactivar el uso de cupones si hay un artículo BOGO gratuito en el carrito."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:203
+#: includes/admin/views/hml-system-status-report.php:43
+#: includes/admin/views/hml-system-status-report.php:44
+msgid "Custom attributes"
+msgstr "Atributos personalizados"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:204
+msgid ""
+"Include the custom product attributes in the \"Variation attribute\" "
+"condition."
+msgstr ""
+"Incluir los atributos del producto personalizado en la condición \"Atributo "
+"de la variación\"."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:228
+#: includes/legacy/class-wc-bogof-shortcode-legacy-notice.php:46
+msgid ""
+"The \"After cart\" option and the [wc_choose_your_gift] shortcode are "
+"deprecated and have been replaced by a popup window."
+msgstr ""
+"La opción \"Después del carrito\" y el shortcode [wc_choose_your_gift] están "
+"obsoletos y han sido reemplazados por una ventana emergente."
+
+#: includes/admin/class-wc-bogof-admin-settings.php:233
+msgid "Remove legacy options"
+msgstr "Eliminar opciones heredadas"
+
+#: includes/admin/class-wc-bogof-admin-settings.php:236
+#: includes/legacy/class-wc-bogof-shortcode-legacy-notice.php:53
+msgid "Learn more"
+msgstr "Saber más"
+
+#: includes/admin/class-wc-bogof-admin.php:50
+#: includes/admin/class-wc-bogof-admin.php:60
+#: includes/admin/class-wc-bogof-admin.php:69
+#: includes/admin/class-wc-bogof-admin.php:78
+#: includes/customizer/class-wc-bogof-customizer.php:93
+msgid "Buy One Get One Free"
+msgstr "Buy One Get One Free"
+
+#: includes/admin/class-wc-bogof-admin.php:152
+#: includes/class-wc-bogof-rule.php:626
+msgid "Please enter a value less than the buy quantity"
+msgstr "Introduzca un valor inferior a la cantidad de compra"
+
+#: includes/admin/class-wc-bogof-admin.php:153
+msgid "Validation failed. 1 field requires attention"
+msgstr "Validación fallida. 1 campo requiere atención"
+
+#. Translators: %s: number of fields.
+#: includes/admin/class-wc-bogof-admin.php:155
+msgid "Validation failed. %s fields require attention"
+msgstr "Validación fallida. %s campos requiere atención"
+
+#. Translators: %s: number of fields.
+#: includes/admin/class-wc-bogof-admin.php:156
+#: includes/admin/views/html-metabox-field.php:21
+msgid "More info"
+msgstr "Leer más"
+
+#: includes/admin/class-wc-bogof-admin.php:169
+msgid "Promotions"
+msgstr "Promociones"
+
+#: includes/admin/class-wc-bogof-admin.php:188
+#: includes/admin/class-wc-bogof-admin.php:311
+#: includes/customizer/config.php:196 includes/customizer/config.php:344
+msgid "Appearance"
+msgstr "Apariencia"
+
+#: includes/admin/class-wc-bogof-admin.php:206
+msgctxt "post status"
+msgid "Active"
+msgstr "Activo"
+
+#: includes/admin/class-wc-bogof-admin.php:218
+msgid "Please save the settings before continuing"
+msgstr "Guarde los ajustes antes de continuar"
+
+#. Translators: %s: new line char.
+#: includes/admin/class-wc-bogof-admin.php:220
+msgid ""
+"Are you sure you want to remove the legacy options? This action cannot be "
+"undone.%sYou can test the new Popup by updating the \"Display eligible "
+"gift(s) on\" option."
+msgstr ""
+"¿Está seguro de que desea eliminar las opciones heredadas? Esta acción no se "
+"puede deshacer.%sPuedes probar la nueva ventana emergente actualizando la "
+"opción \"Mostrar regalos elegibles en\"."
+
+#. Translators: %s: new line char.
+#: includes/admin/class-wc-bogof-admin.php:221
+msgid "Legacy"
+msgstr "Heredado"
+
+#: includes/admin/class-wc-bogof-admin.php:222
+msgid "New"
+msgstr "Nuevo"
+
+#: includes/admin/class-wc-bogof-admin.php:238
+#: includes/admin/class-wc-bogof-install.php:264
+msgid "Dismiss"
+msgstr "Descartar"
+
+#: includes/admin/class-wc-bogof-admin.php:239
+msgid "Next"
+msgstr "Siguiente"
+
+#: includes/admin/class-wc-bogof-admin.php:279
+msgid "New: Conditions groups"
+msgstr "Nuevo: Grupos de condiciones"
+
+#: includes/admin/class-wc-bogof-admin.php:280
+msgid ""
+"You can now create more than one group of conditions to filter products. The "
+"product will be included if any of the conditions groups are satisfied."
+msgstr ""
+"Ahora puedes crear más de un grupo de condiciones para filtrar productos. El "
+"producto será incluido si se cumple alguno de los grupos de condiciones."
+
+#: includes/admin/class-wc-bogof-admin.php:293
+msgid "New: Rules"
+msgstr "Nuevo: Reglas"
+
+#. Translators: 1 and 2: HTML tags.
+#: includes/admin/class-wc-bogof-admin.php:295
+msgid ""
+"Version 5.1 introduces the promotion rules. The rules include all the "
+"restrictions you could use before and many new conditions."
+msgstr ""
+"Version 5.1 introduces the promotion rules. The rules include all the "
+"restrictions you could use before and many new conditions."
+
+#: includes/admin/class-wc-bogof-admin.php:312
+msgid ""
+"You can customize the Popup and the available gift notice from the "
+"\"Appearance\" menu."
+msgstr ""
+"Puedes personalizar la Ventana emergente y el aviso de regalo disponible "
+"desde el menú \"Apariencia\"."
+
+#. translators: HTML tags.
+#: includes/admin/class-wc-bogof-install.php:205
+msgid ""
+"%1$sBuy One Get One Free Database Update Required%2$s We just need to update "
+"your install to the latest version."
+msgstr ""
+"%1$sActualización obligatoria de la base de datos de Buy One Get One Free"
+"%2$s Solo necesitamos actualizar su instalación a la última versión."
+
+#: includes/admin/class-wc-bogof-install.php:207
+msgid "Run the updater"
+msgstr "Ejecutar el actualizador"
+
+#: includes/admin/class-wc-bogof-install.php:211
+msgid ""
+"It is strongly recommended that you backup your database before proceeding. "
+"Are you sure you wish to run the updater now?"
+msgstr ""
+"Se recomienda encarecidamente que haga una copia de seguridad de su base de "
+"datos antes de continuar. ¿Está seguro de que desea ejecutar el actualizador "
+"ahora?"
+
+#: includes/admin/class-wc-bogof-install.php:225
+msgid "Thank you for updating to the latest version of Buy One Get One Free!"
+msgstr "¡Gracias por actualizar a la última versión de Buy One Get One Free!"
+
+#. translators: 1: the plugin version, 2 and 3: HTML tags.
+#: includes/admin/class-wc-bogof-install.php:230
+msgid ""
+"Version %1$s brings some great new features. Take a moment to review the "
+"%2$splugin documentation%3$s."
+msgstr ""
+"La versión %1$s rae algunas características nuevas y geniales. Tómese un "
+"momento para revisar la %2$sdocumentación del plugin%3$s."
+
+#. translators: HTML tags.
+#: includes/admin/class-wc-bogof-install.php:261
+msgid ""
+"%1$sWooCommerce Buy One Get One Free%2$s installed. You're ready to add your "
+"first BOGO rule."
+msgstr ""
+"%1$sWooCommerce Buy One Get One Free%2$s instalado. Estás listo para añadir "
+"tu primera regla de BOGO."
+
+#: includes/admin/class-wc-bogof-install.php:267
+msgid "Add a BOGO rule"
+msgstr "Agregar una regla BOGO"
+
+#: includes/admin/class-wc-bogof-install.php:269
+#: includes/admin/class-wc-bogof-install.php:338
+msgid "View documentation"
+msgstr "Ver documentación"
+
+#: includes/admin/class-wc-bogof-install.php:305
+msgid "The legacy \"Buy One Get One Free\" options have been removed."
+msgstr ""
+"Las opciones heredadas de \"Buy One Get One Free\" han sido eliminadas."
+
+#: includes/admin/class-wc-bogof-install.php:320
+msgid "View plugin settings"
+msgstr "Ver la configuración del plugin"
+
+#: includes/admin/class-wc-bogof-install.php:338
+#: includes/admin/views/html-useful-links.php:13
+msgid "Docs"
+msgstr "Documentación"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-legacy.php:24
+msgid "No coupon validations"
+msgstr "Sin validaciones de cupones"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-legacy.php:25
+msgid ""
+"Check this box to do not apply the coupon restrictions to the free items "
+"(recommended)"
+msgstr ""
+"Marque esta casilla para no aplicar las restricciones de cupones a los "
+"artículos gratuitos (recomendado)"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-rules.php:24
+msgid "Rules can be used to add conditional logic to promotions."
+msgstr ""
+"Se pueden utilizar reglas para agregar lógica condicional a las promociones."
+
+#. Translators: 1, 2: HTML tags.
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-rules.php:28
+msgid "Click the %1$sAdd condition%2$s button to create a rule."
+msgstr "Click the %1$sAdd condition%2$s button to create a rule."
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:55
+msgid "Use this type to create offers \"Buy one, get one free,\" 3x2, ..."
+msgstr ""
+"Utilice este tipo para crear ofertas \"Compre uno, llévese otro gratis\", "
+"3x2, ..."
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:67
+msgid "Reward the customer with a gift when he purchases other products"
+msgstr "Recompense al cliente con un regalo cuando compre otros productos"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:79
+msgid ""
+"Automatically add the same product that the customer buys at a special price "
+"to the cart."
+msgstr ""
+"Añade automáticamente al carrito el mismo producto que compra el cliente a "
+"un precio especial."
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:97
+msgid ""
+"Ignore the other Buy One Get One Free promotions if this promotion is active "
+"in the cart"
+msgstr ""
+"Ignore las otras promociones Buy One Get One Free si esta promoción está "
+"activa en el carrito"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:107
+msgid "Apply promotion to"
+msgstr "Aplicar promoción a"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:108
+msgid "Select the products that the customer has to buy to get the promotion"
+msgstr ""
+"Selecciona los productos que el cliente tiene que comprar para conseguir la "
+"promoción"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:119
+msgid "Gift"
+msgstr "Regalo"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:120
+msgid "Select the products the customer will receive as a gift"
+msgstr "Seleccione los productos que el cliente recibirá como regalo"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:126
+msgid "Add the gift automatically to the cart"
+msgstr "Añadir el regalo automáticamente al carrito"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:127
+msgid "Customers can choose the gift"
+msgstr "Las clientes pueden elegir el regalo"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:151
+msgid "Can't find a product? Only supported products can be selected"
+msgstr ""
+"¿No puede encontrar un producto? Solo se pueden seleccionar productos "
+"compatibles"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:162
+msgid "Choose from"
+msgstr "Elegir de"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:194
+msgid ""
+"How many units does the customer have to buy to get X units at a special "
+"price?"
+msgstr ""
+"¿Cuántas unidades tiene que comprar el cliente para obtener X unidades a un "
+"precio especial?"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:200
+msgid "If customer buys"
+msgstr "Si la cliente compra"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:209
+msgid "Gets"
+msgstr "Obtiene"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:218
+msgid "Discount (%)"
+msgstr "Descuento (%)"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:229
+msgid "Offer limit"
+msgstr "Límite de oferta"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:230
+msgid ""
+"The plugin calculates the number of products the customer will get using "
+"multiples of the \"buy quantity.\" For example, if you set buy 3 get 2 and "
+"the customer purchases 6, he will get 4. Use this field to limit the number "
+"of products the customer can get"
+msgstr ""
+"El complemento calcula la cantidad de productos que el cliente obtendrá "
+"utilizando múltiplos de la \"cantidad de compra\". Por ejemplo, si configura "
+"comprar 3 y obtén 2 y el cliente compra 6, obtendrá 4. Use este campo para "
+"limitar la cantidad de productos que el cliente puede obtener"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:235
+msgid "Unlimited"
+msgstr "Ilimitados"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:239
+msgid "Add quantity rule"
+msgstr "Agregar regla de cantidad"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:247
+msgid "Individual"
+msgstr "Individual"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:248
+msgid "Count the quantities per product"
+msgstr "Contar las cantidades por producto"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:265
+msgid "Variations"
+msgstr "Variaciones"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:266
+msgid "How should the promotion work for variations?"
+msgstr "¿Cómo debería funcionar la promoción para las variaciones?"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:267
+msgid "Group the variations of the same product."
+msgstr "Agrupa las variaciones de un mismo producto."
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:268
+msgid ""
+"Turn on this option to the promotion considers all variations of the same "
+"product as one unique product. This will allow the user to select the "
+"variation."
+msgstr ""
+"Activa esta opción para que la promoción considere todas las variaciones del "
+"mismo producto como un producto único. Esto permitirá al usuario seleccionar "
+"la variación."
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:286
+msgid "Schedule"
+msgstr "Programar"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:300
+msgid "Start date"
+msgstr "Fecha de inicio"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:303
+msgid "From"
+msgstr "Desde"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:309
+msgid "End date"
+msgstr "Fecha de fin"
+
+#: includes/admin/metabox-fields/wc-bogof-metabox-fields-settings.php:312
+msgid "To"
+msgstr "A"
+
+#: includes/admin/views/dialogs/html-free-less-than-min-error-info.php:12
+msgid "Get the cheapest product for free"
+msgstr "Obtén el producto más barato gratis"
+
+#: includes/admin/views/dialogs/html-free-less-than-min-error-info.php:16
+msgid ""
+"This type of promotion applies the discount to the cheapest product the user "
+"added to the cart."
+msgstr ""
+"Este tipo de promoción aplica el descuento al producto más barato que el "
+"usuario haya añadido al carrito."
+
+#. Translators: HTML tags.
+#: includes/admin/views/dialogs/html-free-less-than-min-error-info.php:19
+msgid ""
+"For example, if you set %1$sbuy 3 get 1%2$s, it works as: \"If the customer "
+"adds 3 items to the cart, 1 of them will be free.\""
+msgstr ""
+"Por ejemplo, si establecer %1$compra 3 obtén 1%2$s, funciona como: \"Si el "
+"cliente añade 3 productos al carrito, 1 de ellos será gratis.\""
+
+#. Translators: HTML tags.
+#: includes/admin/views/dialogs/html-free-less-than-min-error-info.php:25
+msgid "Read more about the %1$spromotion types%2$s"
+msgstr "Lee más acerca de los %1$stipos de promoción%2$s"
+
+#: includes/admin/views/dialogs/html-free-less-than-min-error-info.php:30
+msgid "OK"
+msgstr "Aceptar"
+
+#: includes/admin/views/fields/html-conditional-logic-row.php:16
+msgid "and"
+msgstr "y"
+
+#: includes/admin/views/fields/html-field-conditional-logic.php:39
+msgid "Add condition"
+msgstr "Añadir condición"
+
+#: includes/admin/views/fields/html-field-conditional-logic.php:40
+msgid "Or add Condition Group"
+msgstr "O añadir Grupo de Condiciones"
+
+#: includes/admin/views/fields/html-field-repeater.php:15
+msgid "Add row"
+msgstr "Añadir fila"
+
+#: includes/admin/views/fields/html-field-search-coupon.php:12
+msgid "Search for a coupon&hellip;"
+msgstr "Busca un cupón&hellip;"
+
+#: includes/admin/views/fields/html-field-search-product.php:12
+msgid "Search for a product&hellip;"
+msgstr "Busca un producto&hellip;"
+
+#: includes/admin/views/hml-system-status-report.php:15
+msgid "This section shows details of the Buy One Get One Free plugin."
+msgstr "Esta sección muestra los detalles del plugin Buy One Get One Free."
+
+#: includes/admin/views/html-useful-links.php:16
+msgid "Promotion types"
+msgstr "Tipos de promoción"
+
+#: includes/admin/views/html-useful-links.php:18
+msgid "Set up a \"Free Gifts\" offer"
+msgstr "Configurar una oferta de \"Regalos gratis\""
+
+#: includes/admin/views/html-useful-links.php:24
+msgid "Need help?"
+msgstr "¿Necesitas Ayuda?"
+
+#: includes/admin/views/html-useful-links.php:28
+msgid "Get support"
+msgstr "Obtener soporte"
+
+#: includes/class-wc-bogof-cart-rule.php:201
+msgid ""
+"The Buy One Get One Free plugin was unable to add the product to the cart"
+msgstr "El plugin Buy One Get One Free no pudo agregar el producto al carrito"
+
+#. Translators: %s: Product ID.
+#: includes/class-wc-bogof-cart-rule.php:270
+msgid "The product \"#%s\" does not exits."
+msgstr "El producto \"#%s\" no existe."
+
+#. Translators: %s: Product name.
+#: includes/class-wc-bogof-cart-rule.php:275
+msgid "\"%s\" must be public for the BOGO promotion to work for customer."
+msgstr ""
+"\"%s\" debe ser público para que esta promoción BOGO funcione para el "
+"cliente."
+
+#. translators: %s: product name
+#: includes/class-wc-bogof-cart-rule.php:280
+msgid "The product \"%s\" is out of stock."
+msgstr "El producto \"#%s\" está agotado."
+
+#. translators: %s: product name
+#: includes/class-wc-bogof-cart-rule.php:286
+msgid "The product \"%s\" has not enough stock."
+msgstr "El producto \"#%s\" no tiene suficientes existencias."
+
+#. translators: %s: product name
+#: includes/class-wc-bogof-cart-rule.php:413
+msgctxt "Item name in quotes"
+msgid "&ldquo;%s&rdquo;"
+msgstr "&ldquo;%s&rdquo;"
+
+#. translators: %s: product name
+#: includes/class-wc-bogof-cart-rule.php:416
+msgid "%s has been added to your cart for free!"
+msgid_plural "%s have been added to your cart for free!"
+msgstr[0] "¡%s se ha añadido a tu carrito de forma gratuita!"
+msgstr[1] "¡%s se han añadido a tu carrito de forma gratuita!"
+
+#. translators: 1: product name, 2: percentage discount
+#: includes/class-wc-bogof-cart-rule.php:419
+msgid "%1$s has been added to your cart with %2$s off!"
+msgid_plural "%1$s has been added to your cart with %2$s off!"
+msgstr[0] "¡%1$s se ha añadido a tu carrito con un %2$s de descuento!"
+msgstr[1] "¡%1$s se ha añadido a tu carrito con un %2$s de descuento!"
+
+#: includes/class-wc-bogof-cart-template.php:64
+msgid "\"Buy One Get One Free\" cart item classes"
+msgstr "\"Buy One Get One Free\" cart item classes"
+
+#: includes/class-wc-bogof-conditions.php:279
+msgid "Select a condition"
+msgstr "Selecciona condición"
+
+#: includes/class-wc-bogof-gifts-modal.php:328
+msgid "There was an error adding the product to the cart. Please try again"
+msgstr "Hubo un error al agregar el producto al carrito. Inténtalo de nuevo"
+
+#. Translators: 1,2: HTML tags, 2: extension name, 3: min version required.
+#: includes/class-wc-bogof-integrations.php:86
+msgid ""
+"The installed version of %1$s%3$s%2$s is not supported by %1$sBuy One Get "
+"One Free%2$s. Please update %1$s%3$s%2$s to version %1$s%4$s%2$s or higher."
+msgstr ""
+"La versión instalada %1$s%3$s%2$s no es soportada por %1$sBuy One Get One "
+"Free%2$s. Por favor, actualize %1$s%3$s%2$s a la versión %1$s%4$s%2$s o "
+"superior."
+
+#: includes/class-wc-bogof-mods.php:182
+msgid "Choose [qty] product(s)"
+msgstr "Elige [qty] producto(s)"
+
+#: includes/class-wc-bogof-mods.php:185
+msgid "Click here to choose your gift"
+msgstr "Haz clic aquí para elegir tu regalo"
+
+#: includes/class-wc-bogof-rule.php:583 includes/class-wc-bogof-rule.php:594
+msgid "Please add at least one condition"
+msgstr "Añade al menos una condición"
+
+#: includes/class-wc-bogof-rule.php:590
+msgid "Please add at least one item"
+msgstr "Por favor agregue al menos un elemento"
+
+#: includes/class-wc-bogof-rule.php:600
+msgid "Please enter the offer details"
+msgstr "Por favor introduce los detalles de la oferta"
+
+#: includes/class-wc-bogof-rule.php:607
+msgid "Please enter a value greater than 0"
+msgstr "Por favor introduce un valor mayor a 0"
+
+#. translators: %s: number of free items.
+#: includes/class-wc-bogof-rule.php:615
+msgid ""
+"Please enter a value greater than or equal to %s. Or leave the field empty"
+msgstr "Introduce un valor mayor o igual a %s. O deje el campo vacío"
+
+#: includes/class-wc-bogof-rule.php:620
+msgid "Please enter a discount less than 100"
+msgstr "Introduce un valor inferior a 100"
+
+#: includes/class-wc-bogof-rule.php:633
+msgid "Please enter a date greater than or equal to the start date"
+msgstr "Introduce una fecha mayor o igual a la fecha de inicio"
+
+#: includes/class-wc-buy-one-get-one-free.php:91
+#: includes/wc-bogof-helper-functions.php:488
+msgid "BOGO Promotion"
+msgstr "Promoción BOGO"
+
+#: includes/class-wc-buy-one-get-one-free.php:93
+msgid "Add new"
+msgstr "Añadir nuevo"
+
+#: includes/class-wc-buy-one-get-one-free.php:94
+msgid "Add new BOGO promotion"
+msgstr "Añadir nueva promoción BOGO"
+
+#: includes/class-wc-buy-one-get-one-free.php:95
+msgid "Edit"
+msgstr "Editar"
+
+#: includes/class-wc-buy-one-get-one-free.php:96
+msgid "Edit BOGO promotion"
+msgstr "Editar promoción BOGO"
+
+#: includes/class-wc-buy-one-get-one-free.php:97
+msgid "New promotion"
+msgstr "Nueva promoción"
+
+#: includes/class-wc-buy-one-get-one-free.php:98
+msgid "View promotion"
+msgstr "Ver promoción"
+
+#: includes/class-wc-buy-one-get-one-free.php:99
+msgid "Search promotion"
+msgstr "Buscar promoción"
+
+#: includes/class-wc-buy-one-get-one-free.php:100
+msgid "No promotions found"
+msgstr "No se encontraron promociones"
+
+#: includes/class-wc-buy-one-get-one-free.php:101
+msgid "No promotions found in trash"
+msgstr "No se encontraron promociones en la papelera"
+
+#: includes/class-wc-buy-one-get-one-free.php:102
+msgid "Filter promotions"
+msgstr "Filtar promociones"
+
+#: includes/class-wc-buy-one-get-one-free.php:103
+msgid "promotions navigation"
+msgstr "navegación de promociones"
+
+#: includes/class-wc-buy-one-get-one-free.php:104
+msgid "Promotions list"
+msgstr "Lista de promociones"
+
+#: includes/class-wc-buy-one-get-one-free.php:106
+msgid ""
+"This is where you can add new BOGO promotions that customers can use in your "
+"store."
+msgstr ""
+"Aquí es donde puede agregar nuevas promociones BOGO que los clientes pueden "
+"usar en su tienda."
+
+#. Translators: %s: number of BOGO rules.
+#: includes/class-wc-buy-one-get-one-free.php:144
+msgid "Disabled <span class=\"count\">(%s)</span>"
+msgid_plural "Disabled <span class=\"count\">(%s)</span>"
+msgstr[0] "Desactivado  <span class=\"count\">(%s)</span>"
+msgstr[1] "Desactivado  <span class=\"count\">(%s)</span>"
+
+#: includes/class-wc-buy-one-get-one-free.php:160
+#: includes/class-wc-buy-one-get-one-free.php:163
+#: includes/class-wc-buy-one-get-one-free.php:165
+msgid "Promotion updated."
+msgstr "Promoción actualizada."
+
+#: includes/class-wc-buy-one-get-one-free.php:161
+msgid "Custom field updated."
+msgstr "Campo personalizado actualizado."
+
+#: includes/class-wc-buy-one-get-one-free.php:162
+msgid "Custom field deleted."
+msgstr "Campo personalizado eliminado."
+
+#: includes/class-wc-buy-one-get-one-free.php:164
+msgid "Revision restored."
+msgstr "Revisión restaurada."
+
+#: includes/class-wc-buy-one-get-one-free.php:166
+msgid "Promotion saved."
+msgstr "Promoción guardada."
+
+#: includes/class-wc-buy-one-get-one-free.php:167
+msgid "Promotion submitted."
+msgstr "Promoción BOGO enviada."
+
+#. translators: %s: date
+#: includes/class-wc-buy-one-get-one-free.php:170
+msgid "Promotion scheduled for: %s."
+msgstr "Promoción BOGO programada para: %s."
+
+#: includes/class-wc-buy-one-get-one-free.php:171
+msgid "M j, Y @ G:i"
+msgstr "M j, Y @ G:i"
+
+#: includes/class-wc-buy-one-get-one-free.php:173
+msgid "Promotion draft updated."
+msgstr "Borrador de promoción actualizado."
+
+#: includes/class-wc-buy-one-get-one-free.php:174
+msgid "Promotion updated and sent."
+msgstr "Promoción actualizada y enviada."
+
+#. translators: HTML Tags.
+#: includes/class-wc-buy-one-get-one-free.php:336
+msgid ""
+"%1$sWooCommerce Buy One Get One Free%2$s requires WooCommerce to be "
+"activated to work."
+msgstr ""
+"%1$sWooCommerce Buy One Get One Free%2$s requiere que WooCommerce esté "
+"activado para funcionar."
+
+#. translators: HTML Tags.
+#: includes/class-wc-buy-one-get-one-free.php:342
+msgid ""
+"WooCommerce Buy One Get One Free - The minimum WooCommerce version required "
+"for this plugin is %1$s. You are running %2$s."
+msgstr ""
+"WooCommerce Buy One Get One Free - La versión mínima de WooCommerce "
+"requerida por este plugin es %1$s. Tú estás ejecutando %2$s."
+
+#: includes/conditions/class-wc-bogof-condition-cart-coupons.php:24
+#: includes/conditions/class-wc-bogof-condition-cart-items-count.php:24
+#: includes/conditions/class-wc-bogof-condition-cart-subtotal.php:24
+#: includes/conditions/class-wc-bogof-condition-cart-virtual-coupon.php:23
+msgid "Cart"
+msgstr "Carrito"
+
+#: includes/conditions/class-wc-bogof-condition-cart-coupons.php:25
+msgid "Coupons"
+msgstr "Cupones"
+
+#: includes/conditions/class-wc-bogof-condition-cart-items-count.php:25
+msgid "Line items count"
+msgstr "Recuento de líneas de artículos"
+
+#: includes/conditions/class-wc-bogof-condition-cart-subtotal.php:25
+msgid "Subtotal"
+msgstr "Subtotal "
+
+#: includes/conditions/class-wc-bogof-condition-cart-virtual-coupon.php:24
+msgid "Virtual coupon"
+msgstr "Cupón virtual"
+
+#: includes/conditions/class-wc-bogof-condition-cart-virtual-coupon.php:36
+#: includes/traits/trait-wc-bogof-condition-integer.php:25
+#: includes/traits/trait-wc-bogof-condition-string.php:23
+msgid "Is"
+msgstr "Es"
+
+#: includes/conditions/class-wc-bogof-condition-cart-virtual-coupon.php:49
+msgid "Enter the coupon code"
+msgstr "Introduce el código de cupón"
+
+#: includes/conditions/class-wc-bogof-condition-cart-virtual-coupon.php:53
+msgid ""
+"A virtual coupon is a code that is valid as a coupon, but it's not stored in "
+"Marketing > Coupons. It's helpful if you want the user to add a code to get "
+"the promotion and don't want to create a discount coupon from Marketing > "
+"Coupons."
+msgstr ""
+"Un cupón virtual es un código válido como cupón, pero no se almacena en "
+"Marketing > Cupones. Es útil si desea que el usuario agregue un código para "
+"obtener la promoción y no desea crear un cupón de descuento desde Marketing "
+"> Cupones."
+
+#: includes/conditions/class-wc-bogof-condition-composite-products.php:21
+msgid "Composite Products"
+msgstr "Composite Products"
+
+#: includes/conditions/class-wc-bogof-condition-composite-products.php:55
+msgid "Is the parent/container"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-composite-products.php:56
+msgid "Is the component/children"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-customer-billing-city.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-billing-country.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-billing-postcode.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-email.php:24
+#: includes/conditions/class-wc-bogof-condition-customer-history-avg-order-value.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-history-total-orders.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-history-total-spend.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-is-logged.php:23
+#: includes/conditions/class-wc-bogof-condition-customer-role.php:23
+#: includes/conditions/class-wc-bogof-condition-customer-shipping-city.php:25
+#: includes/conditions/class-wc-bogof-condition-customer-shipping-country.php:23
+#: includes/conditions/class-wc-bogof-condition-customer-shipping-postcode.php:25
+msgid "Customer"
+msgstr "Cliente"
+
+#: includes/conditions/class-wc-bogof-condition-customer-billing-city.php:26
+msgid "Billing city"
+msgstr "Ciudad de facturación"
+
+#: includes/conditions/class-wc-bogof-condition-customer-billing-country.php:26
+msgid "Billing country"
+msgstr "País de facturación"
+
+#: includes/conditions/class-wc-bogof-condition-customer-billing-postcode.php:26
+msgid "Billing postcode"
+msgstr "Código postal de facturación"
+
+#: includes/conditions/class-wc-bogof-condition-customer-email.php:25
+msgid "Email"
+msgstr "Email"
+
+#: includes/conditions/class-wc-bogof-condition-customer-history-avg-order-value.php:26
+msgid "Average order value"
+msgstr "Valor medio del pedido"
+
+#: includes/conditions/class-wc-bogof-condition-customer-history-total-orders.php:26
+msgid "Total orders"
+msgstr "Total de pedidos"
+
+#: includes/conditions/class-wc-bogof-condition-customer-history-total-spend.php:26
+msgid "Total revenue"
+msgstr "Total de ingresos"
+
+#: includes/conditions/class-wc-bogof-condition-customer-is-logged.php:24
+msgid "Is logged in"
+msgstr "Está conectado"
+
+#: includes/conditions/class-wc-bogof-condition-customer-role.php:24
+msgid "User role"
+msgstr "Perfil de usuario"
+
+#: includes/conditions/class-wc-bogof-condition-customer-role.php:36
+#: includes/traits/trait-wc-bogof-condition-array.php:23
+msgid "In list"
+msgstr "En la lista"
+
+#: includes/conditions/class-wc-bogof-condition-customer-role.php:37
+#: includes/traits/trait-wc-bogof-condition-array.php:24
+msgid "Not in list"
+msgstr "No está en la lista"
+
+#: includes/conditions/class-wc-bogof-condition-customer-shipping-city.php:26
+msgid "Shipping city"
+msgstr "Ciudad de envío"
+
+#: includes/conditions/class-wc-bogof-condition-customer-shipping-country.php:24
+msgid "Shipping country"
+msgstr "País de envío"
+
+#: includes/conditions/class-wc-bogof-condition-customer-shipping-postcode.php:26
+msgid "Shipping postcode"
+msgstr "Código postal de envío"
+
+#: includes/conditions/class-wc-bogof-condition-on-sale.php:21
+msgid "Product is on-sale"
+msgstr "Producto está en oferta"
+
+#: includes/conditions/class-wc-bogof-condition-product-bundles.php:21
+msgid "Product Bundles"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-product-bundles.php:52
+msgid "Is the parent product"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-product-bundles.php:53
+msgid "Is bundled (child) item"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-product-in-cart.php:21
+msgid "Product is in cart"
+msgstr "Producto está en el carrito"
+
+#: includes/conditions/class-wc-bogof-condition-product-in-cart.php:89
+msgid "Include all product variations"
+msgstr "Incluir todas las variaciones del producto"
+
+#: includes/conditions/class-wc-bogof-condition-product-in-cart.php:90
+msgid ""
+"If the product in the cart is a variation, the condition will include all "
+"variations of the same parent."
+msgstr ""
+"Si el producto en el carrito es una variación, la condición incluirá todas "
+"las variaciones del mismo padre."
+
+#: includes/conditions/class-wc-bogof-condition-product-type.php:21
+msgid "Product type"
+msgstr "Tipo de producto"
+
+#: includes/conditions/class-wc-bogof-condition-product.php:21
+msgid "Product"
+msgstr "Producto"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-items-subtotal.php:30
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:23
+msgid "Promotion"
+msgstr "Promoción"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-items-subtotal.php:31
+msgid "Items subtotal"
+msgstr "Subtotal de artículos"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-items-subtotal.php:46
+msgid ""
+"The cart subtotal for only the products included in the \"Apply promotion to"
+"\" field."
+msgstr ""
+"El subtotal del carrito solo para los productos incluidos en el campo "
+"\"Aplicar promoción a\"."
+
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:24
+msgid "Usage limit"
+msgstr "Límite de uso"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:36
+msgid "Per user"
+msgstr "Por usuario"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:37
+msgid "Per promotion"
+msgstr "Por promoción"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:55
+msgid "How many times this promotion can be used by an individual user."
+msgstr ""
+"Cuantas veces puede esta promoción ser usada por un usuario individual."
+
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:55
+msgid "Uses billing email for guests, and user ID for logged in users"
+msgstr ""
+"Utiliza el correo electrónico de facturación para los invitados y el ID de "
+"usuario para los usuarios registrados"
+
+#: includes/conditions/class-wc-bogof-condition-promotion-usage-limit.php:64
+msgid "How many times this promotion can be used."
+msgstr "Cuántas veces puede usar esta promoción."
+
+#: includes/conditions/class-wc-bogof-condition-variation-attribute.php:22
+msgid "Variation attribute"
+msgstr "Atributo de la variación"
+
+#: includes/conditions/class-wc-bogof-condition-wcs-att.php:21
+msgid "All Products for Subscription"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-wcs-att.php:48
+msgid "Is one-time purchase"
+msgstr ""
+
+#: includes/conditions/class-wc-bogof-condition-wcs-att.php:49
+msgid "Is a subscription plan"
+msgstr ""
+
+#: includes/customizer/class-wc-bogof-customizer.php:423
+msgid ""
+"The gifts will appear here once you have configured a \"Product as a gift\" "
+"promotion."
+msgstr ""
+"Los regalos aparecerán aquí una vez hayas configurado una promoción "
+"\"Producto como regalo\"."
+
+#: includes/customizer/config.php:18
+msgid "Gifts Popup"
+msgstr "Ventana emergente de regalos"
+
+#: includes/customizer/config.php:38
+msgid "Use [qty] for the number of items."
+msgstr "Use [qty] para el número de artículos."
+
+#: includes/customizer/config.php:47 includes/customizer/config.php:139
+#: includes/customizer/config.php:247
+msgid "Font"
+msgstr "Fuente"
+
+#: includes/customizer/config.php:62
+msgid "Text align"
+msgstr "Alineación del texto"
+
+#: includes/customizer/config.php:83
+msgid "Layout"
+msgstr "Diseño"
+
+#: includes/customizer/config.php:94
+msgid "Items design"
+msgstr "Diseño de los artículos"
+
+#: includes/customizer/config.php:109
+msgid "Columns"
+msgstr "Columnas"
+
+#: includes/customizer/config.php:125
+msgid "Rows per page"
+msgstr "Filas por página"
+
+#: includes/customizer/config.php:156
+msgid "Display variations as individual products"
+msgstr "Mostrar variaciones como productos individuales"
+
+#: includes/customizer/config.php:166
+msgid "Display price"
+msgstr "Mostrar precio"
+
+#: includes/customizer/config.php:176
+msgid "Display short description"
+msgstr "Mostrar descripción corta"
+
+#: includes/customizer/config.php:186
+msgid "Add to cart button"
+msgstr "Botón \"Añadir al carrito\""
+
+#: includes/customizer/config.php:211 includes/customizer/config.php:359
+msgid "Text color"
+msgstr "Color de texto"
+
+#: includes/customizer/config.php:221 includes/customizer/config.php:368
+msgid "Background color"
+msgstr "Color de fondo"
+
+#: includes/customizer/config.php:230
+msgid "Hover text color"
+msgstr "Color del texto al pasar el cursor"
+
+#: includes/customizer/config.php:239
+msgid "Hover background color"
+msgstr "Color de fondo al pasar el cursor"
+
+#: includes/customizer/config.php:262
+msgid "Padding"
+msgstr "Padding"
+
+#: includes/customizer/config.php:279
+msgid "Border radius"
+msgstr "Border radius"
+
+#: includes/customizer/config.php:297
+msgid "Available Gift(s) Notice"
+msgstr "Aviso de Regalo(s) disponible"
+
+#: includes/customizer/config.php:333
+msgid "Show on the shop pages"
+msgstr "Mostrar en las páginas de la tienda"
+
+#: includes/customizer/config.php:336
+msgid ""
+"The notice appears in the cart and checkout pages. Enable this option to "
+"display the notification on all shop pages."
+msgstr ""
+"El aviso aparece en las páginas de carrito y pago. Habilite esta opción para "
+"mostrar la notificación en todas las páginas de la tienda."
+
+#: includes/customizer/config.php:377
+msgid "Button text color"
+msgstr "Color del texto del botón"
+
+#: includes/customizer/config.php:386
+msgid "Button background color"
+msgstr "Color de fondo del botón"
+
+#: includes/customizer/config.php:395
+msgid "Sticky"
+msgstr "Sticky"
+
+#: includes/customizer/config.php:398
+msgid ""
+"Enable this option to stick the announcement bar to the top of the screen."
+msgstr ""
+"Habilite esta opción para fijar la barra de anuncios en la parte superior de "
+"la pantalla."
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-box-sides.php:45
+#: includes/customizer/controls/class-wc-bogof-customize-control-slider.php:145
+msgid "Reset"
+msgstr "Restablecer"
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:94
+msgid "Font Weight"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:96
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:110
+msgid "Theme default"
+msgstr "Tema predeterminado"
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:97
+msgid "Extra-Light 200"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:98
+msgid "Light 300"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:99
+msgid "Normal 400"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:100
+msgid "Semi-Bold 600"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:101
+msgid "Bold 700"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:102
+msgid "Ultra-Bold 900"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:108
+msgid "Transform"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:111
+msgid "Capitalize"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:112
+msgid "Uppercase"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:113
+msgid "Lowercase"
+msgstr ""
+
+#: includes/customizer/controls/class-wc-bogof-customize-control-font-manager.php:119
+msgid "Font Size"
+msgstr "Tamaño de Fuente"
+
+#: includes/data-stores/class-wc-bogof-rule-data-store-cpt.php:183
+msgid "Invalid BOGO rule."
+msgstr "Regla BOGO no válida."
+
+#. Translators: %s: number of products.
+#: includes/legacy/class-wc-bogof-legacy-choose-gift-shortcode.php:368
+msgid ""
+"Warning: %s products listed below will not be visible to users because they "
+"are out of stock."
+msgstr ""
+"Advertencia: los productos %s enumerados a continuación no serán visibles "
+"para los usuarios porque están agotados."
+
+#. Translators: %s: number of products.
+#: includes/legacy/class-wc-bogof-legacy-choose-gift-shortcode.php:377
+msgid ""
+"Warning: %s products listed below will not be visible to users because they "
+"are not public."
+msgstr ""
+"Advertencia: los productos %s enumerados a continuación no serán visibles "
+"para los usuarios porque no son públicos."
+
+#: includes/legacy/class-wc-bogof-legacy-choose-gift-shortcode.php:426
+msgid "There are no gifts for you yet."
+msgstr "Todavía no hay regalos para ti."
+
+#: includes/legacy/class-wc-bogof-legacy-choose-gift-shortcode.php:429
+msgid "Return to shop"
+msgstr "Volver a la tienda"
+
+#. translators: HTML tags.
+#: includes/legacy/class-wc-bogof-legacy-choose-gift.php:582
+msgid ""
+"The \"choose your gift\" page has not set! Customers will not be able to add "
+"to the cart the free product. Go to the %1$ssettings page%2$s and set a "
+"%3$spublic page%4$s that contains the [wc_choose_your_gift] shortcode. "
+msgstr ""
+"¡La página \"elige tu regalo\" no se ha configurado! Los clientes no podrán "
+"añadir al carrito el producto gratuito. Vaya a la %1$spágina de configuración"
+"%2$s y establezca una %3$spágina pública%4$s que contenga el shortcode "
+"[wc_choose_your_gift]. "
+
+#. translators: 1: free products qty.
+#: includes/legacy/class-wc-bogof-legacy-choose-gift.php:640
+#: includes/wc-bogof-template-functions.php:566
+msgid "You can now add %1$s product for free to the cart"
+msgid_plural "You can now add %1$s products for free to the cart"
+msgstr[0] "Ahora puede agregar %1$s producto gratis al carrito"
+msgstr[1] "Ahora puede agregar %1$s productos gratis al carrito"
+
+#. translators: 1: free products qty, 2: percentage discount.
+#: includes/legacy/class-wc-bogof-legacy-choose-gift.php:643
+#: includes/wc-bogof-template-functions.php:569
+msgid "You can now add %1$s product with %2$s off"
+msgid_plural "You can now add %1$s product with %2$s off"
+msgstr[0] ""
+"Ahora puede agregar %1$s producto con un %2$s de descuento al carrito"
+msgstr[1] ""
+"Ahora puede agregar %1$s productos con un %2$s de descuento al carrito"
+
+#. translators: 1: free products qty.
+#: includes/legacy/class-wc-bogof-legacy-choose-gift.php:647
+#: includes/wc-bogof-template-functions.php:573
+msgid "You can now add %1$s products at a sale price"
+msgid_plural "You can now add %1$s products at a sale price"
+msgstr[0] "Ahora puede agregar %1$s producto con descuento carrito"
+msgstr[1] "Ahora puede agregar %1$s productos con descuento carrito"
+
+#: includes/legacy/class-wc-bogof-shortcode-legacy-notice.php:50
+msgid "Update the plugin settings"
+msgstr "Actualiza los ajustes del plugin"
+
+#: includes/traits/trait-wc-bogof-condition-array.php:37
+msgid "Choose"
+msgstr "Elegir"
+
+#: includes/traits/trait-wc-bogof-condition-integer.php:23
+#: includes/traits/trait-wc-bogof-condition-price.php:23
+msgid "Is greater than"
+msgstr "Es mayor que"
+
+#: includes/traits/trait-wc-bogof-condition-integer.php:24
+#: includes/traits/trait-wc-bogof-condition-price.php:24
+msgid "Is less than"
+msgstr "Es menor que"
+
+#: includes/traits/trait-wc-bogof-condition-integer.php:26
+#: includes/traits/trait-wc-bogof-condition-string.php:24
+msgid "Is not"
+msgstr "No es"
+
+#: includes/traits/trait-wc-bogof-condition-integer.php:27
+msgid "Is a multiple of"
+msgstr "Es múltiplo de"
+
+#: includes/traits/trait-wc-bogof-condition-integer.php:28
+msgid "Is not a multiple of"
+msgstr "No es múltiplo de"
+
+#: includes/traits/trait-wc-bogof-condition-string.php:25
+msgid "Contains"
+msgstr "Contiene"
+
+#: includes/traits/trait-wc-bogof-condition-string.php:26
+msgid "Does not contain"
+msgstr "No contiene"
+
+#: includes/traits/trait-wc-bogof-condition-string.php:27
+msgid "Starts with"
+msgstr "Comienza con"
+
+#: includes/traits/trait-wc-bogof-condition-string.php:28
+msgid "Ends with"
+msgstr "Termina en"
+
+#: includes/traits/trait-wc-bogof-condition-string.php:38
+msgid ""
+"It supports multiple values separated by commas. You can also use an "
+"asterisk (*) to match part of the text. For example, \"wo*com*\"  would "
+"match with \"woocommerce\" and \"woo.com\"."
+msgstr ""
+"Admite múltiples valores separados por comas. También puedes usar un "
+"asterisco (*) para hacer coincidir partes del texto. Por ejemplo, \"wo*com*"
+"\" coincidirá con \"woocommerce\" y \"woo.com\"."
+
+#. translators: 1: wc_bogof_get_rule 2: woocommerce_init 3: wc_bogof_after_register_post_type 4: woocommerce_after_register_post_type
+#: includes/wc-bogof-helper-functions.php:24
+msgid ""
+"%1$s should not be called before the %2$s, %3$s and %4$s action have "
+"finished."
+msgstr ""
+"%1$s no debería ser llamado antes de que las acciones %2$s, %3$s y %4$s "
+"hayan finalizado."
+
+#. translators: 1: wc_bogof_cart_rules 2: woocommerce_cart_loaded_from_session
+#: includes/wc-bogof-helper-functions.php:49
+msgid "%1$s should not be called before the %2$s action have finished."
+msgstr ""
+"%1$s no debería ser llamado antes de que la acción %2$s haya finalizado."
+
+#: includes/wc-bogof-helper-functions.php:73
+msgid "copy"
+msgstr "copia"
+
+#: includes/wc-bogof-helper-functions.php:540
+msgid "Get the cheapest product for free (Special offer)"
+msgstr "Obtenga el producto más barato gratis (Oferta especial)"
+
+#: includes/wc-bogof-helper-functions.php:541
+msgid "Product as a gift"
+msgstr "Producto como regalo"
+
+#: includes/wc-bogof-helper-functions.php:542
+msgid "Get the same product you buy for free"
+msgstr "Obtenga el mismo producto que compra gratis"
+
+#. translators: %s: product name.
+#: includes/wc-bogof-template-functions.php:362
+msgid ""
+"%1$s is not visible to customers because the product's status is not \"%2$s."
+"\""
+msgstr ""
+"%1$s no es visible para los clientes porque el estado del producto no es "
+"\"%2$s.\""
+
+#. translators: %s: product name.
+#: includes/wc-bogof-template-functions.php:365
+msgid "%s is not visible to customers because it is \"out of stock\"."
+msgstr "%s no es visible para los clientes porque está agotado."
+
+#. translators: %s: product name.
+#: includes/wc-bogof-template-functions.php:368
+msgid ""
+"%s is not visible to customers because it does not support this feature."
+msgstr ""
+"%s no es visible para los clientes porque no soporta esta característica."
+
+#~ msgid "New: Friendly interface"
+#~ msgstr "Nuevo: Interfaz Amigable"
+
+#~ msgid "3.0 introduces a new interface to edit the BOGO promotions."
+#~ msgstr "3.0 introduce una nueva interfaz para editar las promociones BOGO."
+
+#~ msgid ""
+#~ "You can now add more than one filter to select products. Also, we added "
+#~ "the filter by %1$stag%2$s and by %1$svariation%2$s."
+#~ msgstr ""
+#~ "Ahora puede agregar más de un filtro para seleccionar productos. Además, "
+#~ "agregamos el filtro por %1$setiqueta%2$s y por %1$svariación%2$s."
+
+#~ msgid "New: Percentage discount"
+#~ msgstr "Nuevo: Porcentaje de descuento"
+
+#~ msgid ""
+#~ "We added a percentage discount to the offer details, so you can now "
+#~ "define promotions like buy two and get one at half price."
+#~ msgstr ""
+#~ "Agregamos un porcentaje de descuento a los detalles de la oferta, por lo "
+#~ "que ahora puede definir promociones como compre dos y obtén otro a mitad "
+#~ "de precio."
+
+#~ msgid "Show/Hide columns"
+#~ msgstr "Mostrar/Ocultar columnas"
+
+#~ msgid "Do you miss any columns? you can add them from the Screen Options."
+#~ msgstr ""
+#~ "¿Echas de menos alguna columna? puede agregarlos desde las Opciones de "
+#~ "Pantalla."
+
+#~ msgid "New: Make a duplicate"
+#~ msgstr "Nuevo: Hacer un duplicado"
+
+#~ msgid "You can now duplicate a rule with one click from this menu."
+#~ msgstr "Ahora puede duplicar una regla con un clic desde este menú."
+
+#~ msgid "Plugin settings"
+#~ msgstr "Ajustes del plugin"
+
+#~ msgid "The plugin settings are now here."
+#~ msgstr "Los ajustes del plugin ahora están aquí."
+
+#~ msgid "Minimum spend"
+#~ msgstr "Gasto mínimo"
+
+#~ msgid ""
+#~ "The minimum amount (subtotal minus discount) the user has to spend to get "
+#~ "the promotion."
+#~ msgstr ""
+#~ "La cantidad mínima (subtotal menos descuento) que el usuario debe gastar "
+#~ "para obtener la promoción."
+
+#~ msgid ""
+#~ "The default value of this field is zero &ndash; the customer has to spend "
+#~ "to get the offer. Set this field to -1 to allow customers to get the "
+#~ "offer with a zero cart amount"
+#~ msgstr ""
+#~ "El valor predeterminado de este campo es cero &ndash; el cliente tiene "
+#~ "que gastar para obtener la oferta. Establezca este campo en -1 para "
+#~ "permitir que los clientes obtengan la oferta con un monto de carrito cero"
+
+#~ msgid "Available for"
+#~ msgstr "Disponible para"
+
+#~ msgid "All users"
+#~ msgstr "Todos los usuarios"
+
+#~ msgid "Specific user roles"
+#~ msgstr "Roles de usuario específicos"
+
+#~ msgid "Allowed user roles"
+#~ msgstr "Roles de usuario permitidos"
+
+#~ msgid "Choose user roles&hellip;"
+#~ msgstr "Elija roles de usuario&hellip;"
+
+#~ msgid "User roles that the rule will be available"
+#~ msgstr "Roles de usuario para los que la regla estará disponible"
+
+#~ msgid "Logged in users (all roles)"
+#~ msgstr "Usuarios que registrados (todos los roles)"
+
+#~ msgid "All users except logged-in"
+#~ msgstr "Todos los usuarios excepto los registrados"
+
+#~ msgid "Unlimited usage"
+#~ msgstr "Usos ilimitados"
+
+#~ msgid "The promotion requires a coupon"
+#~ msgstr "La promoción requiere un cupón"
+
+#~ msgid "Add the coupons that give access to the promotion."
+#~ msgstr "Añade los cupones que dan acceso a la promoción."
+
+#~ msgid ""
+#~ "You have to add the coupon from Marketing > Coupons first. Use the "
+#~ "\"Fixed cart discount\" discount type and set the coupon amount to zero "
+#~ "to create a coupon that only gives access to the promotion"
+#~ msgstr ""
+#~ "Primero debe agregar el cupón desde Marketing > Cupones. Usa el tipo de "
+#~ "descuento \"Descuento fijo en el carrito\" y establece el importe del "
+#~ "cupón a cero para crear un cupón que solo da acceso a la promoción"
+
+#~ msgid ""
+#~ "You reached the usage limit of the offer. The order totals have been "
+#~ "updated. Please confirm your order by pressing the \"Place order\" button "
+#~ "at the bottom of the page."
+#~ msgstr ""
+#~ "Alcanzaste el límite de uso de la oferta. El total del pedido se ha "
+#~ "actualizado. Por favor, confirma tu pedido pulsando el botón de «Realizar "
+#~ "pedido» de la parte inferior de la página."
+
+#~ msgid "https://www.linkedin.com/in/oscargare"
+#~ msgstr "https://www.linkedin.com/in/oscargare"
+
+#~ msgctxt "Page slug"
+#~ msgid "choose your gift"
+#~ msgstr "elige tu regalo"
+
+#~ msgctxt "Page title"
+#~ msgid "Choose your gift"
+#~ msgstr "Elige tu regalo"
+
+#~ msgid "Free items limit"
+#~ msgstr "Límite de artículos gratuitos"
+
+#~ msgid "Choose your gift layout"
+#~ msgstr "Diseño de elige tu regalo"
+
+#~ msgid "Choose your gift notice"
+#~ msgstr "Aviso de Elige tu regalo"
+
+#~ msgid "Message"
+#~ msgstr "Mensaje"
+
+#~ msgid "The maximum number of offer items that the user can get."
+#~ msgstr ""
+#~ "El número máximo de artículos en oferta que el usuario puede obtener."
+
+#~ msgid "Tag"
+#~ msgstr "Etiqueta"
+
+#~ msgid "Category"
+#~ msgstr "Categoría"
+
+#, fuzzy
+#~| msgid "Controls to which element of the product bundle the rule applies"
+#~ msgid ""
+#~ "Controls to which element of the product bundle the promotion applies"
+#~ msgstr "Controla a qué elemento del paquete de productos se aplica la regla"
+
+#, fuzzy
+#~| msgid "Bundled products"
+#~ msgid "Applies to Bundled Products"
+#~ msgstr "Bundled products"
+
+#~ msgid "Buy One Get One"
+#~ msgstr "Buy One Get One"
+
+#~ msgid "BOGO rules"
+#~ msgstr "Reglas BOGO"
+
+#~ msgid "Exclude other rules"
+#~ msgstr "Excluir otras reglas"
+
+#~ msgid ""
+#~ "The maximum number of free items the user can get when buy multiples of "
+#~ "\"Buy quantity\". Leave blank for unlimited free items."
+#~ msgstr ""
+#~ "El número máximo de artículos gratuitos que el usuario puede obtener "
+#~ "cuando compra múltiplos de \"Cantidad a comprar\". Déjalo en blanco para "
+#~ "artículos gratuitos ilimitados."
+
+#~ msgid "Unlimited free items"
+#~ msgstr "Artículos gratuitos ilimitados"
+
+#~ msgid "Enable/Disable"
+#~ msgstr "Activar/Desactivar"
+
+#~ msgid "Enable rule"
+#~ msgstr "Activar regla"
+
+#~ msgid "Deal mode"
+#~ msgstr "Modo de oferta"
+
+#~ msgid "Applies To"
+#~ msgstr "Aplicar a"
+
+#~ msgid "Specific product(s)"
+#~ msgstr "Producto(s) específico(s)"
+
+#~ msgid "Product category(s)"
+#~ msgstr "Categoría(s) de producto"
+
+#~ msgid "Choose categories&hellip;"
+#~ msgstr "Elige categorías&hellip;"
+
+#~ msgid ""
+#~ "Check this box if the rule should be applied individually to each product "
+#~ "of the category."
+#~ msgstr ""
+#~ "Marca esta casilla si la regla debe aplicarse individualmente a cada "
+#~ "producto de la categoría."
+
+#~ msgid "Buy quantity"
+#~ msgstr "Cantidad a comprar"
+
+#~ msgid "Allow customers to choose the gift(s) from a product category(s)"
+#~ msgstr ""
+#~ "Permitir que los clientes elijan el regalo de una categoría(s) de producto"
+
+#~ msgid "Allow customers to choose the gift(s) from a lists of products"
+#~ msgstr ""
+#~ "Permitir que los clientes elijan el regalo de una lista de productos"
+
+#~ msgid "Free product"
+#~ msgstr "Producto gratis"
+
+#~ msgid "From product categories"
+#~ msgstr "De las categorías de producto"
+
+#~ msgid "Get free quantity"
+#~ msgstr "Obtiene la cantidad gratis"
+
+#~ msgid ""
+#~ "The free items the user will get when buy multiples of \"Buy quantity\"."
+#~ msgstr ""
+#~ "Los artículos gratuitos que obtendrá el usuario al comprar múltiplos de "
+#~ "\"Cantidad a compra\"."
+
+#~ msgid "Ignore other rules"
+#~ msgstr "Ignorar otras reglas"
+
+#~ msgid "Check this box to ignore the other rules when this rule matches."
+#~ msgstr ""
+#~ "Marque esta casilla para ignorar las otras reglas cuando esta regla "
+#~ "coincida."
+
+#~ msgid "No minimum"
+#~ msgstr "Sin mínimo"
+
+#~ msgid "Coupons that enable the rule."
+#~ msgstr "Cupones que activan la regla."
+
+#~ msgid "Products that the rule will not be applied to."
+#~ msgstr "Productos a los que no se aplicará la regla."
+
+#~ msgid "Users for who the rule will be available."
+#~ msgstr "Usuarios para quienes estará disponible la regla."
+
+#~ msgid "The deal will begin at 00:00 of this date."
+#~ msgstr "La oferta comenzará a las 00:00 de esta fecha."
+
+#~ msgid "The deal will end at 23:59 of this date."
+#~ msgstr "La oferta terminará a las 23:59 de esta fecha."
+
+#~ msgid "Rule data"
+#~ msgstr "Datos de la regla"
+
+#~ msgid "General"
+#~ msgstr "General"
+
+#~ msgid "Limits"
+#~ msgstr "Límites"
+
+#~ msgid "Name"
+#~ msgstr "Nombre"
+
+#~ msgid "Type"
+#~ msgstr "Tipo"
+
+#~ msgid "BOGO rule"
+#~ msgstr "Regla BOGO"
+
+#~ msgid "Add BOGO rule"
+#~ msgstr "Añadir regla BOGO"
+
+#~ msgid "New BOGO rule"
+#~ msgstr "Nueva regla BOGO"
+
+#~ msgid "View BOGO rule"
+#~ msgstr "Ver regla BOGO"
+
+#~ msgid "Search rule"
+#~ msgstr "Buscar regla"
+
+#~ msgid "BOGO rules list"
+#~ msgstr "Lista de reglas BOGO"
+
+#~ msgid "BOGO rule updated."
+#~ msgstr "Se actualizó la regla BOGO."
+
+#~ msgid "BOGO rule saved."
+#~ msgstr "Regla BOGO guardada."
+
+#~ msgid "Applies rule to"
+#~ msgstr "Aplica la regla a"
+
+#~ msgid "Parent line item (default)"
+#~ msgstr "Producto padre (predeterminado)"
+
+#~ msgid "Child line items (each of the bundled products)"
+#~ msgstr "Elementos secundarios (cada uno de los productos incluidos)"
+
+#~ msgid ""
+#~ "%1$sBuy One Get One Free%2$s requires you set the option %3$sSwitching "
+#~ "languages when there are items in the cart%4$s to %1$sPrompt for a "
+#~ "confirmation and reset the cart%2$s."
+#~ msgstr ""
+#~ "%1$sBuy One Get One Free%2$s requiere que establezcas la opción "
+#~ "%3$sCambio de idioma cuando hay artículos en el carrito %4$s a %1$sPedir "
+#~ "una confirmación y restablecer el carrito%2$s."
+
+#~ msgid "Buy products and get a different product(s) for free"
+#~ msgstr "Compre productos y obtenga un producto(s) diferente(s) gratis"
+
+#~ msgid "Buy 2 (or more) products and get the cheapest one for free"
+#~ msgstr "Compre 2 (o más) productos y obtenga el más barato gratis"

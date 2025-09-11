@@ -1,0 +1,37 @@
+@font-face {
+	font-family: 'fontawesomebogo';
+	src: url('../fonts/fontawesomebogo.eot?13202177');
+	src: url('../fonts/fontawesomebogo.eot?13202177#iefix') format('embedded-opentype'),
+		 url('../fonts/fontawesomebogo.woff2?13202177') format('woff2'),
+		 url('../fonts/fontawesomebogo.woff?13202177') format('woff'),
+		 url('../fonts/fontawesomebogo.ttf?13202177') format('truetype'),
+		 url('../fonts/fontawesomebogo.svg?13202177#fontawesomebogo') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.bogof_discount_item_subtotal .bogof_discount_line {
+	display: block;
+}
+
+.bogof_discount_line.discount, .bogof_discount_line.subtotal {
+	font-size: .875em;
+}
+
+.bogof_discount_line.discount::before {
+	font-family: 'fontawesomebogo';
+	font-size: 1rem;
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	transform: rotate(90deg);
+	content: "\f148";
+	margin: 0 12px 0 6px;
+	opacity: .25;
+}
+
+body.rtl .bogof_discount_line.discount::before {
+	content: "\f149";
+}

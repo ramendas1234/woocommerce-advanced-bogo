@@ -1,0 +1,100 @@
+/**
+ * .wc-bogof-accordion
+ */
+
+body.rtl li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title::after {
+	left: 10px;
+	right: unset;
+}
+
+body.rtl li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title {
+	padding: 10px 12px 11px 30px;
+	border-right: 4px solid var(--wc-bogof-customizer-color-3);
+	border-left: none;
+}
+
+body.rtl li.customize-control.customize-control-wc-bogof-accordion .wc-bogof-accordion-title:hover,
+body.rtl li.customize-control.customize-control-wc-bogof-accordion.expanded .wc-bogof-accordion-title {
+	border-right-color: var(--wc-bogof-customizer-color-2);
+	border-left-color: unset;
+}
+
+/**
+ * Arrow
+ */
+body.rtl li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown::before,
+body.rtl li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container.wp-picker-active .wp-picker-open + .wp-picker-input-wrap::before {
+	left: 11px;
+	right: unset;
+}
+
+/**
+ * WC_BOGOF_Customize_Control_Font_Manager
+ */
+body.rtl li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control:nth-child(2n) {
+	margin-right: 5px;
+	margin-left: 0;
+}
+
+body.rtl li.customize-control-wc-bogof-font-manager .wc-bogof-font-manager-controls-dropdown  > .wc-bogof-font-manager-controls-container .wc-bogof-font-manager-control:nth-child(2n+1) {
+	margin-left: 5px;
+	margin-right: 0
+}
+
+/**
+ * .wc-bogof-slider-control
+ */
+
+body.rtl .wc-bogof-slider-control .wc-bogof-slider-area .wc-bogof-slider-input-wrapper input[type="number"] {
+	margin-right: 16px;
+	margin-left: 0;
+}
+
+/**
+ * Label with tools
+ */
+
+body.rtl .wc-bogof-control-wrap .wc-bogof-control-label.-has-tools .wc-bogof-label-tools {
+	margin-left: unset;
+	margin-right: auto;
+}
+
+/**
+ * wc-bogof-btn-group
+ */
+ body.rtl li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices > label:last-of-type {
+	border-radius: 3px 0 0 3px;
+	border-left: 1px solid var(--wc-bogof-customizer-color-6);
+}
+
+body.rtl li.customize-control-wc-bogof-btn-group .wc-bogof-btn-group-choices > label:first-of-type {
+	border-radius: 0px 3px 3px 0px;
+	border-left: none;
+}
+
+body.rtl li.customize-control-wc-bogof-radio-image label {
+	margin-left: 12px;
+	margin-right: 0;
+}
+
+body.rtl li.customize-control-wc-bogof-radio-image label > svg {
+	transform: scaleX(-1);
+}
+
+body.rtl li[id^="customize-control-wc_bogof_mods_"].customize-control-color .wp-picker-container button.wp-color-result {
+	left: 12px;
+	right: unset;
+}
+
+/**
+ * Astra support.
+ */
+ body.rtl .customize-control.wc-bogof-customize-control .ast-control-tooltip {
+	top: 14px;
+	left: 12px;
+	right: unset;
+}
+
+body.rtl .customize-control.wc-bogof-customize-control.customize-control-wc-bogof-toggle .ast-control-tooltip {
+	left: 55px;
+}

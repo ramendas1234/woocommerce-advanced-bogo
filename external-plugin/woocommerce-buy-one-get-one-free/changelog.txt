@@ -1,0 +1,488 @@
+*** WooCommerce Buy One Get One Free Changelog ***
+
+2024-08-08 - version 5.3.2
+* Fix: Cheapest free promotion - Product price is zero when the quantity is updated using an AJAX call.
+
+2024-07-25 - version 5.3.1
+* Fix: JavaScript error when the "updated_checkout" event triggers before the page fully loads.
+* Fix: Set the customizer focus to the "Buy One Get One Free" panel when the user clicks on "Buy One Get One Free > Appearance."
+
+2024-07-19 - version 5.3.0
+* Add - Compatible with WooCommerce 9.1+.
+* New - Condition "Promotion items subtotal" that checks the subtotal only of the products included in the promotion.
+
+2024-07-09 - version 5.2.5
+* Fix - The "Cart coupons" condition is valid when the coupon codes no longer exist.
+* Fix - Coupon code cache is not cleared after coupon updates.
+
+2024-06-25 - version 5.2.4
+* Add - Compatible with WooCommerce 9.0+.
+* New - Filter: wc_bogof_hide_empty_coupon_amount_html
+* Fix - The value of the non-BOGO coupons with zero amount is hidden.
+
+2024-06-06 - version 5.2.3
+* Add - Compatible with WooCommerce 8.9+.
+* Fix - Variation dropdowns do not work after refreshing the "Gifts Pop-up" content.
+
+2024-06-03 - version 5.2.2
+* Fix - PHP error on some themes.
+
+2024-06-03 - version 5.2.1
+* Fix - Gifts Pop-up - Style issues on some themes.
+* Fix - There is no default value for the "Number of columns" option of the customizer.
+* Fix - Compatibility issues with the "Advanced Dynamic Pricing for WooCommerce" plugin.
+
+2024-05-28 - version 5.2.0
+* New - Gifts Pop-up - New customizer option to allow group variations using dropdowns.
+* New - Gifts Pop-up - New customizer option to allow setting the number of columns per device (desktop, tablet, and mobile).
+* Fix - Gifts Pop-up - CSS issues on iOS 17.1
+
+2024-05-21 - version 5.1.5
+* Fix - The Gift Pop-up applies the esc_html to the product title.
+* Fix - "not in" in the "Variation attribute" condition excludes all variations of the same product.
+
+2024-05-17 - version 5.1.4
+* Fix - Bug on the "Variation attribute" condition.
+* Fix - The "Left align" layout for the gift pop-up is unusable on small devices.
+
+2024-05-09 - version 5.1.3
+* Add - Multicurrency support for the "Cart subtotal" condition. Supported plugins: "Price Based on Country by Oscar Gare", " WooCommerce Multilingual & Multicurrency with WPML by OnTheGoSystems", "CURCY – Multi Currency for WooCommerce by VillaTheme" and "FOX - Currency Switcher Professional for WooCommerce by realmag777"
+
+2024-05-03 - version 5.1.2
+* Fix - Condition for taxonomies does not check the parent taxonomy.
+* Fix - Woo blocks support - Cart/checkout block is not detected if the block is inside another block.
+* Add - Cart block support - Hide buttons in the quantity input for gift items.
+* Add - Cart block support - Hide the quantity input for the gift items when the quantity is 1.
+* Add - Cart block support - Add specific CSS classes to the cart line items that are BOGO.
+
+2024-04-18 - version 5.1.1
+* Fix - "All Products For Subscriptions" compatibility - "Cheapest free" promotions do not work with products with subscription options.
+* Fix - CSS style issues in the customizer with Astra theme.
+
+2024-04-09 - version 5.1.0
+* Add - Compatible with WooCommerce 8.8+.
+* New - Rules - The rules include all the restrictions you could use before and many new conditions.
+* New - Conditions groups - You can now use more than one group of conditions on the "product filters" and rules.
+* New - Option to allow users to select a different variation on the "Get the same product you buy for free" promotion type.
+* Fix - Bug on the "Product type" condition.
+* Update - Requires WooCommerce 4.0+.
+
+2024-03-01 - version 5.0.3
+* Fix - Bug on the query that returns the "gifts".
+
+2024-02-26 - version 5.0.2
+* Add - Compatible with WooCommerce 8.5+.
+* Add - New option to the condition "product in cart" to include all product variations of the same parent.
+
+2024-02-16 - version 5.0.1
+* Fix - Appearance menu is not visible for some users after plugin update.
+* Fix - CSS issues.
+
+2024-02-13 - version 5.0.0
+* Add - Compatible with WooCommerce 8.5+.
+* Add - Declare compatible with the Cart and Checkout blocks.
+* New - Display "Free Gifts" in a Pop-up window.
+* New - Display the available gifts notice in a default WooCommerce notice or an "announcement bar".
+* New - Customizations option for the Free Gifts" Pop-up and notice.
+* Fix - The available gifts notice displays when there is no stock for the gift products.
+* Fix - Minor bugs.
+
+
+2023-11-09 - version 4.1.5
+* Add - Compatible with WooCommerce 8.2+.
+* Add - Use woocommerce_add_cart_item_data filter to solve compatibility issues when the "gift" is added to the cart automatically.
+* Add - New filter wc_bogof_cart_redirect_url to allow developers to modify the cart redirection.
+* Fix - Compatibility modules are loaded before all plugins are loaded.
+
+2023-10-12 - version 4.1.4
+* Add - Compatible with Tiered Pricing Table for WooCommerce by u2code: Disable tiered pricing on cart items with a BOGO promotion.
+
+2023-10-10 - version 4.1.3
+* Fix - "Cheapest free" promotion does not count the item if the "line_subtotal" is not set.
+
+2023-09-29 - version 4.1.2
+* Add - Compatible with WooCommerce 8.1+.
+* Fix - Fatal error "Cannot declare class" when WooCommerce Multilingual" and "Polylang" are enabled simultaneously.
+
+2023-08-22 - version 4.1.1
+* Add - Tested up WordPress 6.3.
+* Fix - Deprecated warnings on PHP 8.1.
+
+2023-08-02 - version 4.1.0
+* Add - Compatible with WooCommerce 8.0+.
+* Add - New condition "Product is on-sale."
+* Update - Code refactors to improve performance.
+
+2023-07-24 - version 4.0.4
+* Fix - WPML compatibility - Quantity rules do not sync between languages.
+* Update - Code refactors to improve performance.
+
+2023-07-02 - version 4.0.3
+* Fix - The "Cheapest free" discount appears/disappears from the cart after refreshing the cart page.
+
+2023-06-29 - version 4.0.2
+* Fix - PHP error when the wc_get_notice function is callable, but the WooCommerce session is not instanced.
+
+2023-06-26 - version 4.0.1
+* Fix - PHP error on the delete transients function when the order has more than one BOGO promotion.
+
+2023-06-22 - version 4.0.0
+* Add - Compatible with WooCommerce 7.8+.
+* Add - Compatible with the WooCommerce High-Performance Order Storage (HPOS).
+* Add - Allow more than one quantity rule for one BOGO promotion.
+* Add - Condition to allow filtering products by "Product type."
+* Add - Condition "Product in the cart" for the "Gift products" filter.
+* Add - Custom product taxonomies (like Brand) are added dynamically to the product filter conditions.
+* Add - Option to force the plugin to calculate the discount price using the regular price.
+* Update - The "Choose your gift" notice now uses a custom template to improve compatibility with themes and page builders.
+* Update - Code refactors and improvements.
+
+2023-04-19 - version 3.9.2
+* Add - Compatible with WooCommerce 7.6+.
+* Fix - Incorrect settings page link on the WooCommerce Admin navigation menu.
+
+2023-03-27 - version 3.9.1
+* Fix - The "Choose Your Gift" section does not refresh after the cart update on the cart page since WooCommerce 7.5.
+
+2023-03-09 - version 3.9.0
+* Add - Compatible with WooCommerce 7.5+.
+* Fix - Bug on the "Choose Your Gift" query when the conditions include categories.
+
+2023-02-22 - version 3.8.1
+* Fix - Compatibility issue with "WooCommerce Smart Coupons".
+
+2023-02-20 - version 3.8.0
+* Add - Compatible with WooCommerce 7.4+.
+* Fix - Incorrect price when the user adds to the cart two times the same "gift".
+
+2022-11-16 - version 3.7.0
+* Add - Compatible with WooCommerce 7.1+.
+* Add - Display the category hierarchy in the "Category" condition.
+* Fix - "Polylang" compatibility - Run all language promotions when the condition is "All products."
+* Fix - "WPML" compatibility - "Cheapest free" promotion applies a double discount.
+* Fix - "Product Bundles" compatibility - The free item breaks the bundled items order in the cart after adding it automatically.
+
+2022-09-27 - version 3.6.0
+* Add - Compatible with Composite Products!
+* Add - Display a validation alert when the coupon only gives access to a BOGO promo and does not apply to the products in the cart.
+* Fix - Subtotal calculation includes the "Gifts" amount.
+* Fix - The "Get the cheapest product for free" promotion type includes the product with zero price.
+
+2022-08-29 - version 3.5.0
+* Add - Compatible with WooCommerce 6.9+.
+* Add - New filter "wc_bogof_init_cart_item_discount"
+* Fix - "Product Bundles" compatibility - Discount does not include the "Price individually" bundle items.
+
+2022-08-03 - version 3.4.0
+* Add - Compatible with WooCommerce 6.8+.
+* Add - Support for the "Order again" option.
+* Fix - The "Radio" type options of the BOGO promotions are not saved.
+* Fix - "Product Bundles" compatibility - "Gifts" are not added to the cart after adding a second bundle with different quantities.
+
+2022-07-21 - version 3.3.4
+* Fix - PHP warning\error "Unparenthesized is not supported".
+* Fix - AJAX validation of the promotion edit fails when the attributes slug contains symbol chars.
+
+2022-07-20 - version 3.3.3
+* Fix - Actions from Promotions list table causes a "The link you followed has expired" error.
+
+2022-07-19 - version 3.3.2
+* Fix - The "Variation attribute" condition does not support attributes with symbol chars.
+* Fix - Minor CSS issues.
+
+2022-07-01 - version 3.3.1
+* Fix - Discount is not applied when the "Smart Coupons by by StoreApps" plugin is active.
+
+2022-06-30 - version 3.3.0
+* Add - Compatible with WooCommerce 6.7+.
+* Add - "All Products For Subscriptions" compatibility - New condition to apply the promotion to only "one-time purchase."
+* Update - Add the promotion title to the order item metadata.
+
+2022-04-21 - version 3.2.1
+* Fix - Bug on WPML integration.
+
+2022-04-05 - version 3.2.0
+* Add - Compatible with WooCommerce 6.4+.
+* Add - Added: Information about the usage count in the promotion edit page.
+* Fix - The usage limit per user does not work correctly when the promotion counts the quantities per product.
+* Fix - CSS issue with some themes on the toggle button.
+
+2022-03-08 - version 3.1.0
+* Add - Compatible with WooCommerce 6.3+.
+* Add - New option to include the custom product attributes in the "Variation attribute" condition.
+* Fix - Check the "Hide out of stock items" option before hiding out of stock items from the "choose your gift.".
+* Fix - Add the "Choose your gift" title option to the WPML config file.
+
+2022-02-17 - version 3.0.3
+* Fix - [qty] placeholder of the "Choose your gift notice" option does not work.
+* Update - Improve how to check if the current page is the cart page to prevent issues with other plugins.
+* Add - Included some plugin settings to the system report.
+
+2022-02-14 - version 3.0.2
+* Fix - PHP deprecated warning on PHP 7.4.
+* Fix - Display the tutorial of the new features on each update.
+* Update - Update French translation.
+
+2022-02-10 - version 3.0.1
+* Fix - PHP Error "Call to undefined function".
+
+2022-02-08 - version 3.0.0
+* Add - Compatible with WooCommerce 6.2+.
+* Add - BOGO rule admin interface improvements.
+* Add - Filters for selecting the product included in the promotion and gift products.
+* Add - Filter by Product Tag and by Variation attribute.
+* Add - Percentage discount for the BOGO offers.
+* Add - Duplicate BOGO rule from the list table.
+* Add - Add info to the System Status report.
+* Fix - The "cheapest product" rule type does not support the "Count per product" property.
+* Update - Improve compatibility with WPML and Polylang.
+* Update - Deprecated: WC_BOGOF_Rule::get_buy_product_ids | WC_BOGOF_Rule::set_buy_product_ids
+* Update - Deprecated: WC_BOGOF_Rule::get_buy_category_ids | WC_BOGOF_Rule::set_buy_category_ids
+* Update - Deprecated: WC_BOGOF_Rule::get_exclude_product_ids | WC_BOGOF_Rule::set_exclude_product_ids
+* Update - Deprecated: WC_BOGOF_Rule::get_free_product_ids | WC_BOGOF_Rule::set_free_product_ids
+* Update - Deprecated: WC_BOGOF_Rule::get_free_category_ids | WC_BOGOF_Rule::set_free_category_ids
+* Update - Deprecated: WC_BOGOF_Rule::is_exclude_product
+* Update - Deprecated: WC_BOGOF_Rule::get_used_by_count
+
+2021-12-15 - version 2.2.6
+* Add - Compatible with WooCommerce 6.0+.
+* Add - Compatible with WordPress 5.9+.
+* Fix - Rules with lower "buy quantity" have more priority when the "ignore other rules" option is enabled.
+
+2021-10-07 - version 2.2.5
+* Fix - PHP error on cron executions that launches an Admin AJAX process.
+
+2021-08-14 - version 2.2.4
+* Add - Compatible with WooCommerce 5.8+.
+* Update - Warning for store managers when the free product of a BOGO rule is out of stock.
+* Update - Warning for store managers when the free product of a BOGO rule is not public.
+
+2021-08-14 - version 2.2.3
+* Fix - PHP warning if the Buy quantity property is empty and there and items in the cart.
+
+2021-08-13 - version 2.2.2
+* Add - Compatible with WooCommerce 5.6+.
+* Add - Tested up WordPress 5.8.
+
+2021-05-26 - version 2.2.1
+* Fix - Bug on the "calculate totals" function that causes the "choose your gift" page does not work for some rules.
+
+2021-05-17 - version 2.2.0
+* Add - Compatible with WooCommerce 5.3+.
+* Add - New option to allow to exclude all rules when a specific rule meets.
+* Add - New option to allow to exclude the free items of the coupon validations.
+* Add - "Choose your gift" compatible with WooCommerce Quick View.
+* Add - Translation to Spanish.
+* Add - Translation to French.
+* Fix - Display only the free variations of variable products on the "choose your gift" page.
+* Fix - Compatibility issues with plugins and themes that use custom AJAX functions to add products to the cart.
+* Fix - Compatibility issues with Polylang.
+* Fix - Minor bugs.
+
+2021-04-17 - version 2.1.9
+* Add - Compatible with WooCommerce 5.2+.
+* Fix - PHP Warning on the WooCommerce Admin navigation menu.
+
+2021-03-09 - version 2.1.8
+* Fix - Polylang compatibility - Include products without language in the BOGO rule product search boxes.
+
+2021-01-26 - version 2.1.7
+* Fix - WPML compatibility - Filter BOGO rules by language when the rule applies to "All products".
+* Fix - Free items validations on each time that woocommerce_cart_loaded_from_session run.
+
+2021-01-25 - version 2.1.6
+* Add - Compatible with WooCommerce 5.0+.
+* Add - Buy One Get One Free on the new WooCommerce Admin navigation menu.
+* Fix - The [wc_choose_your_gift] shortcode cache is not updated after product changes on WC < 3.6.
+
+2021-01-07 - version 2.1.5
+* Fix - "Uncaught Exception: Invalid BOGO rule" error in the admin order page when the rule has been deleted.
+
+2020-12-21 - version 2.1.4
+* Fix - A combination of 2 rules breaks the "Buy a product and get the same product for free" rule.
+* Fix - The "Disable coupons usage" option does not work with the "Buy 2 (or more) products and get the cheapest one for free" rule.
+
+2020-12-17 - version 2.1.3
+* Add - Compatible with WooCommerce 4.8+.
+* Fix - Some themes display the "choose your gift notice" more that one time.
+* Fix - PHP warning when the free quantity of the rule is empty.
+
+2020-12-03 - version 2.1.2
+* Fix - Compatibility issue with AeroCheckout break checkout styles.
+* Update - Improve compatibility with sites where woocommerce_before_add_to_cart_button hook is not available.
+
+2020-11-26 - version 2.1.1
+* Fix - Product Add-ons issue: duplicate add-ons in the free product for the rule "Buy a product and get the same product for free."
+* Fix - Add the Minimum spend field to the wmpl config file.
+* Fix - RTL support for the "arrow" shown in the subtotal of items that have a discount.
+
+2020-11-24 - version 2.1.0
+* Add - New type of rule "Buy 2 (or more) products and get the cheapest one for free."
+* Add - New settings option for display the [wc_choose_your_gift] shortcode after the cart.
+* Add - [wc_choose_your_gift] shortcode supports the "AJAX add to cart buttons".
+* Add - Minimum spend - The minimum subtotal needed to use the rule.
+* Add - Improvements on the compatibility with Product Bundles to allow users to choose which items the rule applies to.
+* Add - Compatible with WooCommerce 4.7+.
+* Update - Improve the compatibility with themes that use AJAX to add the product to the cart on the "single product page."
+* Fix - Minor bugs.
+
+2020-09-07 - version 2.0.13
+* Add - Compatible with WooCommerce 4.5+.
+* Fix - Typo on the deal mode select box.
+* Fix - Do not allow free items if the cart subtotal with discounts is zero.
+
+2020-07-15 - version 2.0.12
+* Fix - Polylang compatibility - Free item is removed on the checkout page.
+
+2020-07-09 - version 2.0.11
+ * Fix - WPML compatibility - Add admin texts to the wpml-config.xml file.
+ * Fix - WPML compatibility - Return the translation of the "choose your gift" page option.
+
+2020-07-01 - version 2.0.10
+ * Add - Compatible with WooCommerce 4.3+.
+ * Update - Display "Choose your gift" notice on the checkout page.
+ * Update - Improve compatibility with themes that uses an outdated cart template.
+
+2020-06-08 - version 2.0.9
+* Add - Compatible with WooCommerce 4.2+.
+* Fix - Compatibility with Polylang.
+* Update - Display alert to the store manager when the choose your gift page is not set.
+
+2020-05-19 - version 2.0.8
+* Fix - Compatibility issue with WooCommerce Smart Coupons.
+
+2020-05-08 - version 2.0.7
+* Fix - Prevent a PHP error on woocommerce_get_variation_prices_hash when other plugin does not return an array.
+
+2020-05-06 - version 2.0.6
+* Add - Compatible with WooCommerce 4.1+.
+* Fix - "Buy a product and get the same product for free" offer type adds an incorrect variation.
+* Update - Add a CSS class to the "choose your gift" notice.
+
+2020-04-02 - version 2.0.5
+* Fix - The wc_bogo_refer URL parameter is not added to the product image link on some themes.
+* Fix - WPML compatibility - WPML sync process does not sync the "All products" category.
+* Fix - The get_variations AJAX call returns variation a with price on the "choose your gift" page.
+* Fix - Display "All products" category in the rules table.
+
+2020-03-20 - version 2.0.4
+* Fix - BOGO rules that applies to "all products" does not add the free item to the cart.
+* Fix - Incorrect totals in mini-cart when another plugin overwrites the free product price on the add to cart action.
+* Fix - Link to the shop page on the "continue shopping message" after add to cart the last free item in the "choose your gift" page.
+* Update - Clear plugin transients on the "Clear transient" WooCommerce tool.
+
+2020-03-18 - version 2.0.3
+* Fix - Coupons codes set in uppercase do not work in BOGO rules.
+
+2020-03-06 - version 2.0.2
+* Fix - Bug on 'cart_item_removed' function.
+* Update - Improvements in the WPML compatibility module.
+* Update - Skip bundles items (of WPClever plugin) from cart items count.
+
+2020-02-27 - version 2.0.1
+* Fix - Bug on usage limit per user that prevents the checkout process when there is a free item in the cart.
+* Fix - PHP Warning on the wc_choose_your_gift shortcode.
+* Fix - Bug on the update process from 1.3 to 2.0.
+* Update - Allow to add "User not logged in" to the list of allowed user roles.
+* Update - Improve compatibility with discount plugins by increment the hooks' priority.
+
+2020-02-25 - version 2.0.0
+* Add - Min WooCommerce version required 3.4
+* Add - New interface to handle the BOGO rules from one place.
+* Add - Allow to customers to choose the free product from a category or from a list of products.
+* Add - Limit the number of uses of the BOGO offers per user.
+* Add - Enable the BOGO rule with a coupon.
+* Add - Restrict BOGO rules per user role.
+* Add - Schedule BOGO rules between a start and end date.
+* Add - Option to disable the coupons if there is a free item in the cart.
+* Add - Compatible with WooCommerce 4.0+.
+
+2020-01-07 - version 1.3.11
+* Fix - PHP error when the cart item does not include the 'data' key.
+
+2020-01-02 - version 1.3.10
+* Add - Compatible with WooCommerce 3.9+.
+* Fix - Exclude bundles items from cart items count.
+* Dev: New filter wc_bogof_rule_cart_contents.
+
+2019-12-04 - version 1.3.9
+* Add - Compatible with WooCommerce 3.8+.
+* Fix - Bug on remove items from the cart.
+
+2019-10-30 - version 1.3.8
+* Fix - Variations rule compatibles with Variable subscriptions product type.
+
+2019-10-17 - version 1.3.7
+* Add - Support for WooCommerce All Products For Subscriptions.
+* Fix - Not display the "free product added" message on add to cart via AJAX.
+* Update - Inform WPML users they have to disable the cart synchronization between languages.
+* Dev: New action wc_bogof_product_options.
+* Dev: New filter wc_bogof_rule_data.
+
+2019-09-25 - version 1.3.6
+* Add - Support for WPML.
+* Fix - Deprecated hook WooCommerce 3.7
+* Dev: New hook "wc_bogof_free_item_quantity" to allow developers to change the quantity of the free item.
+
+2019-08-20 - version 1.3.5
+* Fix - Compatibility issues with Composite Products by SomewhereWarm.
+
+2019-08-18 - version 1.3.4
+* Add - Compatible with WooCommerce 3.7+.
+* Fix - DataBase query error when filter product by "has a BOGOF rule?"
+
+2019-07-19 - version 1.3.3
+* Update - Improve the compatibility with discount and price by role plugins.
+
+2019-06-19 - version 1.3.2
+* Fix - "Buy A get A" rule for variable products adds the same variation.
+
+2019-06-18 - version 1.3.1
+* Fix - Checks if the free product is purchasable before adding it to the cart.
+
+2019-06-14 - version 1.3.0
+* Fix - Security issues to prevent malicious users changes the number of free items.
+* Add - A filter option to find products with a BOGOF rule in the product list table.
+* Dev: Code improvements.
+
+2019-06-03 - version 1.2.5
+* Fix - JavaScript file URL wrong in the Settings page.
+
+2019-05-26 - version 1.2.4
+* Fix - Remove items on offer does not delete free products from the cart.
+
+2019-05-24 - version 1.2.3
+* Fix - Wrong number of free items when there are two rules with the same free product.
+* Update - Minimize the admin JavaScript.
+
+2019-04-03 - version 1.2.2
+* Dev: New filter to allow stop the addition of the free item to the cart.
+
+2019-03-30 - version 1.2.1
+ * Fix - The add to cart action does not add the correct number of free items for category rules.
+ * Fix - Translation template name update to allow translations.
+
+2019-03-29 - version 1.2.0
+* Add - New option for the variable products to allow users to select the variations for which the offer is available.
+* Add - WC tested up to 3.6.
+* Fix - Decrease product quantity does not decrease free items when there is a limit of free items.
+
+2019-03-05 - version 1.1.0
+* Add - A new type of offer: buy X items of the same category and get a free item.
+* Add - Added to cart message on item quantity update from cart.
+* Fix - Update cart items from add_to_cart function does not work.
+* Fix - Decreasing cart item quantity removes the free item when the buy quantity of the rule is odd.
+
+2019-02-27 - version 1.0.3
+ * Fix - "Buy product A and get product B free" offer does not work correctly for variable products.
+
+2019-02-22 - version 1.0.2
+ * Fix - Support for AJAX remove and update cart actions.
+
+2019-02-18 - version 1.0.1
+ * Add - Compatible with Name Your Price.
+ * Update - No allow selecting non-purchasable items in the BOGOF settings.
+ * Fix - Bug on adding non-purchasable free items to the cart.
+
+2019-02-06 - version 1.0.0
+ * First release

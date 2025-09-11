@@ -1,0 +1,110 @@
+/*---------------------------------------------------------------------------------------------
+*
+*  Modal dialog
+*
+*---------------------------------------------------------------------------------------------*/
+.wc-bogo-modal {
+	display: flex;
+	align-items: center;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	outline: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 99999;
+	width: 100%;
+	height: 100vh;
+	height: 100dvh;
+}
+
+.wc-bogo-modal.hidden {
+	display: none;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog {
+	position: relative;
+	max-width: 75%;
+	margin: 28px auto;
+	max-height: calc(100vh - 56px);
+	max-height: calc(100dvh - 56px);
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content {
+	position: relative;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+	background: #fff;
+	padding: 24px;
+	transition: opacity .4s ease-in-out;
+	opacity: 0;
+}
+
+.wc-bogo-modal.show .wc-bogo-modal-dialog .wc-bogo-modal-content {
+	opacity: 1;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content > .wc-bogo-modal-close {
+	display: block;
+	position: absolute;
+	right: 0;
+	top: 0;
+	padding: 24px 24px 0 0;
+	cursor: pointer;
+	font-size: 42px;
+	line-height: 0.5;
+	font-weight: 300;
+	color: #000;
+	opacity: .5;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content > .wc-bogo-modal-close:hover {
+	opacity: 0.75;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content > .wc-bogo-modal-header,
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content > .wc-bogo-modal-body,
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content > .wc-bogo-modal-footer {
+	padding: 0;
+	margin: 0;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content > .wc-bogo-modal-header {
+	margin-right: 17px;
+	min-height: 14px;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content .wc-bogo-modal-header + .wc-bogo-modal-body {
+	margin-top: 16px;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content .wc-bogo-modal-body + .wc-bogo-modal-footer {
+	margin-top: 24px;
+}
+
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content .wc-bogo-modal-header > h1,
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content .wc-bogo-modal-header > h2,
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content .wc-bogo-modal-header > h3,
+.wc-bogo-modal .wc-bogo-modal-dialog .wc-bogo-modal-content .wc-bogo-modal-header > h4 {
+	margin: 0;
+}
+
+#wc-bogo-modal-backdrop {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	outline: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 99998;
+	background: #000;
+	opacity: 0;
+}
+
+#wc-bogo-modal-backdrop.show {
+	opacity: 0.6;
+	transition: opacity .2s ease-in-out;
+}

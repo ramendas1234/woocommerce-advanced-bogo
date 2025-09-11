@@ -1,0 +1,845 @@
+/*--------------------------------------------------------------------------------------------
+*
+*	Hide publishing actions
+*
+*--------------------------------------------------------------------------------------------*/
+
+#minor-publishing-actions, #misc-publishing-actions #visibility, #misc-publishing-actions .edit-timestamp, #misc-publishing-actions a.edit-post-status, #misc-publishing-actions .misc-pub-section.curtime.misc-pub-curtime {
+	display: none;
+}
+
+#post-body .misc-pub-bogof-usage-count::before {
+	font: normal 20px/1 dashicons;
+	speak: never;
+	display: inline-block;
+	margin-left: -1px;
+	padding-right: 5px;
+	vertical-align: top;
+	content: "\f348";
+	color: #8c8f94;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-field
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-field,
+.wc-bogo-field .wc-bogo-label,
+.wc-bogo-field .wc-bogo-input {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	position: relative;
+}
+
+.wc-bogo-field {
+	margin: 15px 0;
+	clear: both;
+}
+.wc-bogo-field p.description {
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+.wc-bogo-field .wc-bogo-label {
+	vertical-align: top;
+	margin: 0 0 10px;
+}
+.wc-bogo-field .wc-bogo-label label {
+	display: block;
+	font-weight: bold;
+	margin: 0 0 3px;
+	padding: 0;
+}
+.wc-bogo-field .wc-bogo-label:empty {
+	margin-bottom: 0;
+}
+.wc-bogo-field .wc-bogo-input {
+	vertical-align: top;
+}
+.wc-bogo-field .wc-bogo-input > p.description {
+	margin-top: 5px;
+}
+td.wc-bogo-field, tr.wc-bogo-field {
+	margin: 0;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-fields
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-fields {
+	position: relative;
+}
+.wc-bogo-fields:after {
+	display: block;
+	clear: both;
+	content: "";
+}
+.wc-bogo-fields.-border {
+	border: #ccd0d4 solid 1px;
+	background: #fff;
+}
+.wc-bogo-fields > .wc-bogo-field {
+	position: relative;
+	margin: 0;
+	padding: 15px 12px;
+	border-top: #EEEEEE solid 1px;
+}
+.wc-bogo-fields > .wc-bogo-field:first-child {
+	border-top: none;
+	margin-top: 0;
+}
+td.wc-bogo-fields {
+	padding: 0 !important;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-fields (left)
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-fields.-left > .wc-bogo-field {
+	padding: 15px 0;
+}
+.wc-bogo-fields.-left > .wc-bogo-field:after {
+	display: block;
+	clear: both;
+	content: "";
+}
+.wc-bogo-fields.-left > .wc-bogo-field:before {
+	content: "";
+	display: block;
+	position: absolute;
+	z-index: 0;
+	background: #F9F9F9;
+	border-color: #E1E1E1;
+	border-style: solid;
+	border-width: 0 1px 0 0;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 20%;
+}
+.wc-bogo-fields.-left > .wc-bogo-field[data-width] {
+	float: none;
+	width: auto !important;
+	border-left-width: 0 !important;
+	border-right-width: 0 !important;
+}
+.wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-label {
+	float: left;
+	width: 20%;
+	margin: 0;
+	padding: 0 12px;
+}
+.wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-input {
+	float: left;
+	width: 80%;
+	margin: 0;
+	padding: 0 12px;
+}
+html[dir=rtl] .wc-bogo-fields.-left > .wc-bogo-field:before {
+	border-width: 0 0 0 1px;
+	left: auto;
+	right: 0;
+}
+html[dir=rtl] .wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-label {
+	float: right;
+}
+html[dir=rtl] .wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-input {
+	float: right;
+}
+#side-sortables .wc-bogo-fields.-left > .wc-bogo-field:before {
+	display: none;
+}
+#side-sortables .wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-label {
+	width: 100%;
+	margin-bottom: 10px;
+}
+#side-sortables .wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-input {
+	width: 100%;
+}
+@media screen and (max-width: 640px) {
+	.wc-bogo-fields.-left > .wc-bogo-field:before {
+		display: none;
+	}
+	.wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-label {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+	.wc-bogo-fields.-left > .wc-bogo-field > .wc-bogo-input {
+		width: 100%;
+	}
+}
+/* clear + left */
+.wc-bogo-fields.-clear.-left > .wc-bogo-field {
+	padding: 0;
+	border: none;
+}
+.wc-bogo-fields.-clear.-left > .wc-bogo-field:before {
+	display: none;
+}
+.wc-bogo-fields.-clear.-left > .wc-bogo-field > .wc-bogo-label {
+	padding: 0;
+}
+.wc-bogo-fields.-clear.-left > .wc-bogo-field > .wc-bogo-input {
+	padding: 0;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-fields-groups
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-fields > .wc-bogo-field > .wc-bogo-input .wc-bogo-fields-groups .wc-bogo-field-row {
+	margin: 10px 0 0;
+	width: 100%;
+}
+.wc-bogo-fields > .wc-bogo-field > .wc-bogo-input .wc-bogo-fields-groups .wc-bogo-field-row:first-child {
+	margin-top: 0;
+}
+
+.wc-bogo-fields > .wc-bogo-field > .wc-bogo-input .wc-bogo-fields-groups .wc-bogo-field-row label {
+	display: block;
+	font-weight: bold;
+	margin: 0 0 3px;
+	padding: 0;
+}
+
+.wc-bogo-fields > .wc-bogo-field > .wc-bogo-input .wc-bogo-fields-groups .wc-bogo-field-row table.wc-bogo-table tr td:first-child {
+	padding-left: 0;
+}
+
+.wc-bogo-fields > .wc-bogo-field > .wc-bogo-input .wc-bogo-fields-groups .wc-bogo-field-row table.wc-bogo-table tr td:last-child {
+	padding-right: 0;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-table
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-table {
+	border: 0 none;
+	background: #fff;
+	border-spacing: 0;
+	border-radius: 0;
+	table-layout: fixed;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	clear: both;
+	box-sizing: content-box;
+}
+.wc-bogo-table > tbody > tr > th, .wc-bogo-table > tbody > tr > td,
+.wc-bogo-table > thead > tr > th,
+.wc-bogo-table > thead > tr > td {
+	border: 0 none;
+	padding: 4px;
+	vertical-align: top;
+	background: #fff;
+	text-align: left;
+	font-weight: normal;
+}
+
+.wc-bogo-table > tbody > tr > th > label {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+
+.wc-bogo-table > tbody > tr > td > .wc-bogo-table td {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+.wc-bogo-table > tbody > tr > td > .wc-bogo-table td:first-child {
+	padding-left: 0;
+}
+.wc-bogo-table > tbody > tr > td > .wc-bogo-table td:last-child {
+	padding-right: 0;
+}
+.wc-bogo-table > tbody > tr > td > .wc-bogo-table tr > th {
+	display: none;
+}
+.wc-bogo-table > tbody > tr > th, .wc-bogo-table > thead > tr > th {
+	font-weight: bold;
+}
+.wc-bogo-table > tbody > tr {
+	z-index: 1;
+}
+.wc-bogo-table tr.wc-bogo-field > td.wc-bogo-label {
+	padding: 15px 12px;
+	margin: 0;
+	background: #F9F9F9;
+	width: 20%;
+}
+.wc-bogo-table tr.wc-bogo-field > td.wc-bogo-input {
+	padding: 15px 12px;
+	margin: 0;
+	border-left-color: #E1E1E1;
+}
+.wc-bogo-table td.remove {
+	width: 28px;
+	vertical-align: middle;
+}
+
+.wc-bogo-repeater .wc-bogo-repeater-btns {
+	margin: 10px 0 0 4px;
+	padding-right: 40px;
+	width: calc(100% - 40px);
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+}
+
+.wc-bogo-repeater.-last-group {
+	margin-bottom: 1em;
+}
+
+.wc-bogo-repeater a.add-group {
+	margin-left: 8px;
+	display: none;
+}
+
+html[dir=rtl] .wc-bogo-repeater a.add-group {
+	margin-right: 8px;
+	margin-left: 0;
+}
+
+.wc-bogo-repeater.-last-group:not(.-is-empty) a.add-group {
+	display: inline-block;
+}
+
+.wc-bogo-repeater.-first-group .wc-bogo-repeater__or {
+	display: none;
+}
+
+.wc-bogo-repeater .wc-bogo-repeater__or {
+	position: relative;
+	margin: 2em 56px 2em 16px;
+	border-bottom: 1px solid #eee;
+	text-align: center;
+}
+
+.wc-bogo-repeater .wc-bogo-repeater__or > span {
+	position: absolute;
+	left: calc(50% - 60px);
+	top: -9px;
+	background-color: #fff;
+	padding: 0 13px;
+	font-size: 13px;
+	text-transform: uppercase;
+	color: #646970;
+	letter-spacing: 1px;
+}
+
+html[dir=rtl] .wc-bogo-repeater .wc-bogo-repeater__or > span {
+	left: initial;
+	right: calc(50% - 60px);
+}
+
+.wc-bogo-repeater:not(.wc-bogo-row-multiple):not(.wc-bogo-group-multiple):not(.-has-placeholder) .wc-bogo-table tr.row-input > td.remove a {
+	visibility: hidden;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-postbox
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-postbox {
+	position: relative;
+}
+.wc-bogo-postbox > .inside {
+	margin: 0 !important;
+	/* override WP style - do not delete - you have tried this before */
+	padding: 0 !important;
+	/* override WP style - do not delete - you have tried this before */
+}
+
+body.wc-wp-version-gte-55 .wc-bogo-postbox.postbox h2.hndle small {
+	font-weight: normal;
+	padding-left: 6px;
+	flex-grow: 1;
+}
+
+/*--------------------------------------------------------------------------------------------
+*
+*	wc-bogo-icon
+*
+*--------------------------------------------------------------------------------------------*/
+.wc-bogo-icon {
+	display: inline-block;
+	height: 28px;
+	width: 28px;
+	border: transparent solid 1px;
+	border-radius: 100%;
+	font-size: 20px;
+	line-height: 21px;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: top;
+	box-sizing: border-box;
+}
+.wc-bogo-icon:before {
+	font-family: dashicons;
+	display: inline-block;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+	speak: none;
+	text-decoration: inherit;
+	text-transform: none;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+	text-align: center;
+}
+.wc-bogo-icon.-minus:before {
+	content: "\f460";
+}
+a.wc-bogo-icon {
+	color: #555d66;
+	border-color: #b5bcc2;
+	background-color: #fff;
+	position: relative;
+	transition: none;
+	cursor: pointer;
+}
+a.wc-bogo-icon:hover {
+	background: #f3f5f6;
+	border-color: #0071a1;
+	color: #0071a1;
+}
+a.wc-bogo-icon.-minus:hover, a.wc-bogo-icon.-cancel:hover {
+	background: #f7efef;
+	border-color: #a10000;
+	color: #dc3232;
+}
+a.wc-bogo-icon:active, a.wc-bogo-icon:focus {
+	outline: none;
+	box-shadow: none;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  wc-bogo-error-tip
+*
+*---------------------------------------------------------------------------------------------*/
+.wc-bogo-error-tip-wrap {
+	position: relative;
+}
+.wc-bogo-error-tip {
+	color: #fff;
+	font-size: 0.9em;
+	max-width: 24em;
+	text-align: center;
+	border-radius: 3px;
+	padding: 0.618em 1em;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+	line-height: 1.8em;
+	position: absolute;
+	white-space: normal;
+	background: #d82223;
+	margin: 1.5em 1px 0 -1em;
+	z-index: 1000;
+}
+.wc-bogo-error-tip::after{
+	content: "";
+	display: block;
+	border: 8px solid #d82223;
+	border-right-color: transparent;
+	border-left-color: transparent;
+	border-top-color: transparent;
+	position: absolute;
+	top: -3px;
+	left: 50%;
+	margin: -1em 0 0 -3px;
+}
+
+.wc-bogo-error-tip span.error-tip-info {
+	display: block;
+	text-align: left;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.wc-bogo-error-tip span.error-tip-info::before {
+	font: normal 14px/1 dashicons;
+	content: "\f348";
+	display: inline-block;
+	vertical-align: text-bottom;
+	margin-right: 2px;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Inputs
+*
+*---------------------------------------------------------------------------------------------*/
+.wc-bogo-field input[type=text],
+.wc-bogo-field input[type=password],
+.wc-bogo-field input[type=date],
+.wc-bogo-field input[type=datetime],
+.wc-bogo-field input[type=datetime-local],
+.wc-bogo-field input[type=email],
+.wc-bogo-field input[type=month],
+.wc-bogo-field input[type=number],
+.wc-bogo-field input[type=search],
+.wc-bogo-field input[type=tel],
+.wc-bogo-field input[type=time],
+.wc-bogo-field input[type=url],
+.wc-bogo-field input[type=week],
+.wc-bogo-field textarea,
+.wc-bogo-field select {
+	width: 100%;
+	padding: 4px 8px;
+	margin: 0;
+	box-sizing: border-box;
+	font-size: 14px;
+	line-height: 1.4;
+}
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=text],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=password],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=date],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=datetime],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=datetime-local],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=email],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=month],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=number],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=search],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=tel],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=time],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=url],
+.wc-bogo-admin-3-8 .wc-bogo-field input[type=week],
+.wc-bogo-admin-3-8 .wc-bogo-field textarea,
+.wc-bogo-admin-3-8 .wc-bogo-field select {
+	padding: 3px 5px;
+}
+.wc-bogo-field textarea {
+	resize: vertical;
+}
+
+body.wc-bogo-browser-firefox .wc-bogo-field select {
+	padding: 4px 5px;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Radio
+*
+*---------------------------------------------------------------------------------------------*/
+ul.wc-bogo-radio-list,
+ul.wc-bogo-checkbox-list {
+	background: transparent;
+	position: relative;
+	padding: 1px;
+	margin: 0;
+	/* hl */
+	/* rtl */
+}
+ul.wc-bogo-radio-list li,
+ul.wc-bogo-checkbox-list li {
+	font-size: 13px;
+	line-height: 22px;
+	margin: 0;
+	position: relative;
+	word-wrap: break-word;
+	/* attachment sidebar fix*/
+}
+ul.wc-bogo-radio-list li label,
+ul.wc-bogo-checkbox-list li label {
+	display: inline;
+}
+ul.wc-bogo-radio-list li input[type=checkbox],
+ul.wc-bogo-radio-list li input[type=radio],
+ul.wc-bogo-checkbox-list li input[type=checkbox],
+ul.wc-bogo-checkbox-list li input[type=radio] {
+	margin: -1px 4px 0 0;
+	vertical-align: middle;
+}
+ul.wc-bogo-radio-list li input[type=text],
+ul.wc-bogo-checkbox-list li input[type=text] {
+	width: auto;
+	vertical-align: middle;
+	margin: 2px 0;
+}
+ul.wc-bogo-radio-list li span,
+ul.wc-bogo-checkbox-list li span {
+	float: none;
+}
+ul.wc-bogo-radio-list li i,
+ul.wc-bogo-checkbox-list li i {
+	vertical-align: middle;
+}
+ul.wc-bogo-radio-list.wc-bogo-hl li,
+ul.wc-bogo-checkbox-list.wc-bogo-hl li {
+	margin-right: 20px;
+	clear: none;
+}
+html[dir=rtl] ul.wc-bogo-radio-list input[type=checkbox],
+html[dir=rtl] ul.wc-bogo-radio-list input[type=radio],
+html[dir=rtl] ul.wc-bogo-checkbox-list input[type=checkbox],
+html[dir=rtl] ul.wc-bogo-checkbox-list input[type=radio] {
+	margin-left: 4px;
+	margin-right: 0;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  True/False
+*
+*---------------------------------------------------------------------------------------------*/
+.wc-bogo-true-false .woocommerce-input-toggle {
+	box-sizing: content-box !important;
+}
+.wc-bogo-true-false:focus, .wc-bogo-true-false:active {
+	outline: none;
+	box-shadow: none;
+}
+.wc-bogo-true-false + span.message {
+	margin-left: 6px;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Conditional logic
+*
+*---------------------------------------------------------------------------------------------*/
+.wc-bogo-field.-conditional-logic .wc-bogo-table .col-input.-type, .wc-bogo-field .wc-bogo-fields-groups .wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input.-type {
+	width: 280px;
+}
+
+.wc-bogo-field.-conditional-logic .wc-bogo-table .col-input.-modifier, .wc-bogo-field .wc-bogo-fields-groups .wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input.-modifier {
+	width: 180px;
+}
+
+.wc-bogo-field.-conditional-logic .wc-bogo-table .wc-bogo-fields-groups .wc-bogo-field-row, .wc-bogo-field .wc-bogo-fields-groups .wc-bogo-field-row.-conditional-logic .wc-bogo-table .wc-bogo-fields-groups .wc-bogo-field-row {
+	margin-top: 0;
+	position: relative;
+}
+
+.wc-bogo-field.-conditional-logic .wc-bogo-table .col-input-type-wrapper,
+.wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input-type-wrapper {
+	display: flex;
+	align-items: center;
+}
+
+.wc-bogo-field.-conditional-logic .wc-bogo-table tr:first-child .col-input-type-wrapper .conditional-logic-and,
+.wc-bogo-field-row.-conditional-logic .wc-bogo-table tr:first-child .col-input-type-wrapper .conditional-logic-and {
+	display: none;
+}
+
+.wc-bogo-field.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and,
+.wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and {
+	font-size: 14px;
+	margin-right: 5px;
+	display: flex;
+	align-items: center;
+	color: #646970
+}
+
+.wc-bogo-field.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and::before,
+.wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and::before {
+	font-family: dashicons;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+	text-transform: none;
+	text-rendering: auto;
+	font-size: inherit;
+	text-align: center;
+	transform: scalex(-1) translateY(-1px);
+	content: "\f474";
+	display: inline-block;
+	opacity: 0.85;
+	margin-right: 2px;
+}
+
+html[dir=rtl] .wc-bogo-field.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and,
+html[dir=rtl] .wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and {
+	margin-right: 0;
+	margin-left: 5px;
+}
+
+html[dir=rtl] .wc-bogo-field.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and::before,
+html[dir=rtl] .wc-bogo-field-row.-conditional-logic .wc-bogo-table .col-input-type-wrapper .conditional-logic-and::before {
+	transform: translateY(-1px);
+}
+
+.wc-bogo-field.-conditional-logic.-_conditions .wc-bogo-table td.-modifier span.tips {
+	position: absolute;
+	right: 24px;
+	top: calc(50% - 10px);
+}
+
+.wc-bogo-field.-conditional-logic.-_conditions .wc-bogo-table td.-modifier select ~ span.tips > .dashicons {
+	color: #646970;
+}
+
+.wc-bogo-field.-conditional-logic.-_conditions .wc-bogo-table td.-modifier select ~ span.tips:hover > .dashicons,
+.wc-bogo-field.-conditional-logic.-_conditions .wc-bogo-table td.-modifier select:active ~ span.tips > .dashicons,
+.wc-bogo-field.-conditional-logic.-_conditions .wc-bogo-table td.-modifier select:focus ~ span.tips > .dashicons,
+.wc-bogo-field.-conditional-logic.-_conditions .wc-bogo-table td.-modifier select:hover ~ span.tips > .dashicons {
+	color: #2271b1;
+}
+
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Tips
+*
+*---------------------------------------------------------------------------------------------*/
+body.post-type-shop_bogof_rule #tiptip_content {
+	font-size: inherit;
+}
+
+span.tips > span.dashicons {
+	font-size: 18px;
+	height: 18px;
+	width: 18px;
+	color: #2271b1;
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Loading Placeholder
+*
+*---------------------------------------------------------------------------------------------*/
+.wc-bogo-fields.-loading .wc-bogo-field:not(.-placeholder) {
+	display: none;
+}
+.wc-bogo-fields:not(.-loading) .wc-bogo-field.-placeholder {
+	display: none;
+}
+.wc-bogo-fields.-loading .wc-bogo-field.-placeholder .wc-bogo-label::after {
+	content: " ";
+	display: block;
+}
+.wc-bogo-fields.-loading .wc-bogo-field.-placeholder .wc-bogo-label::after, .wc-bogo-fields.-loading .wc-bogo-placeholder-item {
+	width: 80%;
+	height: 30px;
+	overflow: hidden;
+  	position: relative;
+	  background: #f6f7f8;
+	background: linear-gradient(to right, #eee 2%, #ddd 18%, #eee 33%);
+	background-size: 1300px;
+	-webkit-animation-duration: 1.7s;
+	animation-duration: 1.7s;
+	-webkit-animation-fill-mode: forwards;
+	animation-fill-mode: forwards;
+	-webkit-animation-iteration-count: infinite;
+	animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	animation-timing-function: linear;
+	-webkit-animation-name: placeholderAnimate;
+	animation-name: placeholderAnimate;
+}
+@keyframes placeholderAnimate {
+	0% {
+		background-position: -650px 0;
+	}
+	100% {
+		background-position: 650px 0;
+	}
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Select2
+*
+*---------------------------------------------------------------------------------------------*/
+.postbox.wc-bogo-postbox .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+	position: static;
+	border: none;
+	padding: 0;
+	border-radius: 0;
+	color: #999;
+	cursor: pointer;
+	display: inline-block;
+	font-weight: 700;
+	margin-right: 2px;
+}
+
+.postbox.wc-bogo-postbox .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover{
+	background-color: inherit;
+	color: #333;
+}
+
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Modal dialog
+*
+*---------------------------------------------------------------------------------------------*/
+body.post-type-shop_bogof_rule .wc-bogo-modal .wc-bogo-modal-dialog {
+	margin-top: -10%;
+	width: 750px;
+}
+
+/**
+ * External links
+ */
+body.post-type-shop_bogof_rule a.is-external::after,
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper a[target="_blank"]::after {
+	line-height: 1.6;
+	font-family: dashicons;
+	display: inline-block;
+	font-weight: 400;
+	text-decoration: none;
+	width: 20px;
+	height: 20px;
+	vertical-align: top;
+	text-align: center;
+	content: "\f504";
+}
+
+/*---------------------------------------------------------------------------------------------
+*
+*  Useful links metabox
+*
+*---------------------------------------------------------------------------------------------*/
+#poststuff #wc_bogo_useful_links.postbox .inside {
+	padding: 0;
+	margin: 0;
+}
+
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper {
+	padding: 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper h3 {
+	padding: 8px 12px;
+	margin: 0;
+	font-size: 13px;
+	font-weight: 400;
+	color: #1d2327;
+	background-color: #f6f7f7;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper h3 .dashicons {
+	margin: 0 5px 0 -1px;
+	color: #8c8f94;
+}
+
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper ul {
+	padding: 0 12px;
+	list-style: none;
+	margin: 8px 0;
+}
+
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper ul > li {
+	padding: 3px 0;
+}
+
+#wc_bogo_useful_links.postbox .wc-bogo-links-wrapper ul > li a {
+	text-decoration: none;
+}
