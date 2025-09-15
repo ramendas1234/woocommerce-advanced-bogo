@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Generate realistic frontend preview for BOGO templates
  */
-function generate_bogo_preview( $template_name, $background_color, $text_color, $primary_color, $secondary_color, $button_bg_color, $button_text_color ) {
+function generate_bogo_preview( $template_name, $background_color, $text_color, $primary_color, $secondary_color, $button_bg_color, $button_text_color, $preview_id = null ) {
     // Dummy product data for realistic preview
     $dummy_products = array(
         'template1' => array(
@@ -38,9 +38,10 @@ function generate_bogo_preview( $template_name, $background_color, $text_color, 
     $discount_text = 'at 50% off';
     
     ob_start();
+    $preview_id = $preview_id ?: 'preview-' . $template_name . '-' . uniqid();
     ?>
     <!-- Realistic Frontend Preview -->
-    <div style="margin-top: 15px; padding: 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: #fff;">
+    <div id="<?php echo esc_attr( $preview_id ); ?>" class="bogo-preview-container" style="margin-top: 15px; padding: 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background: #fff;">
         <div style="padding: 12px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; font-size: 11px; color: #666; font-weight: 600;">
             📱 Frontend Preview
         </div>

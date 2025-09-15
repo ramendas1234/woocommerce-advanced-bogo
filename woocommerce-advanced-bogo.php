@@ -840,7 +840,8 @@ class WC_Advanced_BOGO {
                                     // Include preview helper
                                     include_once plugin_dir_path(__FILE__) . 'templates/preview-helper.php';
                                     
-                                    // Generate realistic frontend preview
+                                    // Generate realistic frontend preview with unique ID
+                                    $preview_id = 'preview-' . $template_name . '-' . $template_count;
                                     echo generate_bogo_preview(
                                         $template_name,
                                         $background_color,
@@ -848,7 +849,8 @@ class WC_Advanced_BOGO {
                                         $primary_color,
                                         $secondary_color,
                                         $button_bg_color,
-                                        $button_text_color
+                                        $button_text_color,
+                                        $preview_id
                                     );
                                     ?>
                                 </div>
@@ -891,34 +893,61 @@ class WC_Advanced_BOGO {
                         // Update the color preview span
                         $(this).siblings('span').css('background-color', color);
                         
-                        // Update the preview section based on color type
-                        var previewSection = templateOption.find('> div:last-child');
-                        var previewButton = previewSection.find('span[data-button-bg]');
+                        // Get all current color values
+                        var themeColor = templateOption.find('input[data-color-type="theme_color"]').val();
+                        var backgroundColor = templateOption.find('input[data-color-type="background"]').val();
+                        var buttonColor = templateOption.find('input[data-color-type="button_color"]').val();
                         
-                        switch(colorType) {
-                            case 'background':
-                                previewSection.css('background-color', color);
-                                break;
-                            case 'text':
-                                previewSection.find('strong, span:not([data-button-bg])').css('color', color);
-                                break;
-                            case 'primary':
-                            case 'secondary':
-                                // Update gradient if both colors are available
-                                var primaryColor = templateOption.find('input[data-color-type="primary"]').val();
-                                var secondaryColor = templateOption.find('input[data-color-type="secondary"]').val();
-                                if (primaryColor && secondaryColor) {
-                                    previewButton.css('background', 'linear-gradient(45deg, ' + primaryColor + ', ' + secondaryColor + ')');
+                        // Calculate contrasting colors
+                        var textColor = getContrastingColor(backgroundColor);
+                        var buttonTextColor = getContrastingColor(buttonColor);
+                        var primaryColor = themeColor;
+                        var secondaryColor = adjustColorBrightness(themeColor, -20);
+                        
+                        // Update the preview container directly
+                        var previewContainer = templateOption.find('.bogo-preview-container');
+                        
+                        if (previewContainer.length > 0) {
+                            // Update background colors
+                            previewContainer.find('[style*="background:"]').each(function() {
+                                var currentStyle = $(this).attr('style');
+                                if (currentStyle.includes('background:') && !currentStyle.includes('background: #fff') && !currentStyle.includes('background: #f8f9fa')) {
+                                    $(this).attr('style', currentStyle.replace(/background:[^;]+;?/g, 'background: ' + backgroundColor + ';'));
                                 }
-                                break;
-                            case 'button_bg':
-                                previewButton.css('background-color', color);
-                                previewButton.attr('data-button-bg', color);
-                                break;
-                            case 'button_text':
-                                previewButton.css('color', color);
-                                previewButton.attr('data-button-text', color);
-                                break;
+                            });
+                            
+                            // Update text colors
+                            previewContainer.find('h4, p').css('color', textColor);
+                            
+                            // Update primary colors (Buy/Get text)
+                            previewContainer.find('strong').each(function() {
+                                var text = $(this).text();
+                                if (text.includes('Buy') || text.includes('Get') || text.includes('Bluetooth') || text.includes('Leather') || text.includes('Gaming')) {
+                                    $(this).css('color', primaryColor);
+                                }
+                            });
+                            
+                            // Update secondary colors (Gift, FREE, off text)
+                            previewContainer.find('strong, div').each(function() {
+                                var text = $(this).text();
+                                if (text.includes('Gift') || text.includes('FREE') || text.includes('off')) {
+                                    $(this).css('color', secondaryColor);
+                                }
+                            });
+                            
+                            // Update button colors
+                            previewContainer.find('button').css({
+                                'background-color': buttonColor,
+                                'color': buttonTextColor
+                            });
+                            
+                            // Update border colors
+                            previewContainer.find('img').each(function() {
+                                var currentStyle = $(this).attr('style');
+                                if (currentStyle.includes('border:')) {
+                                    $(this).attr('style', currentStyle.replace(/border:[^;]+;?/g, 'border: 2px solid ' + primaryColor + ';'));
+                                }
+                            });
                         }
                         
                         // Add visual feedback
@@ -927,6 +956,44 @@ class WC_Advanced_BOGO {
                             $(this).closest('div').removeClass('color-changed');
                         }.bind(this), 200);
                     });
+                    
+                    // Function to get contrasting color
+                    function getContrastingColor(hexColor) {
+                        // Remove # if present
+                        hexColor = hexColor.replace('#', '');
+                        
+                        // Convert to RGB
+                        var r = parseInt(hexColor.substr(0, 2), 16);
+                        var g = parseInt(hexColor.substr(2, 2), 16);
+                        var b = parseInt(hexColor.substr(4, 2), 16);
+                        
+                        // Calculate luminance
+                        var luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                        
+                        // Return black or white based on luminance
+                        return luminance > 0.5 ? '#000000' : '#FFFFFF';
+                    }
+                    
+                    // Function to adjust color brightness
+                    function adjustColorBrightness(hex, percent) {
+                        // Remove # if present
+                        hex = hex.replace('#', '');
+                        
+                        // Convert to RGB
+                        var r = parseInt(hex.substr(0, 2), 16);
+                        var g = parseInt(hex.substr(2, 2), 16);
+                        var b = parseInt(hex.substr(4, 2), 16);
+                        
+                        // Adjust brightness
+                        r = Math.max(0, Math.min(255, r + (r * percent / 100)));
+                        g = Math.max(0, Math.min(255, g + (g * percent / 100)));
+                        b = Math.max(0, Math.min(255, b + (b * percent / 100)));
+                        
+                        // Convert back to hex
+                        return '#' + Math.round(r).toString(16).padStart(2, '0') + 
+                               Math.round(g).toString(16).padStart(2, '0') + 
+                               Math.round(b).toString(16).padStart(2, '0');
+                    }
                     
                     // Handle template selection changes
                     $('input[name="bogo_template"]').on('change', function() {
