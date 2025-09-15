@@ -790,10 +790,9 @@ class WC_Advanced_BOGO {
                                     
                                     <!-- Simplified Color Settings - Only 3 colors for easier admin management -->
                                     <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
-                                        <h4 style="margin: 0 0 15px 0; font-size: 14px; color: #333;">🎨 Simplified Color Settings</h4>
                                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                                             <div>
-                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">🎯 Theme Color:</label>
+                                                <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">🎨 Theme Color:</label>
                                                 <div style="position: relative; display: inline-block;">
                                                     <input type="color" name="bogo_template_colors[<?php echo $template_name; ?>][theme_color]" 
                                                            value="<?php echo esc_attr( $theme_color ); ?>" 
