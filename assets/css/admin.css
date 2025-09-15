@@ -437,11 +437,12 @@ input[type="color"]:hover {
    =================================== */
 
 .bogo-reports-wrapper .summary-card {
-    transition: transform 0.2s ease;
+    transition: none;
 }
 
 .bogo-reports-wrapper .summary-card:hover {
-    transform: translateY(-2px);
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15) !important;
 }
 
 /* Order Status Badges */

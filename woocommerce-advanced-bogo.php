@@ -1717,41 +1717,41 @@ class WC_Advanced_BOGO {
 
 			<!-- Summary Cards -->
 			<div class="bogo-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
-				<div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+				<div class="summary-card" style="background: #f8f9fa; color: #333; padding: 20px; border-radius: 4px; border: 1px solid #dee2e6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
-							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total BOGO Orders</h3>
-							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_orders'] ); ?></p>
+							<h3 style="margin: 0; font-size: 14px; color: #666;">Total BOGO Orders</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: #333;"><?php echo number_format( $bogo_data['total_orders'] ); ?></p>
 						</div>
 						<div style="font-size: 32px; opacity: 0.8;">🛍️</div>
 					</div>
 				</div>
 
-				<div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+				<div class="summary-card" style="background: #e8f5e8; color: #333; padding: 20px; border-radius: 4px; border: 1px solid #c3e6c3; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
-							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total Revenue</h3>
-							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['total_revenue'] ); ?></p>
+							<h3 style="margin: 0; font-size: 14px; color: #666;">Total Revenue</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: #333;"><?php echo wc_price( $bogo_data['total_revenue'] ); ?></p>
 						</div>
 						<div style="font-size: 32px; opacity: 0.8;">💰</div>
 					</div>
 				</div>
 
-				<div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+				<div class="summary-card" style="background: #fff3cd; color: #333; padding: 20px; border-radius: 4px; border: 1px solid #ffeaa7; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
-							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Total Discount Given</h3>
-							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo wc_price( $bogo_data['total_discount'] ); ?></p>
+							<h3 style="margin: 0; font-size: 14px; color: #666;">Total Discount Given</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: #333;"><?php echo wc_price( $bogo_data['total_discount'] ); ?></p>
 						</div>
 						<div style="font-size: 32px; opacity: 0.8;">🎁</div>
 					</div>
 				</div>
 
-				<div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+				<div class="summary-card" style="background: #d1ecf1; color: #333; padding: 20px; border-radius: 4px; border: 1px solid #bee5eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
 					<div style="display: flex; align-items: center; justify-content: space-between;">
 						<div>
-							<h3 style="margin: 0; font-size: 14px; opacity: 0.9;">Gift Items Given</h3>
-							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold;"><?php echo number_format( $bogo_data['total_gift_items'] ); ?></p>
+							<h3 style="margin: 0; font-size: 14px; color: #666;">Gift Items Given</h3>
+							<p style="margin: 5px 0 0 0; font-size: 28px; font-weight: bold; color: #333;"><?php echo number_format( $bogo_data['total_gift_items'] ); ?></p>
 						</div>
 						<div style="font-size: 32px; opacity: 0.8;">🎉</div>
 					</div>
