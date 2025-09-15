@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeRowHighlighting();
     initializeDiscountValidation();
     initializeDatepicker();
+    initializeNumberFieldValidation();
 });
 
 // jQuery-dependent features (existing functionality)
@@ -220,6 +221,11 @@ function initializeJQueryFeatures() {
                 showButtonPanel: true,
                 yearRange: 'c-10:c+10'
             });
+            
+            // Initialize number field validation on new row
+            $newRow.find('.bogo-number-field').each(function() {
+                validateNumberField(this);
+            });
         }, 300);
     }
 
@@ -230,6 +236,17 @@ function initializeJQueryFeatures() {
                 'max-width': '300px !important',
                 'width': 'auto !important',
                 'display': 'inline-block !important'
+            });
+            
+            // Ensure Select2 containers match input field height
+            $('.bogo-select-field + .select2-container .select2-selection--single').css({
+                'height': '35px !important',
+                'line-height': '35px !important'
+            });
+            
+            $('.bogo-select-field + .select2-container .select2-selection--single .select2-selection__rendered').css({
+                'line-height': '35px !important',
+                'padding': '0 8px !important'
             });
         }
 
@@ -569,6 +586,90 @@ function validateDiscountField(field) {
         // Valid value - show success styling
         field.style.borderColor = '#00a32a';
         field.style.backgroundColor = '#f0fff4';
+    }
+}
+
+// Initialize number field validation for text inputs that should only accept numbers
+function initializeNumberFieldValidation() {
+    // Add event listeners to all number fields
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('bogo-number-field')) {
+            validateNumberField(e.target);
+        }
+    });
+    
+    // Add event listeners for paste events
+    document.addEventListener('paste', function(e) {
+        if (e.target.classList.contains('bogo-number-field')) {
+            setTimeout(function() {
+                validateNumberField(e.target);
+            }, 10);
+        }
+    });
+    
+    // Add event listeners for keydown to prevent non-numeric input
+    document.addEventListener('keydown', function(e) {
+        if (e.target.classList.contains('bogo-number-field')) {
+            // Allow: backspace, delete, tab, escape, enter, home, end, left, right, up, down
+            if ([8, 9, 27, 13, 46, 35, 36, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true)) {
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        }
+    });
+}
+
+// Validate and clean number field input
+function validateNumberField(field) {
+    let value = field.value;
+    
+    // Remove any non-numeric characters
+    value = value.replace(/[^0-9]/g, '');
+    
+    // Update field value
+    field.value = value;
+    
+    // Validate based on field type
+    const fieldName = field.getAttribute('name');
+    let minValue = 1;
+    let maxValue = null;
+    
+    if (fieldName.includes('discount')) {
+        minValue = 0;
+        maxValue = 100;
+    } else if (fieldName.includes('qty')) {
+        minValue = 1;
+    }
+    
+    // Check minimum value
+    if (value && parseInt(value) < minValue) {
+        field.value = minValue;
+        field.style.borderColor = '#dc3545';
+        field.style.backgroundColor = '#fff5f5';
+    }
+    // Check maximum value
+    else if (value && maxValue && parseInt(value) > maxValue) {
+        field.value = maxValue;
+        field.style.borderColor = '#dc3545';
+        field.style.backgroundColor = '#fff5f5';
+    }
+    // Valid value
+    else if (value) {
+        field.style.borderColor = '#00a32a';
+        field.style.backgroundColor = '#f0fff4';
+    }
+    // Empty value
+    else {
+        field.style.borderColor = '#ddd';
+        field.style.backgroundColor = '#fff';
     }
 }
 
