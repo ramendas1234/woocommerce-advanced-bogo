@@ -602,6 +602,38 @@ input[name*="[discount]"].success {
     margin-top: 20px;
 }
 
+/* BOGO rule content wrapper - vertical flex layout */
+.bogo-rule-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    line-height: 1.4;
+}
+
+/* Main BOGO rule line - horizontal flex layout */
+.bogo-rule-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+/* Date line - horizontal flex layout */
+.bogo-rule-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+/* Ensure all elements in flex containers don't shrink */
+.bogo-rule-main > *,
+.bogo-rule-dates > * {
+    flex-shrink: 0;
+}
+
 .bogo-rules-sentence-table th,
 .bogo-rules-sentence-table td {
     border: 1px solid #ddd;
@@ -743,6 +775,17 @@ input[name*="[discount]"].success {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+    .bogo-rule-main {
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+    
+    .bogo-rule-main select {
+        min-width: 150px !important;
+    }
+}
+
 @media (max-width: 768px) {
     .bogo-rules-sentence-table {
         font-size: 14px;
@@ -754,5 +797,23 @@ input[name*="[discount]"].success {
     .bogo-datepicker {
         font-size: 13px;
         padding: 6px 10px;
+    }
+    
+    .bogo-rule-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .bogo-rule-dates {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .bogo-rule-main select,
+    .bogo-rule-dates input {
+        width: 100% !important;
+        min-width: auto !important;
     }
 }

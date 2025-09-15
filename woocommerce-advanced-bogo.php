@@ -659,40 +659,45 @@ class WC_Advanced_BOGO {
                                 <?php foreach ( $rules as $index => $rule ) : ?>
                                 <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
-                                        <span style="margin-right: 8px;">🛒 Buy</span>
-                                        
-                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
-                                        <span style="margin: 0 8px;">units of</span>
-                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px; font-size: 14px;">
-                                            <option value="">Search for a product...</option>
-                                            <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
-                                            <?php if ( !empty( $rule['buy_product'] ) && $rule['buy_product'] !== 'all' ) : 
-                                                $buy_product = wc_get_product( $rule['buy_product'] );
-                                                if ( $buy_product ) : ?>
-                                                <option value="<?php echo esc_attr( $rule['buy_product'] ); ?>" selected><?php echo esc_html( $buy_product->get_name() ); ?></option>
-                                            <?php endif; endif; ?>
-                                        </select>
-                                        
-                                        <span style="margin: 0 8px;">, and get</span>
-                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 1" />
-                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px; font-size: 14px;">
-                                            <option value="">Search for a product...</option>
-                                            <?php if ( !empty( $rule['get_product'] ) ) : 
-                                                $get_product = wc_get_product( $rule['get_product'] );
-                                                if ( $get_product ) : ?>
-                                                <option value="<?php echo esc_attr( $rule['get_product'] ); ?>" selected><?php echo esc_html( $get_product->get_name() ); ?></option>
-                                            <?php endif; endif; ?>
-                                        </select>
-                                        
-                                        <span style="margin: 0 8px;">at</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 80px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
-                                        <span style="margin-left: 4px;">% off</span>
-                                        
-                                        <br><br>
-                                        <span style="color: #666; font-size: 14px;">Valid from</span>
-                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; display: inline-block; height: 35px; padding: 8px; font-size: 14px; margin: 0 8px;" />
-                                        <span style="color: #666; font-size: 14px;">to</span>
-                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; display: inline-block; height: 35px; padding: 8px; font-size: 14px; margin-left: 8px;" />
+                                        <div class="bogo-rule-content">
+                                            <div class="bogo-rule-main">
+                                                <span style="margin-right: 8px;">🛒 Buy</span>
+                                                
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
+                                                <span style="margin: 0 8px;">units of</span>
+                                                <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; height: 35px; font-size: 14px;">
+                                                    <option value="">Search for a product...</option>
+                                                    <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
+                                                    <?php if ( !empty( $rule['buy_product'] ) && $rule['buy_product'] !== 'all' ) : 
+                                                        $buy_product = wc_get_product( $rule['buy_product'] );
+                                                        if ( $buy_product ) : ?>
+                                                        <option value="<?php echo esc_attr( $rule['buy_product'] ); ?>" selected><?php echo esc_html( $buy_product->get_name() ); ?></option>
+                                                    <?php endif; endif; ?>
+                                                </select>
+                                                
+                                                <span style="margin: 0 8px;">, and get</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 1" />
+                                                <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; height: 35px; font-size: 14px;">
+                                                    <option value="">Search for a product...</option>
+                                                    <?php if ( !empty( $rule['get_product'] ) ) : 
+                                                        $get_product = wc_get_product( $rule['get_product'] );
+                                                        if ( $get_product ) : ?>
+                                                        <option value="<?php echo esc_attr( $rule['get_product'] ); ?>" selected><?php echo esc_html( $get_product->get_name() ); ?></option>
+                                                    <?php endif; endif; ?>
+                                                </select>
+                                                
+                                                <span style="margin: 0 8px;">at</span>
+                                                <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 80px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
+                                                <span style="margin-left: 4px;">% off</span>
+                                            </div>
+                                            
+                                            <div class="bogo-rule-dates">
+                                                <span style="color: #666; font-size: 14px;">Valid from</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px; margin: 0 8px;" />
+                                                <span style="color: #666; font-size: 14px;">to</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px; margin-left: 8px;" />
+                                            </div>
+                                        </div>
                                     </td>
                                     <td style="text-align: center; vertical-align: top; padding-top: 20px; width: 120px;">
                                         <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
