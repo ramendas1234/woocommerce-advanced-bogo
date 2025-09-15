@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Advanced BOGO
  * Description: Adds advanced BOGO (Buy One Get One) functionality to WooCommerce.
- * Version: 1.0.1
+ * Version: 1.0.0
  * Author: StoreApps
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -25,6 +25,7 @@ class WC_Advanced_BOGO {
         add_action( 'wp_ajax_nopriv_grab_bogo_offer', array( $this, 'handle_grab_bogo_offer' ) );
         add_action( 'wp_ajax_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
         add_action( 'wp_ajax_nopriv_get_bogo_hints', array( $this, 'get_bogo_hints' ) );
+        add_action( 'wp_ajax_save_individual_bogo_rule', array( $this, 'handle_save_individual_bogo_rule' ) );
 
     }
 
@@ -456,6 +457,10 @@ class WC_Advanced_BOGO {
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'jquery-ui-core' );
 			wp_enqueue_script( 'jquery-ui-sortable' );
+			wp_enqueue_script( 'jquery-ui-datepicker' );
+			
+			// Enqueue WordPress datepicker styles
+			wp_enqueue_style( 'jquery-ui-datepicker' );
 			
 			// Enqueue WooCommerce admin scripts
 			wp_enqueue_script( 'woocommerce_admin' );
@@ -466,7 +471,7 @@ class WC_Advanced_BOGO {
 			wp_enqueue_script( 
 				'wc-advanced-bogo-admin', 
 				plugin_dir_url(__FILE__) . 'admin.js', 
-				['jquery', 'woocommerce_admin', 'wc-enhanced-select'], 
+				['jquery', 'jquery-ui-datepicker', 'woocommerce_admin', 'wc-enhanced-select'], 
 				filemtime( plugin_dir_path(__FILE__) . 'admin.js' ), 
 				true 
 			);
@@ -475,7 +480,8 @@ class WC_Advanced_BOGO {
 			wp_localize_script( 'wc-advanced-bogo-admin', 'bogo_admin', array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'nonce' => wp_create_nonce( 'search-products' ),
-				'search_products_nonce' => wp_create_nonce( 'search-products' )
+				'search_products_nonce' => wp_create_nonce( 'search-products' ),
+				'save_individual_rule_nonce' => wp_create_nonce( 'save_individual_bogo_rule' )
 			) );
 			
 			// Add inline script to ensure ajaxurl is available globally
@@ -518,12 +524,23 @@ class WC_Advanced_BOGO {
             if ( is_array( $_POST['bogo_rules'] ) ) {
                 foreach ( $_POST['bogo_rules'] as $rule ) {
                     if ( !empty( $rule['buy_product'] ) && !empty( $rule['get_product'] ) && !empty( $rule['buy_qty'] ) ) {
+                        // CRITICAL SECURITY VALIDATION: Cap discount at 100%
+                        $discount_value = intval( $rule['discount'] );
+                        if ( $discount_value > 100 ) {
+                            echo '<div class="error"><p><strong>Security Error:</strong> Discount for one of the rules exceeded 100% and was automatically capped at 100% to prevent business losses.</p></div>';
+                            $discount_value = 100;
+                        }
+                        if ( $discount_value < 0 ) {
+                            echo '<div class="error"><p><strong>Error:</strong> Negative discount detected and was set to 0%.</p></div>';
+                            $discount_value = 0;
+                        }
+                        
                         $filtered_rules[] = [
                             'buy_product' => sanitize_text_field( $rule['buy_product'] ),
                             'buy_qty'     => intval( $rule['buy_qty'] ),
                             'get_product' => intval( $rule['get_product'] ),
                             'get_qty'     => intval( $rule['get_qty'] ) ?: 1,
-                            'discount'    => intval( $rule['discount'] ),
+                            'discount'    => $discount_value, // Use validated discount
                             'start_date'  => sanitize_text_field( $rule['start_date'] ?? '' ),
                             'end_date'    => sanitize_text_field( $rule['end_date'] ?? '' ),
                         ];
@@ -604,11 +621,11 @@ class WC_Advanced_BOGO {
             <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=rules' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'rules' ? 'nav-tab-active' : ''; ?>">
-                    Discount Rules
+                    BOGO Offers
                 </a>
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=ui-settings' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'ui-settings' ? 'nav-tab-active' : ''; ?>">
-                    UI Settings
+                    BOGO Template Settings
                 </a>
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=reports' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'reports' ? 'nav-tab-active' : ''; ?>">
@@ -622,59 +639,82 @@ class WC_Advanced_BOGO {
                     <div class="bogo-rules-container">
                         <h2>💰 BOGO Discount Rules</h2>
                         <p style="margin-bottom: 20px;">Create rules in plain language. Example: <em>Buy 2 units of T-shirt and get 2 Hat at 50% off</em></p>
+                        <div class="security-warning" style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 12px 16px; border-radius: 4px; margin: 10px 0; font-weight: 600;">
+                            ⚠️ <strong>Security Notice:</strong> Discount values are automatically capped at 100% to prevent negative pricing and business losses. Values above 100% will be reduced to 100%.
+                        </div>
                         <div class="bogo-actions" style="margin: 10px 2px;">
 							<button type="button" id="add-bogo-rule" class="button add-bogo-rule">
-								+ Add New Rule
+								+ Add New BOGO
 							</button>
-							<input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px; background: #28a745; border-color: #28a745; color: white;">
+							<input type="submit" class="button-primary" value="Save BOGO Rules" style="margin-left: 10px; background: #085d1b; border-color: #085d1b; color: #fff; font-weight: bold;">
 						</div>
                         <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table" style="padding-left: 10px;">
                             <thead>
                                 <tr>
-                                    <th style="width: 100%;">Rule</th>
-                                    <th style="min-width: 60px;"></th>
+                                    <th style="width: calc(100% - 120px);">BOGO Rules</th>
+                                    <th style="width: 120px; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="bogo-rules-tbody">
                                 <?php foreach ( $rules as $index => $rule ) : ?>
                                 <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
-                                        <span style="margin-right: 8px;">🛒 Buy</span>
-                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
-                                        <span style="margin: 0 8px;">units of</span>
-                                        <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
-                                            <option value="">Search for a product...</option>
-                                            <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
-                                            <?php if ( !empty( $rule['buy_product'] ) && $rule['buy_product'] !== 'all' ) : 
-                                                $buy_product = wc_get_product( $rule['buy_product'] );
-                                                if ( $buy_product ) : ?>
-                                                <option value="<?php echo esc_attr( $rule['buy_product'] ); ?>" selected><?php echo esc_html( $buy_product->get_name() ); ?></option>
-                                            <?php endif; endif; ?>
-                                        </select>
-                                        <span style="margin: 0 8px;">and give </span>
-                                        <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
-                                        <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
-                                            <option value="">Search for a product...</option>
-                                            <?php if ( !empty( $rule['get_product'] ) ) : 
-                                                $get_product = wc_get_product( $rule['get_product'] );
-                                                if ( $get_product ) : ?>
-                                                <option value="<?php echo esc_attr( $rule['get_product'] ); ?>" selected><?php echo esc_html( $get_product->get_name() ); ?></option>
-                                            <?php endif; endif; ?>
-                                        </select>
-                                        <span style="margin: 0 8px;">at</span>
-                                        <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
-                                        <span style="margin-left: 4px;">% off</span>
-                                        <span style="margin: 0 8px; font-size: 14px; color: #666;">📅 Start:</span>
-                                        <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px; margin-right: 8px;" />
-                                        <span style="margin: 0 8px; font-size: 14px; color: #666;">📅 End:</span>
-                                        <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" style="width: 150px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" />
+                                        <div class="bogo-rule-content">
+                                            <div class="bogo-rule-main">
+                                                <span style="margin-right: 8px;">🛒 Buy</span>
+                                                
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
+                                                <span style="margin: 0 8px;">units of</span>
+                                                <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; height: 35px; font-size: 14px;">
+                                                    <option value="">Search for a product...</option>
+                                                    <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
+                                                    <?php if ( !empty( $rule['buy_product'] ) && $rule['buy_product'] !== 'all' ) : 
+                                                        $buy_product = wc_get_product( $rule['buy_product'] );
+                                                        if ( $buy_product ) : ?>
+                                                        <option value="<?php echo esc_attr( $rule['buy_product'] ); ?>" selected><?php echo esc_html( $buy_product->get_name() ); ?></option>
+                                                    <?php endif; endif; ?>
+                                                </select>
+                                                
+                                                <span style="margin: 0 8px;">, and get</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required style="width: 70px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 1" />
+                                                <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; height: 35px; font-size: 14px;">
+                                                    <option value="">Search for a product...</option>
+                                                    <?php if ( !empty( $rule['get_product'] ) ) : 
+                                                        $get_product = wc_get_product( $rule['get_product'] );
+                                                        if ( $get_product ) : ?>
+                                                        <option value="<?php echo esc_attr( $rule['get_product'] ); ?>" selected><?php echo esc_html( $get_product->get_name() ); ?></option>
+                                                    <?php endif; endif; ?>
+                                                </select>
+                                                
+                                                <span style="margin: 0 8px;">at</span>
+                                                <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 80px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
+                                                <span style="margin-left: 4px;">% off</span>
+                                                
+                                                <span style="color: #666; font-size: 14px; margin: 0 8px;">Valid from</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px;" />
+                                                <span style="color: #666; font-size: 14px; margin: 0 8px;">to</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px;" />
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td style="text-align: center; vertical-align: top; padding-top: 20px;">
-                                        <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                            </svg>
-                                        </button>
+                                    <td style="text-align: center; vertical-align: top; padding-top: 20px; width: 120px;">
+                                        <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                            <button type="button" class="button save-individual-rule" title="Save this rule" data-rule-index="<?php echo $index; ?>" style="color: #00a32a; border-color: #00a32a; background: transparent; height: 35px; width: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px; position: relative;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+                                                </svg>
+                                                <span class="save-loading" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="animation: spin 1s linear infinite;">
+                                                        <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+                                                    </svg>
+                                                </span>
+                                            </button>
+                                            <button type="button" class="button remove-bogo-rule" title="Remove this rule" style="color: #dc3545; border-color: #dc3545; background: transparent; height: 35px; width: 35px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -1342,12 +1382,24 @@ class WC_Advanced_BOGO {
 						$cart->set_quantity( $cart_item_key, $get_qty );
 					}
 
-					// Apply discount safely
+					// Apply discount safely with maximum 100% cap
 					$product = wc_get_product( $get_product_id );
 					if ( $product && is_object( $cart_item['data'] ) ) {
 						$price = $product->get_price();
-						$new_price = $price * ( 100 - $discount ) / 100;
+						
+						// CRITICAL SECURITY FIX: Cap discount at 100% to prevent negative prices
+						$safe_discount = min( 100, max( 0, intval( $discount ) ) );
+						$new_price = $price * ( 100 - $safe_discount ) / 100;
+						
+						// Additional safety: ensure price never goes below 0
+						$new_price = max( 0, $new_price );
+						
 						$cart_item['data']->set_price( $new_price );
+						
+						// Log for debugging if discount was capped
+						if ( $discount > 100 ) {
+							error_log( "BOGO Security: Discount capped from {$discount}% to 100% for product ID {$get_product_id}" );
+						}
 					}
 
 					$gift_found = true;
@@ -2018,6 +2070,86 @@ class WC_Advanced_BOGO {
 				'revenue' => $chart_revenue
 			]
 		];
+	}
+
+	/**
+	 * AJAX handler for saving individual BOGO rule
+	 */
+	public function handle_save_individual_bogo_rule() {
+		// Verify nonce for security
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'save_individual_bogo_rule' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed. Please refresh the page and try again.' ) );
+		}
+
+		// Check user permissions
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have permission to perform this action.' ) );
+		}
+
+		$rule_index = intval( $_POST['rule_index'] );
+		$rule_data = $_POST['rule_data'];
+
+		// Validate rule data
+		if ( empty( $rule_data['buy_product'] ) || empty( $rule_data['get_product'] ) || empty( $rule_data['buy_qty'] ) ) {
+			wp_send_json_error( array( 'message' => 'Please fill in all required fields: Buy Product, Get Product, and Buy Quantity.' ) );
+		}
+
+		// CRITICAL SECURITY VALIDATION: Ensure discount never exceeds 100%
+		$discount_value = intval( $rule_data['discount'] );
+		if ( $discount_value > 100 ) {
+			wp_send_json_error( array( 'message' => 'Security Error: Discount cannot exceed 100%. This prevents business losses from negative pricing.' ) );
+		}
+		if ( $discount_value < 0 ) {
+			wp_send_json_error( array( 'message' => 'Discount cannot be negative. Please enter a value between 0 and 100.' ) );
+		}
+
+		// Sanitize rule data
+		$sanitized_rule = array(
+			'buy_product' => sanitize_text_field( $rule_data['buy_product'] ),
+			'buy_qty'     => intval( $rule_data['buy_qty'] ),
+			'get_product' => intval( $rule_data['get_product'] ),
+			'get_qty'     => intval( $rule_data['get_qty'] ) ?: 1,
+			'discount'    => intval( $rule_data['discount'] ),
+			'start_date'  => sanitize_text_field( $rule_data['start_date'] ?? '' ),
+			'end_date'    => sanitize_text_field( $rule_data['end_date'] ?? '' ),
+		);
+
+		// Get existing rules
+		$rules = get_option( self::OPTION_KEY, array() );
+
+		// Update or add the rule
+		if ( $rule_index >= 0 && $rule_index < count( $rules ) ) {
+			// Update existing rule
+			$rules[$rule_index] = $sanitized_rule;
+			$action = 'updated';
+		} else {
+			// Add new rule
+			$rules[] = $sanitized_rule;
+			$action = 'added';
+			$rule_index = count( $rules ) - 1;
+		}
+
+		// Save updated rules
+		update_option( self::OPTION_KEY, $rules );
+
+		// Get product names for response
+		$buy_product_name = 'All Products';
+		if ( $sanitized_rule['buy_product'] !== 'all' ) {
+			$buy_product = wc_get_product( $sanitized_rule['buy_product'] );
+			$buy_product_name = $buy_product ? $buy_product->get_name() : 'Unknown Product';
+		}
+
+		$get_product = wc_get_product( $sanitized_rule['get_product'] );
+		$get_product_name = $get_product ? $get_product->get_name() : 'Unknown Product';
+
+		wp_send_json_success( array(
+			'message' => sprintf( 'Rule %s successfully!', $action ),
+			'rule_index' => $rule_index,
+			'rule_data' => $sanitized_rule,
+			'buy_product_name' => $buy_product_name,
+			'get_product_name' => $get_product_name,
+			'action' => $action
+		) );
 	}
 
 	/**
