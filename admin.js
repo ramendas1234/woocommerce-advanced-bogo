@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeIndividualSave();
     initializeRowHighlighting();
     initializeDiscountValidation();
+    initializeDatepicker();
 });
 
 // jQuery-dependent features (existing functionality)
@@ -118,7 +119,7 @@ function initializeJQueryFeatures() {
         // Clear all values in the new row
         $newRow.find('input[type="number"]').val('');
         $newRow.find('input[type="text"]').val('');
-        $newRow.find('input[type="date"]').val('');
+        $newRow.find('.bogo-datepicker').val('');
         
         // Clear and reset select elements
         $newRow.find('select').each(function() {
@@ -210,6 +211,15 @@ function initializeJQueryFeatures() {
 
             // Ensure proper styling for new row
             ensureSelect2Styling();
+            
+            // Initialize datepicker on new row
+            $newRow.find('.bogo-datepicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                yearRange: 'c-10:c+10'
+            });
         }, 300);
     }
 
@@ -567,5 +577,36 @@ function validateDiscountField(field) {
         // Valid value - show success styling
         field.style.borderColor = '#00a32a';
         field.style.backgroundColor = '#f0fff4';
+    }
+}
+
+// Initialize WordPress datepicker
+function initializeDatepicker() {
+    // Wait for jQuery to be available
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).ready(function($) {
+            // Initialize datepicker on existing date fields
+            $('.bogo-datepicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true,
+                yearRange: 'c-10:c+10'
+            });
+            
+            // Re-initialize datepicker when new rows are added
+            $(document).on('DOMNodeInserted', '.bogo-rule-row', function() {
+                $(this).find('.bogo-datepicker').datepicker({
+                    dateFormat: 'yy-mm-dd',
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true,
+                    yearRange: 'c-10:c+10'
+                });
+            });
+        });
+    } else {
+        // Retry after a short delay if jQuery isn't loaded yet
+        setTimeout(initializeDatepicker, 500);
     }
 }

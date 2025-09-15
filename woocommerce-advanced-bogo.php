@@ -457,6 +457,10 @@ class WC_Advanced_BOGO {
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'jquery-ui-core' );
 			wp_enqueue_script( 'jquery-ui-sortable' );
+			wp_enqueue_script( 'jquery-ui-datepicker' );
+			
+			// Enqueue WordPress datepicker styles
+			wp_enqueue_style( 'jquery-ui-datepicker' );
 			
 			// Enqueue WooCommerce admin scripts
 			wp_enqueue_script( 'woocommerce_admin' );
@@ -467,7 +471,7 @@ class WC_Advanced_BOGO {
 			wp_enqueue_script( 
 				'wc-advanced-bogo-admin', 
 				plugin_dir_url(__FILE__) . 'admin.js', 
-				['jquery', 'woocommerce_admin', 'wc-enhanced-select'], 
+				['jquery', 'jquery-ui-datepicker', 'woocommerce_admin', 'wc-enhanced-select'], 
 				filemtime( plugin_dir_path(__FILE__) . 'admin.js' ), 
 				true 
 			);
@@ -655,13 +659,13 @@ class WC_Advanced_BOGO {
                                 <?php foreach ( $rules as $index => $rule ) : ?>
                                 <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
-                                        <div class="bogo-fill-blank-sentence" style="line-height: 2.5; font-size: 16px; color: #333;">
+                                        <div class="bogo-fill-blank-sentence">
                                             <span style="color: #666;">Buy</span>
-                                            <span class="bogo-blank-input-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
+                                            <span class="bogo-blank-input-wrapper">
                                                 <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required class="bogo-blank-input" placeholder="___" />
                                             </span>
                                             <span style="color: #666;">units of</span>
-                                            <span class="bogo-blank-select-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
+                                            <span class="bogo-blank-select-wrapper">
                                                 <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search bogo-blank-select" data-placeholder="____" required>
                                                     <option value="">____</option>
                                                     <option value="all" <?php selected( $rule['buy_product'], 'all' ); ?>>— All Products —</option>
@@ -673,10 +677,10 @@ class WC_Advanced_BOGO {
                                                 </select>
                                             </span>
                                             <span style="color: #666;">, and get</span>
-                                            <span class="bogo-blank-input-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
+                                            <span class="bogo-blank-input-wrapper">
                                                 <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required class="bogo-blank-input" placeholder="___" />
                                             </span>
-                                            <span class="bogo-blank-select-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
+                                            <span class="bogo-blank-select-wrapper">
                                                 <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search bogo-blank-select" data-placeholder="____" required>
                                                     <option value="">____</option>
                                                     <?php if ( !empty( $rule['get_product'] ) ) : 
@@ -687,18 +691,17 @@ class WC_Advanced_BOGO {
                                                 </select>
                                             </span>
                                             <span style="color: #666;">at</span>
-                                            <span class="bogo-blank-input-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
+                                            <span class="bogo-blank-input-wrapper">
                                                 <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required class="bogo-blank-input" placeholder="___" />
                                             </span>
                                             <span style="color: #666;">% off.</span>
-                                            <br>
-                                            <span style="color: #999; font-size: 14px; margin-top: 8px; display: inline-block;">Valid from</span>
-                                            <span class="bogo-blank-date-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
-                                                <input type="date" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-blank-date" placeholder="____" />
+                                            <span style="color: #999; font-size: 14px;">Valid from</span>
+                                            <span class="bogo-blank-date-wrapper">
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-blank-date bogo-datepicker" placeholder="____" />
                                             </span>
                                             <span style="color: #999; font-size: 14px;">to</span>
-                                            <span class="bogo-blank-date-wrapper" style="position: relative; display: inline-block; margin: 0 4px;">
-                                                <input type="date" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-blank-date" placeholder="____" />
+                                            <span class="bogo-blank-date-wrapper">
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-blank-date bogo-datepicker" placeholder="____" />
                                             </span>
                                         </div>
                                     </td>
