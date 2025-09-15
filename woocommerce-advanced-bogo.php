@@ -836,18 +836,21 @@ class WC_Advanced_BOGO {
                                         </div>
                                     </div>
                                     
-                                    <div style="margin-top: 15px; padding: 15px; background: <?php echo esc_attr( $background_color ); ?>; border-radius: 6px; position: relative;">
-                                        <?php if ( $template_name === 'template2' || $template_name === 'template3' ) : ?>
-                                            <div style="position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px;">🔥 SPECIAL</div>
-                                        <?php endif; ?>
-                                        <strong style="color: <?php echo esc_attr( $text_color ); ?>;"><?php echo $template_name === 'template2' ? '💎 Exclusive BOGO Deal!' : ($template_name === 'template3' ? '🚀 MEGA BOGO BLAST!' : '🎉 Special BOGO Offer!'); ?></strong><br>
-                                        <span style="color: <?php echo esc_attr( $text_color ); ?>; font-size: 11px;"><?php echo esc_html( $template_info['preview_text'] ); ?></span><br>
-                                        <span style="background: <?php echo esc_attr( $button_bg_color ); ?>; color: <?php echo esc_attr( $button_text_color ); ?>; padding: 6px 12px; border-radius: 4px; margin-top: 8px; display: inline-block; font-size: 11px; font-weight: bold;"
-                                              data-button-bg="<?php echo esc_attr( $button_bg_color ); ?>"
-                                              data-button-text="<?php echo esc_attr( $button_text_color ); ?>">
-                                            <?php echo esc_html( $template_info['button_text'] ); ?>
-                                        </span>
-                                    </div>
+                                    <?php
+                                    // Include preview helper
+                                    include_once plugin_dir_path(__FILE__) . 'templates/preview-helper.php';
+                                    
+                                    // Generate realistic frontend preview
+                                    echo generate_bogo_preview(
+                                        $template_name,
+                                        $background_color,
+                                        $text_color,
+                                        $primary_color,
+                                        $secondary_color,
+                                        $button_bg_color,
+                                        $button_text_color
+                                    );
+                                    ?>
                                 </div>
                             <?php endforeach; ?>
                             
