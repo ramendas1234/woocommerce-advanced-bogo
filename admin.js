@@ -226,16 +226,8 @@ function initializeJQueryFeatures() {
         // Function to ensure proper Select2 styling
         function ensureSelect2Styling() {
             $('.bogo-rule-row .select2-container').css({
-                'min-width': '120px !important',
-                'max-width': '200px !important',
-                'width': 'auto !important',
-                'display': 'inline-block !important'
-            });
-            
-            // Apply fill-in-the-blanks styling to Select2 containers
-            $('.bogo-blank-select + .select2-container').css({
-                'min-width': '120px !important',
-                'max-width': '200px !important',
+                'min-width': '200px !important',
+                'max-width': '300px !important',
                 'width': 'auto !important',
                 'display': 'inline-block !important'
             });
