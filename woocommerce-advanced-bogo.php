@@ -689,13 +689,11 @@ class WC_Advanced_BOGO {
                                                 <span style="margin: 0 8px;">at</span>
                                                 <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required style="width: 80px; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 50" />
                                                 <span style="margin-left: 4px;">% off</span>
-                                            </div>
-                                            
-                                            <div class="bogo-rule-dates">
-                                                <span style="color: #666; font-size: 14px;">Valid from</span>
-                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px; margin: 0 8px;" />
-                                                <span style="color: #666; font-size: 14px;">to</span>
-                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px; margin-left: 8px;" />
+                                                
+                                                <span style="color: #666; font-size: 14px; margin: 0 8px;">Valid from</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][start_date]" value="<?php echo esc_attr( $rule['start_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px;" />
+                                                <span style="color: #666; font-size: 14px; margin: 0 8px;">to</span>
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][end_date]" value="<?php echo esc_attr( $rule['end_date'] ?? '' ); ?>" class="bogo-datepicker" placeholder="YYYY-MM-DD" style="width: 120px; height: 35px; padding: 8px; font-size: 14px;" />
                                             </div>
                                         </div>
                                     </td>
