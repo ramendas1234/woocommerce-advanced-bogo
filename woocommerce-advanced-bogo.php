@@ -663,7 +663,7 @@ class WC_Advanced_BOGO {
                                             <div class="bogo-rule-main">
                                                 <span style="margin-right: 8px; margin-left: 8px;">🛒 Buy</span>
                                                 
-                                                <input type="number" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required class="bogo-input-field" placeholder="e.g. 2" />
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required class="bogo-input-field bogo-number-field" placeholder="e.g. 2" />
                                                 <span style="margin: 0 8px;">units of</span>
                                                 <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search bogo-select-field" data-placeholder="Search for a product..." required>
                                                     <option value="">Search for a product...</option>
@@ -676,7 +676,7 @@ class WC_Advanced_BOGO {
                                                 </select>
                                                 
                                                 <span style="margin: 0 8px;">, and get</span>
-                                                <input type="number" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required class="bogo-input-field" placeholder="e.g. 1" />
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][get_qty]" value="<?php echo esc_attr( $rule['get_qty'] ?: '1' ); ?>" min="1" required class="bogo-input-field bogo-number-field" placeholder="e.g. 1" />
                                                 <select name="bogo_rules[<?php echo $index; ?>][get_product]" class="wc-product-search bogo-select-field" data-placeholder="Search for a product..." required>
                                                     <option value="">Search for a product...</option>
                                                     <?php if ( !empty( $rule['get_product'] ) ) : 
@@ -687,7 +687,7 @@ class WC_Advanced_BOGO {
                                                 </select>
                                                 
                                                 <span style="margin: 0 8px;">at</span>
-                                                <input type="number" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required class="bogo-input-field" placeholder="e.g. 50" />
+                                                <input type="text" name="bogo_rules[<?php echo $index; ?>][discount]" value="<?php echo esc_attr( $rule['discount'] ); ?>" min="0" max="100" required class="bogo-input-field bogo-number-field" placeholder="e.g. 50" />
                                                 <span style="margin-left: 4px; font-weight: bold;">% off</span>
                                                 
                                                 <span style="color: #666; font-size: 14px; margin: 0 8px;">Valid from</span>
