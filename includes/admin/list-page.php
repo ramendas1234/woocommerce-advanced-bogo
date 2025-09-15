@@ -92,7 +92,7 @@ if ( isset( $_GET['disabled'] ) ) {
                         $rule_title = ! empty( $rule->title ) ? $rule->title : __( 'Untitled Rule', 'wc-advanced-bogo' );
                         $rule_enabled = ! empty( $rule->enabled );
                     ?>
-                        <tr id="post-<?php echo esc_attr( $rule_id ); ?>" class="iedit author-self level-0 post-<?php echo esc_attr( $rule_id ); ?> type-rule status-<?php echo $rule_enabled ? 'enabled' : 'disabled'; ?>">
+                        <tr id="post-<?php echo esc_attr( $rule_id ); ?>" class="iedit author-self level-0 post-<?php echo esc_attr( $rule_id ); ?> type-rule">
                             <th scope="row" class="check-column">
                                 <input id="cb-select-<?php echo esc_attr( $rule_id ); ?>" type="checkbox" name="rule_ids[]" value="<?php echo esc_attr( $rule_id ); ?>">
                             </th>
