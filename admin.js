@@ -231,6 +231,17 @@ function initializeJQueryFeatures() {
                 'width': 'auto !important',
                 'display': 'inline-block !important'
             });
+            
+            // Ensure Select2 containers match input field height
+            $('.bogo-select-field + .select2-container .select2-selection--single').css({
+                'height': '35px !important',
+                'line-height': '35px !important'
+            });
+            
+            $('.bogo-select-field + .select2-container .select2-selection--single .select2-selection__rendered').css({
+                'line-height': '35px !important',
+                'padding': '0 8px !important'
+            });
         }
 
     // Handle color picker changes with instant preview (no AJAX saving)

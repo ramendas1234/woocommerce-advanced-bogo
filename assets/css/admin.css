@@ -621,6 +621,100 @@ input[name*="[discount]"].success {
     flex-shrink: 0;
 }
 
+/* Consistent height for all input fields and select containers */
+.bogo-input-field {
+    width: 70px;
+    height: 35px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bogo-input-field:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+.bogo-select-field {
+    min-width: 200px;
+    height: 35px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bogo-select-field:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
+/* Select2 container height matching */
+.bogo-select-field + .select2-container .select2-selection--single {
+    height: 35px !important;
+    line-height: 35px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    background-color: #fff !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.bogo-select-field + .select2-container .select2-selection--single:focus,
+.bogo-select-field + .select2-container.select2-container--focus .select2-selection--single {
+    border-color: #0073aa !important;
+    box-shadow: 0 0 0 1px #0073aa !important;
+    outline: none !important;
+}
+
+.bogo-select-field + .select2-container .select2-selection--single .select2-selection__rendered {
+    line-height: 35px !important;
+    padding: 0 8px !important;
+    color: #333 !important;
+    font-size: 14px !important;
+}
+
+.bogo-select-field + .select2-container .select2-selection--single .select2-selection__arrow {
+    height: 33px !important;
+    right: 8px !important;
+    top: 1px !important;
+}
+
+.bogo-select-field + .select2-container .select2-selection--single .select2-selection__arrow b {
+    border-color: #666 transparent transparent transparent !important;
+    border-style: solid !important;
+    border-width: 5px 4px 0 4px !important;
+    height: 0 !important;
+    left: 50% !important;
+    margin-left: -4px !important;
+    margin-top: -2px !important;
+    position: absolute !important;
+    top: 50% !important;
+    width: 0 !important;
+}
+
+/* Datepicker input height matching */
+.bogo-datepicker {
+    width: 120px;
+    height: 35px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bogo-datepicker:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+    outline: none;
+}
+
 .bogo-rules-sentence-table th,
 .bogo-rules-sentence-table td {
     border: 1px solid #ddd;
