@@ -117,6 +117,7 @@ function initializeJQueryFeatures() {
         
         // Clear all values in the new row
         $newRow.find('input[type="number"]').val('');
+        $newRow.find('input[type="text"]').val('');
         $newRow.find('input[type="date"]').val('');
         
         // Clear and reset select elements
@@ -136,7 +137,13 @@ function initializeJQueryFeatures() {
 
             $select.removeClass('select2-hidden-accessible');
             $select.empty();
-            $select.append('<option value="">Search for a product...</option>');
+            
+            // Set appropriate placeholder based on select type
+            if ($select.hasClass('bogo-blank-select')) {
+                $select.append('<option value="">____</option>');
+            } else {
+                $select.append('<option value="">Search for a product...</option>');
+            }
 
             $select.attr('name', originalName.replace(/\[\d+\]/, '[' + newIndex + ']'));
         });
@@ -165,6 +172,8 @@ function initializeJQueryFeatures() {
         setTimeout(function() {
             $newRow.find('.wc-product-search').each(function() {
                 var $select = $(this);
+                var placeholder = $select.hasClass('bogo-blank-select') ? '____' : 'Search for a product...';
+                
                 $select.select2({
                     ajax: {
                         url: ajaxurl,
@@ -194,7 +203,7 @@ function initializeJQueryFeatures() {
                         cache: true
                     },
                     minimumInputLength: 2,
-                    placeholder: $select.data('placeholder') || 'Search for a product...',
+                    placeholder: placeholder,
                     dropdownParent: $('body')
                 });
             });
@@ -204,15 +213,23 @@ function initializeJQueryFeatures() {
         }, 300);
     }
 
-    // Function to ensure proper Select2 styling
-    function ensureSelect2Styling() {
-        $('.bogo-rule-row .select2-container').css({
-            'min-width': '200px !important',
-            'max-width': '300px !important',
-            'width': 'auto !important',
-            'display': 'inline-block !important'
-        });
-    }
+        // Function to ensure proper Select2 styling
+        function ensureSelect2Styling() {
+            $('.bogo-rule-row .select2-container').css({
+                'min-width': '120px !important',
+                'max-width': '200px !important',
+                'width': 'auto !important',
+                'display': 'inline-block !important'
+            });
+            
+            // Apply fill-in-the-blanks styling to Select2 containers
+            $('.bogo-blank-select + .select2-container').css({
+                'min-width': '120px !important',
+                'max-width': '200px !important',
+                'width': 'auto !important',
+                'display': 'inline-block !important'
+            });
+        }
 
     // Handle color picker changes with instant preview (no AJAX saving)
     $('input[type="color"]').on('input change', function() {
