@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Advanced BOGO
  * Description: Adds advanced BOGO (Buy One Get One) functionality to WooCommerce.
- * Version: 1.0.2
+ * Version: 1.0.0
  * Author: StoreApps
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -617,11 +617,11 @@ class WC_Advanced_BOGO {
             <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=rules' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'rules' ? 'nav-tab-active' : ''; ?>">
-                    Discount Rules
+                    BOGO Offers
                 </a>
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=ui-settings' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'ui-settings' ? 'nav-tab-active' : ''; ?>">
-                    UI Settings
+                    BOGO Template Settings
                 </a>
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=reports' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'reports' ? 'nav-tab-active' : ''; ?>">
@@ -640,14 +640,14 @@ class WC_Advanced_BOGO {
                         </div>
                         <div class="bogo-actions" style="margin: 10px 2px;">
 							<button type="button" id="add-bogo-rule" class="button add-bogo-rule">
-								+ Add New Rule
+								+ Add New BOGO
 							</button>
-							<input type="submit" class="button-primary" value="Save Discount Rules" style="margin-left: 10px; background: #28a745; border-color: #28a745; color: white;">
+							<input type="submit" class="button-primary" value="Save BOGO Rules" style="margin-left: 10px; background: #085d1b; border-color: #085d1b; color: #fff; font-weight: bold;">
 						</div>
                         <table class="widefat bogo-rules-sentence-table" id="bogo-rules-table" style="padding-left: 10px;">
                             <thead>
                                 <tr>
-                                    <th style="width: calc(100% - 120px);">Rule</th>
+                                    <th style="width: calc(100% - 120px);">BOGO Rules</th>
                                     <th style="width: 120px; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
@@ -656,6 +656,7 @@ class WC_Advanced_BOGO {
                                 <tr class="bogo-rule-row" data-index="<?php echo $index; ?>">
                                     <td style="font-size: 16px; font-weight: 500; padding: 20px 0;">
                                         <span style="margin-right: 8px;">🛒 Buy</span>
+										
                                         <input type="text" name="bogo_rules[<?php echo $index; ?>][buy_qty]" value="<?php echo esc_attr( $rule['buy_qty'] ); ?>" min="1" required style="width: 70px; display: inline-block; height: 35px; padding: 8px; font-size: 14px;" placeholder="e.g. 2" />
                                         <span style="margin: 0 8px;">units of</span>
                                         <select name="bogo_rules[<?php echo $index; ?>][buy_product]" class="wc-product-search" data-placeholder="Search for a product..." required style="min-width: 200px; display: inline-block; height: 35px;">
