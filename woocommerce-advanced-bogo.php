@@ -517,8 +517,8 @@ class WC_Advanced_BOGO {
     public function add_admin_menu() {
         add_submenu_page(
             'woocommerce',
-            'Advanced BOGO',
-            'Advanced BOGO',
+            'Smart BOGO',
+            'Smart BOGO',
             'manage_woocommerce',
             'wc-advanced-bogo',
             [ $this, 'settings_page' ]
@@ -632,7 +632,7 @@ class WC_Advanced_BOGO {
         ?>
         <meta name="woocommerce-search-products-nonce" content="<?php echo wp_create_nonce( 'search-products' ); ?>">
         <div class="wrap">
-            <h1>Advanced BOGO</h1>
+            <h1>Smart BOGO</h1>
             
             <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
                 <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=rules' ); ?>" 

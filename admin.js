@@ -1,4 +1,4 @@
-// WooCommerce Advanced BOGO - Admin JavaScript
+// WooCommerce Smart BOGO - Admin JavaScript
 // Using vanilla JavaScript instead of jQuery for individual save functionality
 
 document.addEventListener('DOMContentLoaded', function() {
