@@ -1,12 +1,28 @@
 <?php
 /**
- * Plugin Name: WooCommerce Advanced BOGO
- * Description: Adds advanced BOGO (Buy One Get One) functionality to WooCommerce.
+ * Plugin Name: Smart BOGO
+ * Plugin URI: https://woocommerce.com/products/smart-bogo/
+ * Description: <strong>WooCommerce Smart BOGO</strong> lets you create flexible “Buy One, Get One” deals to boost sales and reward customers. Configure simple or advanced rules like Buy X, Get Y with custom quantities, discounts, date ranges, and even storewide offers.
  * Version: 1.0.0
  * Author: StoreApps
- * Requires at least: 5.8
- * Requires PHP: 7.4
+ * Author URI: https://www.storeapps.org/
+ * Developer: StoreApps
+ * Developer URI: https://www.storeapps.org/
+ * Requires PHP: 5.8
+ * Requires at least: 4.4
+ * Tested up to: 6.8.1
+ * WC requires at least: 3.0.0
+ * WC tested up to: 9.9.5
+ * Requires Plugins: woocommerce
+ * Text Domain: woocommerce-smart-bogo
+ * Domain Path: /languages/
+ * Copyright (c) 2014-2025 WooCommerce, StoreApps All rights reserved.
+ * License: GNU General Public License v3.0
+ * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * @package woocommerce-smart-bogo
  */
+
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -877,7 +893,7 @@ class WC_Advanced_BOGO {
                         </div>
                     </div>
                     <div class="bogo-actions">
-                        <input type="submit" class="button-primary" value="Save UI Settings" style="background: #28a745; border-color: #28a745; color: white;">
+                        <input type="submit" class="button-primary" value="Save UI Settings" style="background: #085d1b; border-color: #085d1b; color: #fff; font-weight: bold;">
                     </div>
                 </form>
                 
@@ -1316,14 +1332,14 @@ class WC_Advanced_BOGO {
 			],
 			'template2' => [
 				'name' => '💎 Premium Card',
-				'description' => 'Elegant card design with glass-morphism effects and premium styling. Eye-catching and luxurious.',
+				'description' => 'Elegant card design and premium styling. Eye-catching and luxurious.',
 				'preview_text' => 'Buy 2 → Get 1 FREE!',
 				'button_text' => '✨ Claim Now!',
 				'style' => 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;'
 			],
 			'template3' => [
 				'name' => '🚀 Dynamic Burst',
-				'description' => 'Bold and vibrant design with attention-grabbing colors. Perfect for sales and promotions.',
+				'description' => 'Bold and vibrant design with beautiful colors. Perfect for sales and promotions.',
 				'preview_text' => 'Limited Time: Buy More, Save More!',
 				'button_text' => '🎯 Get Deal!',
 				'style' => 'background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); border-radius: 15px;'
