@@ -468,7 +468,7 @@ class WC_Advanced_BOGO {
 
 	public function enqueue_admin_scripts( $hook ) {
 		// Only load on our BOGO settings page
-		if ( $hook === 'woocommerce_page_wc-advanced-bogo' || $hook === 'toplevel_page_wc-advanced-bogo' ) {
+		if ( $hook === 'woocommerce_page_wc-smart-bogo' || $hook === 'toplevel_page_wc-smart-bogo' ) {
 			// Enqueue WordPress admin scripts first
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'jquery-ui-core' );
@@ -520,7 +520,7 @@ class WC_Advanced_BOGO {
             'Smart BOGO',
             'Smart BOGO',
             'manage_woocommerce',
-            'wc-advanced-bogo',
+            'wc-smart-bogo',
             [ $this, 'settings_page' ]
         );
     }
@@ -635,15 +635,15 @@ class WC_Advanced_BOGO {
             <h1>Smart BOGO</h1>
             
             <nav class="nav-tab-wrapper woo-nav-tab-wrapper">
-                <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=rules' ); ?>" 
+                <a href="<?php echo admin_url( 'admin.php?page=wc-smart-bogo&tab=rules' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'rules' ? 'nav-tab-active' : ''; ?>">
                     BOGO Offers
                 </a>
-                <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=ui-settings' ); ?>" 
+                <a href="<?php echo admin_url( 'admin.php?page=wc-smart-bogo&tab=ui-settings' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'ui-settings' ? 'nav-tab-active' : ''; ?>">
                     BOGO Template Settings
                 </a>
-                <a href="<?php echo admin_url( 'admin.php?page=wc-advanced-bogo&tab=reports' ); ?>" 
+                <a href="<?php echo admin_url( 'admin.php?page=wc-smart-bogo&tab=reports' ); ?>" 
                    class="nav-tab <?php echo $current_tab === 'reports' ? 'nav-tab-active' : ''; ?>">
                     📊 Reports
                 </a>
@@ -1792,7 +1792,7 @@ class WC_Advanced_BOGO {
 			<div class="bogo-date-filter" style="background: #fff; padding: 20px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
 				<h3>📅 Date Range Filter</h3>
 				<form method="get" style="display: flex; align-items: center; gap: 15px;">
-					<input type="hidden" name="page" value="wc-advanced-bogo">
+					<input type="hidden" name="page" value="wc-smart-bogo">
 					<input type="hidden" name="tab" value="reports">
 					<label>From: <input type="date" name="date_from" value="<?php echo esc_attr( $date_from ); ?>" style="margin-left: 5px;"></label>
 					<label>To: <input type="date" name="date_to" value="<?php echo esc_attr( $date_to ); ?>" style="margin-left: 5px;"></label>
