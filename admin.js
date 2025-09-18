@@ -183,7 +183,7 @@ function initializeJQueryFeatures() {
                         delay: 250,
                         data: function(params) {
                             return {
-                                action: 'woocommerce_json_search_products',
+                                action: 'woocommerce_json_search_products_and_variations',
                                 term: params.term,
                                 security: bogo_admin.search_products_nonce
                             };

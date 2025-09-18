@@ -28,6 +28,17 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+add_action( 'before_woocommerce_init', function() {
+    if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+            'custom_order_tables', 
+            __FILE__,  
+            true  
+        );
+    }
+});
+
+
 class WC_Advanced_BOGO {
 
     const OPTION_KEY = 'wc_advanced_bogo_rules';
@@ -56,7 +67,7 @@ class WC_Advanced_BOGO {
 			add_action( 'woocommerce_single_product_summary', [ $this, 'display_bogo_message' ], 25 );
 			add_action( 'woocommerce_before_calculate_totals', [ $this, 'apply_bogo_discount' ], 10, 1 );
 			add_filter( 'woocommerce_cart_item_remove_link', [ $this, 'maybe_remove_remove_link' ], 10, 2 );
-			
+			add_filter( 'woocommerce_cart_item_quantity', [ $this, 'wc_advanced_bogo_lock_gift_qty' ] , 10, 3 );
 			// Add BOGO hints inside cart line items (classic cart only)
 			add_action( 'woocommerce_after_cart_item_name', [ $this, 'display_cart_item_bogo_hint' ], 10, 2 );
 			
@@ -67,27 +78,6 @@ class WC_Advanced_BOGO {
 			add_action( 'woocommerce_checkout_create_order_line_item', [ $this, 'save_bogo_order_item_meta' ], 10, 4 );
 			add_action( 'woocommerce_checkout_order_processed', [ $this, 'save_bogo_order_meta' ], 10, 3 );
 		}
-	}
-
-
-
-	/**
-	 * Check if we're using cart blocks
-	 */
-	private function is_cart_blocks() {
-		// Check if cart blocks are being used
-		$has_cart_block = has_block( 'woocommerce/cart' );
-		$has_checkout_block = has_block( 'woocommerce/checkout' );
-		$is_cart_endpoint = function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'cart' );
-		
-		// Debug: Log what we found
-		if ( is_cart() || is_checkout() ) {
-			error_log( 'BOGO Debug - has_cart_block: ' . ( $has_cart_block ? 'true' : 'false' ) );
-			error_log( 'BOGO Debug - has_checkout_block: ' . ( $has_checkout_block ? 'true' : 'false' ) );
-			error_log( 'BOGO Debug - is_cart_endpoint: ' . ( $is_cart_endpoint ? 'true' : 'false' ) );
-		}
-		
-		return $has_cart_block || $has_checkout_block || ( $is_cart_endpoint && $has_cart_block );
 	}
 
 	/**
@@ -119,20 +109,7 @@ class WC_Advanced_BOGO {
 		return $active_rules;
 	}
 
-	/**
-	 * Add cart blocks hints
-	 */
-	public function add_cart_blocks_hints( $registry ) {
-		// This method is kept for compatibility but not used
-	}
-
-	/**
-	 * Add cart item blocks hints
-	 */
-	public function add_cart_item_blocks_hints( $registry ) {
-		// This method is kept for compatibility but not used
-	}
-
+	
 	/**
 	 * Add BOGO hint content to cart blocks
 	 */
@@ -1150,7 +1127,7 @@ class WC_Advanced_BOGO {
 
 	public function display_bogo_message() {
 		global $product;
-
+		$should_bogo_message_display = false;
 		$rules = get_option( self::OPTION_KEY, [] );
 		$template_settings = get_option( self::TEMPLATE_OPTION_KEY, [] );
 		
@@ -1162,7 +1139,7 @@ class WC_Advanced_BOGO {
 		$now = date( 'Y-m-d' );
 		
 		foreach ( $rules as $index => $rule ) {
-			if ( ! empty( $rule['buy_product'] ) && ( $rule['buy_product'] === 'all' || intval( $rule['buy_product'] ) === $product->get_id() ) ) {
+			if ( ! empty( $rule['buy_product'] ) && ( $rule['buy_product'] === 'all' || intval( $rule['buy_product'] ) === $product->get_id() || in_array( $rule['buy_product'], $product->get_children() ) ) ) {
 				$buy_qty     = intval( $rule['buy_qty'] );
 				$get_qty     = intval( $rule['get_qty'] ) ?: 1;
 				$get_product = wc_get_product( intval( $rule['get_product'] ) );
@@ -1410,117 +1387,127 @@ class WC_Advanced_BOGO {
 
 
     public function apply_bogo_discount( $cart ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			return;
+		}
 
-	    if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-	        return;
-	    }
-
-	    $rules = get_option( self::OPTION_KEY, [] );
-	    $now = date( 'Y-m-d' );
-		// echo '<pre>';
-		// print_r($rules);
-		// exit();
+		$rules = get_option( self::OPTION_KEY, [] );
+		$now   = date( 'Y-m-d' );
 
 		foreach ( $rules as $index => $rule ) {
 			if ( empty( $rule['get_product'] ) || empty( $rule['buy_qty'] ) ) {
 				continue;
 			}
 
-			if ( isset( $rule['start_date'] ) && !empty( $rule['start_date'] ) && $rule['start_date'] > $now ) continue;
-            if ( isset( $rule['end_date'] ) && !empty( $rule['end_date'] ) && $rule['end_date'] < $now ) continue;
+			// Date validation
+			if ( ! empty( $rule['start_date'] ) && $rule['start_date'] > $now ) {
+				continue;
+			}
+			if ( ! empty( $rule['end_date'] ) && $rule['end_date'] < $now ) {
+				continue;
+			}
 
-			$buy_product_id = $rule['buy_product']; // may be 'all'
+			$buy_product_id = $rule['buy_product']; // int or "all"
 			$get_product_id = intval( $rule['get_product'] );
 			$buy_qty        = intval( $rule['buy_qty'] );
 			$get_qty        = intval( $rule['get_qty'] ) ?: 1;
 			$discount       = intval( $rule['discount'] );
 
-			// Count eligible BUY items (excluding gift lines)
-			$buy_count = 0;
-			foreach ( $cart->get_cart() as $cart_item ) {
-				if ( ! empty( $cart_item['wc_advanced_bogo_gift'] ) ) {
+			$buy_count  = 0;
+			$gift_key   = null;
+			$gift_items = [];
+
+			foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
+				// Identify gifts for this rule
+				if ( isset( $cart_item['wc_advanced_bogo_gift'] ) && intval( $cart_item['wc_advanced_bogo_gift'] ) === $index ) {
+					$gift_items[ $cart_item_key ] = $cart_item;
 					continue;
 				}
 
-				if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
+				// Count buy items
+				$cart_product_id   = $cart_item['product_id'];
+				$cart_variation_id = $cart_item['variation_id'];
+
+				$matches_buy = (
+					$buy_product_id === 'all'
+					|| intval( $buy_product_id ) === $cart_product_id
+					|| intval( $buy_product_id ) === $cart_variation_id
+				);
+
+				if ( $matches_buy ) {
 					$buy_count += $cart_item['quantity'];
 				}
 			}
 
-			if ( $buy_count < $buy_qty ) {
-				continue;
-			}
+			// ✅ If buy condition is met
+			if ( $buy_count >= $buy_qty ) {
+				if ( empty( $gift_items ) ) {
+					// Add gift
+					$variation_id = 0;
+					$variation    = [];
 
-			// Define unique gift hash key to allow multiple gift lines for same get_product
-			$gift_key = 'wc_advanced_bogo_gift_' . $index;
-
-			// Check if gift already exists for this rule
-			$gift_found = false;
-
-			foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
-				if (
-					isset( $cart_item[ $gift_key ] ) &&
-					$cart_item['product_id'] == $get_product_id
-				) {
-					// Update quantity if not same
-					if ( $cart_item['quantity'] != $get_qty ) {
-						$cart->set_quantity( $cart_item_key, $get_qty );
+					$get_product = wc_get_product( $get_product_id );
+					if ( $get_product && $get_product->is_type( 'variation' ) ) {
+						$variation_id   = $get_product_id;
+						$get_product_id = $get_product->get_parent_id();
+						$variation      = $get_product->get_variation_attributes();
 					}
 
-					// Apply discount safely with maximum 100% cap
-					$product = wc_get_product( $get_product_id );
-					if ( $product && is_object( $cart_item['data'] ) ) {
-						$price = $product->get_price();
-						
-						// CRITICAL SECURITY FIX: Cap discount at 100% to prevent negative prices
-						$safe_discount = min( 100, max( 0, intval( $discount ) ) );
-						$new_price = $price * ( 100 - $safe_discount ) / 100;
-						
-						// Additional safety: ensure price never goes below 0
-						$new_price = max( 0, $new_price );
-						
-						$cart_item['data']->set_price( $new_price );
-						
-						// Log for debugging if discount was capped
-						if ( $discount > 100 ) {
-							error_log( "BOGO Security: Discount capped from {$discount}% to 100% for product ID {$get_product_id}" );
+					$cart->add_to_cart(
+						$get_product_id,
+						$get_qty,
+						$variation_id,
+						$variation,
+						[ 'wc_advanced_bogo_gift' => $index ]
+					);
+				} else {
+					// Update existing gifts (qty + price)
+					foreach ( $gift_items as $cart_item_key => $cart_item ) {
+						if ( $cart_item['quantity'] != $get_qty ) {
+							$cart->set_quantity( $cart_item_key, $get_qty );
+						}
+
+						$product = wc_get_product( $cart_item['variation_id'] ?: $cart_item['product_id'] );
+						if ( $product && is_object( $cart_item['data'] ) ) {
+							$price         = $product->get_price();
+							$safe_discount = min( 100, max( 0, $discount ) );
+							$new_price     = max( 0, $price * ( 100 - $safe_discount ) / 100 );
+							$cart_item['data']->set_price( $new_price );
 						}
 					}
-
-					$gift_found = true;
-					break;
 				}
 			}
-
-			if ( ! $gift_found ) {
-				// Add the gift product with a unique key for this rule
-				$cart->add_to_cart(
-					$get_product_id,
-					$get_qty,
-					0,
-					[],
-					[
-						'wc_advanced_bogo_gift' => true,
-						$gift_key => true
-					]
-				);
+			// ❌ If buy condition is NOT met
+			else {
+				if ( ! empty( $gift_items ) ) {
+					// Remove all gifts for this rule
+					foreach ( $gift_items as $cart_item_key => $cart_item ) {
+						$cart->remove_cart_item( $cart_item_key );
+					}
+				}
 			}
 		}
-
-
-	    
 	}
+
+
 
 
 	public function maybe_remove_remove_link( $link, $cart_item_key ) {
 		$cart = WC()->cart;
 		$cart_item = $cart->get_cart_item( $cart_item_key );
 
-		if ( isset( $cart_item['wc_advanced_bogo_gift'] ) && $cart_item['wc_advanced_bogo_gift'] === true ) {
+		if ( isset( $cart_item['wc_advanced_bogo_gift'] ) ) {
 			return ''; // Hide the remove link
 		}
 
 		return $link;
+	}
+
+	public function wc_advanced_bogo_lock_gift_qty( $product_quantity, $cart_item_key, $cart_item ) {
+		if ( isset( $cart_item['wc_advanced_bogo_gift'] ) ) {
+			return '<span class="bogo-gift-qty">' . esc_html( $cart_item['quantity'] ) . '</span>';
+		}
+		return $product_quantity;
 	}
 
 	public function handle_grab_bogo_offer() {
@@ -1535,18 +1522,19 @@ class WC_Advanced_BOGO {
 
 		try {
 			// Add the required quantity of buy product to cart
-			if ( $buy_product === 'all' ) {
-				// For 'all' products, we need to get the current product ID
-				$current_product_id = get_queried_object_id();
-				if ( ! $current_product_id ) {
-					wp_send_json_error( array( 'message' => 'Product not found. Please refresh the page and try again.' ) );
-				}
-				$product_id = $current_product_id;
-			} else {
-				$product_id = intval( $buy_product );
-			}
+			$product_id = intval( $buy_product );
 
 			$product = wc_get_product( $product_id );
+			if( $product->is_type('variable') ){
+				$children   = $product->get_children();
+				if( empty( $children ) ){
+					wp_send_json_error( array( 'message' => 'Product not found. Please try again.' ) );
+				}
+				
+				$product_id = $children[ array_rand( $children ) ];
+				$product = wc_get_product( $product_id );
+				
+			}
 			if ( ! $product ) {
 				wp_send_json_error( array( 'message' => 'Product not found. Please try again.' ) );
 			}
@@ -1610,22 +1598,22 @@ class WC_Advanced_BOGO {
 			$discount = intval( $rule['discount'] );
 
 			// Check if this cart item matches the buy product
-			if ( $buy_product_id === 'all' || $cart_item['product_id'] == $buy_product_id ) {
-				// Count current BUY items in cart
-				$buy_count = 0;
-				foreach ( WC()->cart->get_cart() as $item ) {
-					if ( ! empty( $item['wc_advanced_bogo_gift'] ) ) {
-						continue;
-					}
+			$cart_product_id   = $cart_item['product_id'];
+            $cart_variation_id = $cart_item['variation_id'];
 
-					if ( $buy_product_id === 'all' || $item['product_id'] == $buy_product_id ) {
-						$buy_count += $item['quantity'];
-					}
-				}
+            $matches_buy = (
+                $buy_product_id === 'all'
+                || intval( $buy_product_id ) === $cart_product_id
+                || intval( $buy_product_id ) === $cart_variation_id
+            );
+			if ( $matches_buy ) {
+				// Count current BUY items in cart
+				if( isset( $cart_item['wc_advanced_bogo_gift'] ) ) continue;
+				
 
 				// Check if customer is close to qualifying
-				if ( $buy_count > 0 && $buy_count < $buy_qty ) {
-					$remaining_qty = $buy_qty - $buy_count;
+				if ( $cart_item['quantity'] > 0 && $cart_item['quantity'] < $buy_qty ) {
+					$remaining_qty = $buy_qty - $cart_item['quantity'];
 					$get_product = wc_get_product( $get_product_id );
 					
 					if ( $get_product ) {
